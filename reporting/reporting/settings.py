@@ -135,3 +135,16 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# LPP settings
+
+# custom settings?
+try:
+    import settings_lpp
+    print("Using settings from 'settings_lpp.py'")
+except ImportError:
+    LPP_SCRIPT = "/usr/local/bin/LPP/pass-rates"
+    print("Using default LPP settings")
+    print("Create 'settings_lpp.py' for custom settings, e.g.:\n"
+        + "LPP_SCRIPT = \"/usr/local/bin/LPP/pass-rates\"\n")
+
