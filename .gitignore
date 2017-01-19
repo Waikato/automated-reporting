@@ -21,3 +21,7 @@ nytprof.out
 *.csv
 *~
 *.swp
+settings_db.py
+*.sqlite3
+*.pyc
+
