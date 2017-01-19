@@ -1,0 +1,17 @@
+{% extends "base_navbar.html" %}
+
+{% block main %}
+
+<p>Please choose one of the following applications:</p>
+
+{% if applist %}
+    <ul>
+    {% for app in applist %}
+        <li><a href="/{{ app }}/">{{ app }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No apps available.</p>
+{% endif %}
+
+{% endblock %}
