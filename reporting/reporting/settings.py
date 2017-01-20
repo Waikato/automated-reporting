@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_tables2',
 ]
 
 MIDDLEWARE = [
@@ -79,6 +80,7 @@ WSGI_APPLICATION = 'reporting.wsgi.application'
 # custom database settings?
 try:
     import settings_db
+    DATABASES = settings_db.DATABASES
     print("Using database settings from 'settings_db.py'")
 except ImportError:
     DATABASES = {
@@ -87,18 +89,20 @@ except ImportError:
             'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         }
     }
-    print("Using default database settings")
-    print("Create 'settings_db.py' for custom settings, e.g.:\n"
-        + "DATABASES = {\n"
-        + "    'default': {\n"
-        + "        'ENGINE': 'django.db.backends.postgresql',\n"
-        + "        'NAME': 'db_name',                      \n"
-        + "        'USER': 'db_user',\n"
-        + "        'PASSWORD': 'db_user_password',\n"
-        + "        'HOST': '',\n"
-        + "        'PORT': 'db_port_number',\n"
-        + "    }\n"
-        + "}\n")
+    print("""
+        Using default database settings
+        Create 'settings_db.py' for custom settings, e.g.:
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': 'db_name',
+                'USER': 'db_user',
+                'PASSWORD': 'db_user_password',
+                'HOST': '',
+                'PORT': 'db_port_number',
+            }
+        }
+        """)
 
 
 # Password validation
@@ -147,10 +151,16 @@ STATICFILES_DIRS = [
 # custom settings?
 try:
     import settings_lpp
+    PERL = settings_lpp.PERL
+    LPP_SCRIPT = settings_lpp.LPP_SCRIPT
     print("Using settings from 'settings_lpp.py'")
 except ImportError:
+    PERL = "/usr/bin/perl"
     LPP_SCRIPT = "/usr/local/bin/LPP/pass-rates"
-    print("Using default LPP settings")
-    print("Create 'settings_lpp.py' for custom settings, e.g.:\n"
-        + "LPP_SCRIPT = \"/usr/local/bin/LPP/pass-rates\"\n")
+    print("""
+        Using default LPP settings
+        Create 'settings_lpp.py' for custom settings, e.g.:"
+        PERL = "/usr/bin/perl"
+        LPP_SCRIPT = "/usr/local/bin/LPP/pass-rates"
+        """)
 

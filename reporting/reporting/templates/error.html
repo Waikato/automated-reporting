@@ -1,0 +1,14 @@
+{% extends "base_navbar.html" %}
+
+{% block main %}
+
+<h3>{{ title }}</h3>
+<p>An error occurred:</p>
+
+{% if error %}
+    <p>{{ error }}</p>
+{% else %}
+    <p>No error messag available.</p>
+{% endif %}
+
+{% endblock %}

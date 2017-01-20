@@ -1,9 +1,62 @@
 {% extends "base_navbar.html" %}
 
+{% block head %}
+    <link rel="stylesheet" href="/static/css/lpp.css" type="text/css"/>
+{% endblock %}
+
 {% block main %}
 
 <h3>{{ title }}</h3>
 
-<p>TODO parameters: year, master/occurrence, html/csv</p>
+<form action="/lpp/output" method="POST">
+{% csrf_token %}
+<table class="lpp_params">
+    <tr>
+        <td>Year</td>
+        <td>
+            <select name="year">
+            {% if years %}
+                {% for year in years %}
+                <option value="{{ year }}">{{ year }}</option>
+                {% endfor %}
+            {% else %}
+              <option value="9999">Not available</option>
+            {% endif %}
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>Type</td>
+        <td>
+            <select name="type">
+              <option value="master">Master</option>
+              <option value="occurrence">Occurrence</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>Output</td>
+        <td>
+            <select name="output">
+              <option value="html">HTML</option>
+              <option value="csv">CSV</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>Warnings<br/>(only with 'HTML' output)</td>
+        <td>
+            <select name="warnings">
+              <option value="no">no</option>
+              <option value="yes">yes</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td><input type="submit" value="Generate"/></td>
+        <td></td>
+    </tr>
+</table>
+</form>
 
 {% endblock %}
