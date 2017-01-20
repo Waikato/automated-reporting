@@ -26,29 +26,25 @@
         </td>
     </tr>
     <tr>
+        <td>Faculty/School</td>
+        <td>
+            <select name="school" size="10" multiple>
+            {% if schools %}
+                {% for school in schools %}
+                <option value="{{ school }}">{{ school }}</option>
+                {% endfor %}
+            {% else %}
+              <option value="9999">Not available</option>
+            {% endif %}
+            </select>
+        </td>
+    </tr>
+    <tr>
         <td>Type</td>
         <td>
             <select name="type">
               <option value="master">Master</option>
               <option value="occurrence">Occurrence</option>
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>Output</td>
-        <td>
-            <select name="output">
-              <option value="html">HTML</option>
-              <option value="csv">CSV</option>
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>Warnings<br/>(only with 'HTML' output)</td>
-        <td>
-            <select name="warnings">
-              <option value="no">no</option>
-              <option value="yes">yes</option>
             </select>
         </td>
     </tr>

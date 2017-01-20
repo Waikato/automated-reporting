@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'django_tables2',
 ]
 
-MIDDLEWARE = [
+MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -79,8 +79,8 @@ WSGI_APPLICATION = 'reporting.wsgi.application'
 
 # custom database settings?
 try:
-    import settings_db
-    DATABASES = settings_db.DATABASES
+    import reporting.settings_db
+    DATABASES = reporting.settings_db.DATABASES
     print("Using database settings from 'settings_db.py'")
 except ImportError:
     DATABASES = {
@@ -94,7 +94,7 @@ except ImportError:
         Create 'settings_db.py' for custom settings, e.g.:
         DATABASES = {
             'default': {
-                'ENGINE': 'django.db.backends.postgresql',
+                'ENGINE': 'django.db.backends.postgresql_psycopg2',
                 'NAME': 'db_name',
                 'USER': 'db_user',
                 'PASSWORD': 'db_user_password',
@@ -150,9 +150,9 @@ STATICFILES_DIRS = [
 
 # custom settings?
 try:
-    import settings_lpp
-    PERL = settings_lpp.PERL
-    LPP_SCRIPT = settings_lpp.LPP_SCRIPT
+    import reporting.settings_lpp
+    PERL = reporting.settings_lpp.PERL
+    LPP_SCRIPT = reporting.settings_lpp.LPP_SCRIPT
     print("Using settings from 'settings_lpp.py'")
 except ImportError:
     PERL = "/usr/bin/perl"
