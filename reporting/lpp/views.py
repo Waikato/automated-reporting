@@ -1,5 +1,4 @@
 from django.template import loader
-import reporting.applist as applist
 import reporting.settings
 from reporting.error import create_error_response
 from django.db import connection
@@ -8,8 +7,6 @@ import tempfile
 import csv
 import os
 import subprocess
-
-apps = applist.get_apps()
 
 TITLE = "Low Performing Pass-rates"
 
@@ -40,7 +37,6 @@ def index(request):
     template = loader.get_template('lpp/index.html')
     context = {
         'title': TITLE,
-        'applist': apps,
         'years': years,
         'schools': schools,
     }
