@@ -1,5 +1,6 @@
 from django.template import loader
 import reporting.settings
+import reporting.applist as applist
 from reporting.error import create_error_response
 from django.db import connection
 from django.http import HttpResponse
@@ -35,11 +36,9 @@ def index(request):
 
     # configure template
     template = loader.get_template('lpp/index.html')
-    context = {
-        'title': TITLE,
-        'years': years,
-        'schools': schools,
-    }
+    context = applist.template_context('lpp')
+    context['years'] = years
+    context['schools'] = schools
     return HttpResponse(template.render(context, request))
 
 def output(request):

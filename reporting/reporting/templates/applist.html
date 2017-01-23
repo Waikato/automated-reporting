@@ -5,10 +5,10 @@
 <h3>Automated Reporting</h3>
 <p>Please choose from one of the following applications:</p>
 
-{% if applist %}
+{% if apps %}
     <ul>
-    {% for app in applist %}
-        <li><a href="/{{ app }}/">{{ app }}</a></li>
+    {% for a in apps %}
+        <li><a href="/{{ a }}/">{{ apps_long|get_item:a }}</a></li>
     {% endfor %}
     </ul>
 {% else %}

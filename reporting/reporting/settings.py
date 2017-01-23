@@ -41,6 +41,18 @@ INSTALLED_APPS = [
     'django_tables2',
 ]
 
+APPS_LIST = [
+    'lpp',
+]
+
+APPS_SHORT = {
+    'lpp': 'LPP',
+}
+
+APPS_LONG = {
+    'lpp': 'Low performing pass-rates',
+}
+
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
