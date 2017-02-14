@@ -12,6 +12,8 @@ def index(request):
 @register.filter
 def get_item(dictionary, key):
     """
+    Filter method for retrieving the value of a dictionary.
+
     Taken from here:
     http://stackoverflow.com/a/8000091
 

@@ -1,0 +1,41 @@
+{% extends "base_navbar.html" %}
+
+{% block head %}
+    <link rel="stylesheet" href="/static/css/leave.css" type="text/css"/>
+{% endblock %}
+
+{% block main %}
+
+<h3>{{ title }}</h3>
+
+<form action="/leave/upload" method="POST">
+{% csrf_token %}
+<table class="leave_params">
+    <tr>
+        <td>Download the CSV file from iWaikato</td>
+        <td>
+            <ul>
+                <li>open Internet Explorer</li>
+                <li>log into <a href="https://i.waikato.ac.nz/" target="_blank">iWaikato</a></li>
+                <li>from <em>Common Tasks</em> select <em>Analyse Reports</em></li>
+                <li>from <em>Key links</em> on the right hand side, select <em>Payroll Reports</em></li>
+                <li>select the <em>leave charge</em> query</li>
+                <li>change to <em>Results</em> view, which shows the full spreadsheet</li>
+                <li>export the spreadsheet as CSV</li>
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <td>Select exported CSV file</td>
+        <td>
+            <input type="file" name="datafile"/>
+        </td>
+    </tr>
+    <tr>
+        <td><input type="submit" value="Upload"/></td>
+        <td></td>
+    </tr>
+</table>
+</form>
+
+{% endblock %}

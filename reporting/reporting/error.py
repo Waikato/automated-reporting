@@ -4,13 +4,13 @@ from django.http import HttpResponse, HttpRequest
 
 apps = applist.get_apps()
 
-def create_error_response(request, title, error):
+def create_error_response(request, app, error):
     """
     Generates an HttpResponse object with the specified title/error.
     :param request: the HttpRequest that triggered this error
     :type request: HttpRequest
-    :param title: the title, eg app name (' - Error' gets appended)
-    :type title: str
+    :param app: the app name (' - Error' gets appended)
+    :type app: str
     :param error: the error message
     :type error: str
     :return: the HttpResponse object
@@ -19,7 +19,7 @@ def create_error_response(request, title, error):
 
     template = loader.get_template('error.html')
     context = {
-        'title': title + ' - Error',
+        'title': applist.get_appname_long(app) + ' - Error',
         'applist': apps,
         'error': error,
     }

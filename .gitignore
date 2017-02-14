@@ -25,4 +25,5 @@ settings_db.py
 settings_lpp.py
 *.sqlite3
 *.pyc
+.idea/
 

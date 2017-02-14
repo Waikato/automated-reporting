@@ -31,7 +31,9 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'leave',
     'lpp',
+    'supervisors',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,15 +44,21 @@ INSTALLED_APPS = [
 ]
 
 APPS_LIST = [
+    'leave',
     'lpp',
+    'supervisors',
 ]
 
 APPS_SHORT = {
+    'leave': 'Leave',
     'lpp': 'LPP',
+    'supervisors': 'Supervisors',
 }
 
 APPS_LONG = {
+    'leave': 'Annual Leave',
     'lpp': 'Low performing pass-rates',
+    'supervisors': 'Live Supervisor Register',
 }
 
 MIDDLEWARE_CLASSES = [

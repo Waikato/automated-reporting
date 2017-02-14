@@ -9,8 +9,6 @@ import csv
 import os
 import subprocess
 
-TITLE = "Low Performing Pass-rates"
-
 def index(request):
     # get all years
     cursor = connection.cursor()
@@ -44,18 +42,18 @@ def index(request):
 def output(request):
     # get parameters
     if "year" not in request.POST:
-        return create_error_response(request, TITLE, 'No year defined!')
+        return create_error_response(request, 'lpp', 'No year defined!')
     year = request.POST["year"]
 
     if "school" not in request.POST:
-        return create_error_response(request, TITLE, 'No school defined!')
+        return create_error_response(request, 'lpp', 'No school defined!')
     school = request.POST.getlist("school")
 
     if "type" not in request.POST:
-        return create_error_response(request, TITLE, 'No paper type defined!')
+        return create_error_response(request, 'lpp', 'No paper type defined!')
     type = request.POST["type"]
     if type not in ["master", "occurrence"]:
-        return create_error_response(request, TITLE, 'Unsupported type: {0}'.format(type))
+        return create_error_response(request, 'lpp', 'Unsupported type: {0}'.format(type))
 
     # load data from DB
     if len(school) == 0:
@@ -101,7 +99,7 @@ def output(request):
         stdout=stdoutfile,
     )
     if retval != 0:
-        return create_error_response(request, TITLE, 'Failed to execute lpp: {0}'.format(retval))
+        return create_error_response(request, 'lpp', 'Failed to execute lpp: {0}'.format(retval))
 
     # generate output
     response = HttpResponse(content_type='text/csv')
