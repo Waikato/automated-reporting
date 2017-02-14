@@ -6,7 +6,7 @@ class StudentDates(models.Model):
     """
     Start/end dates for students.
     """
-    student_id = models.CharField(max_length=20)
-    program = models.CharField(max_length=4)
-    start_date = models.DateField()
-    end_date = models.DateField()
+    student_id = models.CharField(max_length=20, db_index=True)
+    program = models.CharField(max_length=4, db_index=True)
+    start_date = models.DateField(db_index=True)
+    end_date = models.DateField(db_index=True)
