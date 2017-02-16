@@ -91,6 +91,11 @@ TEMPLATES = [
     },
 ]
 
+# only use TemporaryFileUploadHandler for file uploads
+FILE_UPLOAD_HANDLERS = (
+    'django.core.files.uploadhandler.TemporaryFileUploadHandler',
+)
+
 WSGI_APPLICATION = 'reporting.wsgi.application'
 
 

@@ -1,58 +1,65 @@
 {% extends "base_navbar.html" %}
 
 {% block head %}
-    <link rel="stylesheet" href="/static/css/lpp.css" type="text/css"/>
+<link rel="stylesheet" href="/static/css/lpp.css" type="text/css"/>
 {% endblock %}
 
 {% block main %}
 
 <h3>{{ title }}</h3>
 
-<form action="/lpp/output" method="POST">
-{% csrf_token %}
-<table class="lpp_params">
-    <tr>
-        <td>Year</td>
-        <td>
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Query</h3>
+  </div>
+  <div class="panel-body">
+    <form action="/lpp/output" method="POST">
+      {% csrf_token %}
+      <table class="lpp_params">
+        <tr>
+          <td>Year</td>
+          <td>
             <select name="year">
-            {% if years %}
-                {% for year in years %}
-                <option value="{{ year }}">{{ year }}</option>
-                {% endfor %}
-            {% else %}
+              {% if years %}
+              {% for year in years %}
+              <option value="{{ year }}">{{ year }}</option>
+              {% endfor %}
+              {% else %}
               <option value="9999">Not available</option>
-            {% endif %}
+              {% endif %}
             </select>
-        </td>
-    </tr>
-    <tr>
-        <td>Faculty/School</td>
-        <td>
+          </td>
+        </tr>
+        <tr>
+          <td>Faculty/School</td>
+          <td>
             <select name="school" size="10" multiple>
-            {% if schools %}
-                {% for school in schools %}
-                <option value="{{ school }}">{{ school }}</option>
-                {% endfor %}
-            {% else %}
+              {% if schools %}
+              {% for school in schools %}
+              <option value="{{ school }}">{{ school }}</option>
+              {% endfor %}
+              {% else %}
               <option value="9999">Not available</option>
-            {% endif %}
+              {% endif %}
             </select>
-        </td>
-    </tr>
-    <tr>
-        <td>Type</td>
-        <td>
+          </td>
+        </tr>
+        <tr>
+          <td>Type</td>
+          <td>
             <select name="type">
               <option value="master">Master</option>
               <option value="occurrence">Occurrence</option>
             </select>
-        </td>
-    </tr>
-    <tr>
-        <td><input type="submit" value="Generate"/></td>
-        <td></td>
-    </tr>
-</table>
-</form>
+          </td>
+        </tr>
+        <tr>
+          <td><input type="submit" value="Generate"/></td>
+          <td></td>
+        </tr>
+      </table>
+    </form>
+  </div>
+</div>
 
 {% endblock %}
