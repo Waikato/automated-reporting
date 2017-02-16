@@ -1,3 +1,9 @@
 body {
   padding-top: 50px;
 }
+
+.database_params th, td {
+    padding: 5px;
+    text-align: left;
+    vertical-align: top;
+}
