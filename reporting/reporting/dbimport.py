@@ -39,7 +39,6 @@ def import_supervisors(csv):
     """
     Supervisors.objects.all().delete()
     try:
-        print(csv)
         with open(csv, encoding='ISO-8859-1') as csvfile:
             reader = DictReader(csvfile)
             reader.fieldnames = [name.lower().replace(" ", "_") for name in reader.fieldnames]
