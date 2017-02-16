@@ -25,19 +25,20 @@ def import_supervisors(csv):
         print(csv)
         with open(csv, encoding='ISO-8859-1') as csvfile:
             reader = DictReader(csvfile)
+            reader.fieldnames = [name.lower().replace(" ", "_") for name in reader.fieldnames]
             for row in reader:
                 truncate_strings(row, 250)
                 s = Supervisors()
-                s.student_id = row['Student'][row['Student'].rfind(' ')+1:]
-                s.student = row['Student']
-                s.supervisor = row['Supervisor']
-                s.active_roles = row['Active Roles']
-                s.entity = row['Entity']
-                s.agreement_status = row['Agreement Status']
-                s.date_agreed = row['Date Agreed']
-                s.title = row['Title']
-                s.quals = row['Quals']
-                s.comments = row['Comments']
+                s.student_id = row['student'][row['student'].rfind(' ')+1:]
+                s.student = row['student']
+                s.supervisor = row['supervisor']
+                s.active_roles = row['active_roles']
+                s.entity = row['entity']
+                s.agreement_status = row['agreement_status']
+                s.date_agreed = row['date_agreed']
+                s.title = row['title']
+                s.quals = row['quals']
+                s.comments = row['comments']
                 s.save()
     except Exception as ex:
         return str(ex)
