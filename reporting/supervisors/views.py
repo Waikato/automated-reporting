@@ -12,14 +12,23 @@ def index(request):
 
 def upload(request):
     # configure template
-    print(request.FILES)
     csv = request.FILES['datafile']
-    print(csv.temporary_file_path())
     msg = dbimport.import_supervisors(csv.temporary_file_path())
     template = loader.get_template('supervisors/upload.html')
     context = applist.template_context('supervisors')
     if msg is None:
-        context['message'] = "Sucessful upload!"
+        context['message'] = "Successful upload!"
     else:
         context['message'] = "Failed to upload: " + msg
+    return HttpResponse(template.render(context, request))
+
+def studentdates(request):
+    # configure template
+    msg = dbimport.populate_student_dates()
+    template = loader.get_template('supervisors/studentdates.html')
+    context = applist.template_context('supervisors')
+    if msg is None:
+        context['message'] = "Successful recalculation!"
+    else:
+        context['message'] = "Failed to recalculate: " + msg
     return HttpResponse(template.render(context, request))

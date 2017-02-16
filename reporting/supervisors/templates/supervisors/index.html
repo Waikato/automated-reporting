@@ -38,4 +38,17 @@
   </div>
 </div>
 
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Recalculate</h3>
+  </div>
+  <div class="panel-body">
+    <form action="/supervisors/studentdates" method="POST">
+      {% csrf_token %}
+      <p>After uploading a new supervisor or grade results file, the start/end dates for students need to get recalculated.</p>
+      <input type="submit" value="Recalculate"/>
+    </form>
+  </div>
+</div>
+
 {% endblock %}
