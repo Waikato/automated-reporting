@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'leave',
     'lpp',
+    'reporting',
     'supervisors',
     'django.contrib.admin',
     'django.contrib.auth',
