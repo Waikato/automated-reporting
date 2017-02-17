@@ -8,7 +8,6 @@ from datetime import date
 def index(request):
     template = loader.get_template('applist.html')
     context = applist.template_context()
-    print(context)
     return HttpResponse(template.render(context, request))
 
 def database(request):
@@ -20,7 +19,6 @@ def database(request):
     context = applist.template_context()
     context['title'] = 'Database management'
     context['years'] = years
-    print(context)
     return HttpResponse(template.render(context, request))
 
 def upload_supervisors(request):
@@ -39,7 +37,7 @@ def upload_grade_results(request):
     # configure template
     csv = request.FILES['datafile']
     year = int(request.POST['year'])
-    gzip = bool(request.POST['gzip'])
+    gzip = (request.POST['gzip'] == "on")
     msg = dbimport.import_grade_results(year, csv.temporary_file_path(), gzip)
     template = loader.get_template('message.html')
     context = applist.template_context()
