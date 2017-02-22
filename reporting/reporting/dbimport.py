@@ -6,6 +6,7 @@ import gzip
 import traceback
 import sys
 from datetime import datetime
+from django.db import connection
 
 def parse_grade_results_date(name, value):
     """
@@ -225,7 +226,126 @@ def populate_student_dates():
     """
     # delete old rows
     StudentDates.objects.all().delete()
-    # TODO
+
+    # get all students that are supervised
+    cursor = connection.cursor()
+    cursor.execute("""
+        SELECT DISTINCT(student_id)
+        FROM %s
+        """ % Supervisors._meta.db_table)
+
+    cursor2 = connection.cursor()
+    for row in cursor.fetchall():
+        id = row[0]
+        table = GradeResults._meta.db_table
+        print(id)
+
+        master_months = None
+        master_start = None
+        master_end = None
+        phd_months = None
+        phd_start = None
+        phd_end = None
+        try:
+            # master - months
+            cursor2.execute("""
+                select sum(credits / cast(regexp_replace(paper_occurrence, '([A-Z]+)59([3456789])-(.*)', '\2') as integer) / 30 * 12), count(*)
+                from %s
+                where student_id = '%s'
+                and programme_type_code = 'MD'
+                and paper_occurrence ~ '([A-Z]+)59([3456789])-(.*)'
+                group by student_id
+                """ % (table, id))
+            for row2 in cursor2.fetchall():
+                master_months = row2[0]
+                break
+
+            # master - start date
+            cursor2.execute("""
+                select min(occurrence_startdate)
+                from %s
+                where student_id = '%s'
+                and programme_type_code = 'MD'
+                and paper_occurrence ~ '([A-Z]+)59([3456789])-(.*)'
+                group by student_id
+                """ % (table, id))
+            for row2 in cursor2.fetchall():
+                master_start = row2[0]
+                break
+
+            # master - end date
+            cursor2.execute("""
+                select max(occurrence_enddate)
+                from %s
+                where student_id = '%s'
+                and programme_type_code = 'MD'
+                and paper_occurrence ~ '([A-Z]+)59([3456789])-(.*)'
+                and final_grade is not null
+                group by student_id
+                """ % (table, id))
+            for row2 in cursor2.fetchall():
+                master_end = row2[0]
+                break
+
+            # PhD - months
+            cursor2.execute("""
+                select sum(coalesce(student_credit_points, credits_per_student) / credits) * 12, count(*)
+                from %s
+                where student_id = '%s'
+                and programme_type_code = 'DP'
+                group by student_id
+                """ % (table, id))
+            for row2 in cursor2.fetchall():
+                phd_months = row2[0]
+                break
+
+            # PhD - start date
+            cursor2.execute("""
+                select min(occurrence_startdate)
+                from %s
+                where student_id = '%s'
+                and programme_type_code = 'DP'
+                group by student_id
+                """ % (table, id))
+            for row2 in cursor2.fetchall():
+                phd_start = row2[0]
+                break
+
+            # PhD - end date
+            cursor2.execute("""
+                select occurrence_enddate
+                from %s
+                where student_id = '%s'
+                and programme_type_code = 'DP'
+                and not final_grade = '...'
+                """ % (table, id))
+            for row2 in cursor2.fetchall():
+                phd_end = row2[0]
+                break
+
+            # save
+            if phd_start is not None:
+                r = StudentDates()
+                r.student_id = id
+                r.program = "DP"
+                r.start_date = phd_start
+                r.end_date = phd_end if phd_end is not None else '9999-12-31'
+                r.months = phd_months
+                r.save()
+            if master_start is not None:
+                r = StudentDates()
+                r.student_id = id
+                r.program = "MD"
+                r.start_date = master_start
+                r.end_date = master_end if master_end is not None else '9999-12-31'
+                r.months = master_months
+                r.save()
+
+        except Exception as ex:
+            print("PhD: id=%s, start=%s, end=%s, months=%s" % (id, phd_start, phd_end, phd_months))
+            print("Master: id=%s, start=%s, end=%s, months=%s" % (id, master_start, master_end, master_months))
+            traceback.print_exc(file=sys.stdout)
+
     return None
 
 def import_supervisors(csv):
