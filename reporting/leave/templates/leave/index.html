@@ -32,10 +32,38 @@
   <div class="panel-body">
     <form action="/leave/upload" enctype="multipart/form-data" method="POST">
       {% csrf_token %}
-      <p>Select exported CSV file</p>
-      <input type="file" name="datafile"/>
-      <br/>
-      <input type="submit" value="Upload"/>
+      <table class="database_params">
+        <tr>
+          <td>Faculty/School</td>
+          <td>
+            <select name="school" size="10" multiple>
+              {% if schools %}
+              {% for school in schools %}
+              <option value="{{ school }}">{{ school }}</option>
+              {% endfor %}
+              {% else %}
+              <option value="9999">Not available</option>
+              {% endif %}
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Minimum days of leave</td>
+          <td>
+            <input type="text" name="minimum" value="{{ minimum }}"/>
+          </td>
+        </tr>
+        <tr>
+          <td>CSV file</td>
+          <td>
+            <input type="file" name="datafile"/>
+          </td>
+        </tr>
+        <tr>
+          <td><input type="submit" value="Upload"/></td>
+          <td></td>
+        </tr>
+      </table>
     </form>
   </div>
 </div>
