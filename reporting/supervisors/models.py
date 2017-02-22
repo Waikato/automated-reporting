@@ -7,11 +7,10 @@ class StudentDates(models.Model):
     Start/end dates for students.
     """
     student_id = models.CharField(max_length=20, db_index=True)
-    program = models.CharField(max_length=4, db_index=True)
+    program = models.CharField(max_length=4, db_index=True)  # PD/MD
     start_date = models.DateField(db_index=True)
     end_date = models.DateField(db_index=True)
     months = models.FloatField(null=True)
-    programme_code_type = models.CharField(max_length=10, db_index=True, null=True)  # MD=master, PD=PhD
 
 class Supervisors(models.Model):
     """
