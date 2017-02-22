@@ -21,8 +21,9 @@ from . import views
 urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^database$', views.database, name='database'),
-    url(r'^upload/graderesults$', views.upload_grade_results, name='upload_grade_results'),
-    url(r'^upload/supervisors$', views.upload_supervisors, name='upload_supervisors'),
+    url(r'^database/graderesults$', views.upload_grade_results, name='upload_grade_results'),
+    url(r'^database/supervisors$', views.upload_supervisors, name='upload_supervisors'),
+    url(r'^database/studentdates', views.populate_studentdates, name='populate_studentdates'),
     url(r'^leave/', include('leave.urls')),
     url(r'^lpp/', include('lpp.urls')),
     url(r'^supervisors/', include('supervisors.urls')),

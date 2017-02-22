@@ -47,7 +47,7 @@ def upload_grade_results(request):
         context['message'] = "Failed to upload grade results: " + msg
     return HttpResponse(template.render(context, request))
 
-def studentdates(request):
+def populate_studentdates(request):
     # configure template
     msg = dbimport.populate_student_dates()
     template = loader.get_template('message.html')
