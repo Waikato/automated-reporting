@@ -5,7 +5,6 @@ from django.db import connection
 import reporting.applist as applist
 from reporting.error import create_error_response
 from csv import DictReader
-import django_tables2 as tables
 import traceback
 import sys
 
