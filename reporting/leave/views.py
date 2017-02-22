@@ -11,6 +11,17 @@ import sys
 
 MINIMUM_DAYS = 25
 
+def actual_balance_key(a):
+    """
+    Custom key function for sorting the results list generated in the 'upload' view.
+
+    :param a: the row
+    :type a: dict
+    :return: the actual balance
+    :rtype: float
+    """
+    return float(a['actual_balance'])
+
 def index(request):
 
     # get all schools
@@ -42,10 +53,16 @@ def upload(request):
 
     csv = request.FILES['datafile']
 
-    order  = ['school', 'employee', 'manager', 'actual_balance', 'leave_accrued', 'future_levae_bookings', 'current_balance', 'current_allocated_balance']
+    order = ['school', 'employee', 'manager', 'actual_balance', 'leave_accrued', 'future_leave_bookings', 'current_balance', 'current_allocated_balance']
     header = {}
-    for k in order:
-        header[k] = k  # use nice headers
+    header['school'] = 'Faculty/School'
+    header['employee'] = 'Employee'
+    header['manager'] = 'Manager'
+    header['actual_balance'] = 'Actual balance'
+    header['leave_accrued'] = 'Leave accrued'
+    header['future_leave_bookings'] = 'Future bookings'
+    header['current_balance'] = 'Current balance'
+    header['current_allocated_balance'] = 'Current allocated balance'
     result = []
     try:
         with open(csv.temporary_file_path(), encoding='ISO-8859-1') as csvfile:
@@ -72,6 +89,9 @@ def upload(request):
     except Exception as ex:
         traceback.print_exc(file=sys.stdout)
         return create_error_response(request, 'leave', 'Failed to read uploaded CSV file: ' + str(ex))
+
+    # sort
+    result.sort(key=actual_balance_key, reverse=True)
 
     # configure template
     template = loader.get_template('leave/output.html')
