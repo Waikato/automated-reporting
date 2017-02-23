@@ -8,9 +8,10 @@
 
 <h3>{{ title }}</h3>
 
+{% for school in schools %}
 <div class="panel panel-default">
   <div class="panel-heading">
-    <h3 class="panel-title">List</h3>
+    <h3 class="panel-title">{{ school }}</h3>
   </div>
   <div class="panel-body">
     <div class="table-responsive">
@@ -19,12 +20,12 @@
           <th>Header</th>
         </tr>
         <tr>
-          <td>Row</td>
+          <td>{{ results|get_item:school }}</td>
         </tr>
       </table>
     </div>
   </div>
 </div>
-
+{% endfor %}
 
 {% endblock %}
