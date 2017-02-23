@@ -243,9 +243,11 @@ def populate_student_dates():
         master_months = None
         master_start = None
         master_end = None
+        master_school = ''
         phd_months = None
         phd_start = None
         phd_end = None
+        phd_school = ''
         try:
             # master - months
             sql = "select sum(credits / cast(regexp_replace(paper_occurrence, '([A-Z]+)59([3456789])-(.*)', '\\2') as integer) / 30 * 12), count(*) " \
@@ -260,15 +262,16 @@ def populate_student_dates():
                 break
 
             # master - start date
-            sql = "select min(occurrence_startdate) " \
+            sql = "select min(occurrence_startdate), owning_school_clevel " \
                 + "from " + table + " " \
                 + "where student_id = '" + id + "' " \
                 + "and programme_type_code = 'MD' " \
                 + "and paper_occurrence ~ '([A-Z]+)59([3456789])-(.*)' " \
-                + "group by student_id"
+                + "group by student_id, owning_school_clevel"
             cursor2.execute(sql)
             for row2 in cursor2.fetchall():
                 master_start = row2[0]
+                master_school = row2[1]
                 break
 
             # master - end date
@@ -296,14 +299,15 @@ def populate_student_dates():
                 break
 
             # PhD - start date
-            sql = "select min(occurrence_startdate) " \
+            sql = "select min(occurrence_startdate), owning_school_clevel " \
                 + "from " + table + " " \
                 + "where student_id = '" + id + "' " \
                 + "and programme_type_code = 'DP' " \
-                + "group by student_id"
+                + "group by student_id, owning_school_clevel"
             cursor2.execute(sql)
             for row2 in cursor2.fetchall():
                 phd_start = row2[0]
+                phd_school = row2[1]
                 break
 
             # PhD - end date
@@ -325,6 +329,7 @@ def populate_student_dates():
                 r.start_date = phd_start
                 r.end_date = phd_end if phd_end is not None else '9999-12-31'
                 r.months = phd_months
+                r.school = phd_school
                 r.save()
             if master_start is not None:
                 r = StudentDates()
@@ -333,6 +338,7 @@ def populate_student_dates():
                 r.start_date = master_start
                 r.end_date = master_end if master_end is not None else '9999-12-31'
                 r.months = master_months
+                r.school = master_school
                 r.save()
 
         except Exception as ex:
