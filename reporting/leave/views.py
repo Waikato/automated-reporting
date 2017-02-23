@@ -22,7 +22,6 @@ def actual_balance_key(a):
     return float(a['actual_balance'])
 
 def index(request):
-
     # get all schools
     cursor = connection.cursor()
     cursor.execute("""
