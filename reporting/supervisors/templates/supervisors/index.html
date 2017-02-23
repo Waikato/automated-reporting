@@ -13,7 +13,35 @@
     <h3 class="panel-title">Query</h3>
   </div>
   <div class="panel-body">
-    TODO
+    <form action="/supervisors/list" method="POST">
+      {% csrf_token %}
+      <table class="database_params">
+        <tr>
+          <td>Faculty/School</td>
+          <td>
+            <select name="school" size="10" multiple>
+              {% if schools %}
+              {% for school in schools %}
+              <option value="{{ school }}">{{ school }}</option>
+              {% endfor %}
+              {% else %}
+              <option value="9999">Not available</option>
+              {% endif %}
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Years back</td>
+          <td>
+            <input type="text" name="years_back" value="{{ years_back }}"/>
+          </td>
+        </tr>
+        <tr>
+          <td><input type="submit" value="List"/></td>
+          <td></td>
+        </tr>
+      </table>
+    </form>
   </div>
 </div>
 
