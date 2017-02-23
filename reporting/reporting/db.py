@@ -77,5 +77,5 @@ def float_cell(row, names, defvalue=None):
     for name in names:
         if name in row:
             if row[name] != '':
-                return float(row[name])
+                return float(row[name].replace(",", ""))
     return result
