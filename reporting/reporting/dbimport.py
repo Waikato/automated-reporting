@@ -203,10 +203,10 @@ def import_grade_results(year, csv, isgzip):
             r.enrolmentorcosuoid = None if (row['enrolmentorcosuoid'] == '') else float(row['enrolmentorcosuoid'])
             r.isformalprogramme = None if (row['isformalprogramme'] == '') else int(row['isformalprogramme'])
             r.citizenship_simple = row['citizenship_simple']
-            r.moe_pbrf_code = row['moe_pbrf_code']
-            r.moe_pbrf = row['moe_pbrf']
-            r.achievement_date = parse_grade_results_date('achievement_date', row['achievement_date'])
-            r.te_reo = None if (row['te_reo'] == '') else int(row['te_reo'])
+            r.moe_pbrf_code = None if 'moe_pbrf_code' not in row else row['moe_pbrf_code']
+            r.moe_pbrf = None if 'moe_pbrf' not in row else row['moe_pbrf']
+            r.achievement_date = None if 'achievement_date' not in row else parse_grade_results_date('achievement_date', row['achievement_date'])
+            r.te_reo = None if ('re_reo' not in row or row['te_reo'] == '') else int(row['te_reo'])
             r.save()
 
         # close file
