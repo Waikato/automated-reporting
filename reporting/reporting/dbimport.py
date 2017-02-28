@@ -238,16 +238,17 @@ def populate_student_dates():
     for row in cursor.fetchall():
         id = str(row[0]).strip()
         table = GradeResults._meta.db_table
-        print(id)
 
         master_months = None
         master_start = None
         master_end = None
         master_school = ''
+        master_dept = ''
         phd_months = None
         phd_start = None
         phd_end = None
         phd_school = ''
+        phd_dept = ''
         try:
             # master - months
             sql = "select sum(credits / cast(regexp_replace(paper_occurrence, '([A-Z]+)59([3456789])-(.*)', '\\2') as integer) / 30 * 12), count(*) " \
@@ -262,16 +263,17 @@ def populate_student_dates():
                 break
 
             # master - start date
-            sql = "select min(occurrence_startdate), owning_school_clevel " \
+            sql = "select min(occurrence_startdate), owning_school_clevel, owning_department_clevel " \
                 + "from " + table + " " \
                 + "where student_id = '" + id + "' " \
                 + "and programme_type_code = 'MD' " \
                 + "and paper_occurrence ~ '([A-Z]+)59([3456789])-(.*)' " \
-                + "group by student_id, owning_school_clevel"
+                + "group by student_id, owning_school_clevel, owning_department_clevel"
             cursor2.execute(sql)
             for row2 in cursor2.fetchall():
                 master_start = row2[0]
                 master_school = row2[1]
+                master_dept = row2[2]
                 break
 
             # master - end date
@@ -299,15 +301,16 @@ def populate_student_dates():
                 break
 
             # PhD - start date
-            sql = "select min(occurrence_startdate), owning_school_clevel " \
+            sql = "select min(occurrence_startdate), owning_school_clevel, owning_department_clevel " \
                 + "from " + table + " " \
                 + "where student_id = '" + id + "' " \
                 + "and programme_type_code = 'DP' " \
-                + "group by student_id, owning_school_clevel"
+                + "group by student_id, owning_school_clevel, owning_department_clevel"
             cursor2.execute(sql)
             for row2 in cursor2.fetchall():
                 phd_start = row2[0]
                 phd_school = row2[1]
+                phd_dept = row2[2]
                 break
 
             # PhD - end date
@@ -330,6 +333,7 @@ def populate_student_dates():
                 r.end_date = phd_end if phd_end is not None else '9999-12-31'
                 r.months = phd_months
                 r.school = phd_school
+                r.department = phd_dept
                 r.save()
             if master_start is not None:
                 r = StudentDates()
@@ -339,6 +343,7 @@ def populate_student_dates():
                 r.end_date = master_end if master_end is not None else '9999-12-31'
                 r.months = master_months
                 r.school = master_school
+                r.department = master_dept
                 r.save()
 
         except Exception as ex:

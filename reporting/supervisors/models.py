@@ -12,6 +12,7 @@ class StudentDates(models.Model):
     end_date = models.DateField(db_index=True)
     months = models.FloatField(null=True)
     school = models.CharField(max_length=20, db_index=True, default='')
+    department = models.CharField(max_length=20, db_index=True, default='')
 
 class Supervisors(models.Model):
     """
