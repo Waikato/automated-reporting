@@ -59,6 +59,7 @@ def add_student(data, school, department, supervisor, studentid, program):
               - months (float)
               - full_time (True|False)
               - chief_supervisor (True|False|None)
+              - current (True|False)
 
     :param data: the data structure to extend
     :type data: dict
@@ -96,7 +97,7 @@ def add_student(data, school, department, supervisor, studentid, program):
             break
         sdata['name'] = sname
         sdata['start_date'] = s.start_date.strftime("%Y-%m-%d")
-        sdata['end_date'] = s.end_date.strftime("%Y-%m-%d")  # TODO leave empty if current
+        sdata['end_date'] = s.end_date.strftime("%Y-%m-%d")
         sdata['months'] = s.months
         sdata['full_time'] = 'N/A'  # TODO - in studentdates?
         sdata['chief_supervisor'] = 'N/A'  # TODO
