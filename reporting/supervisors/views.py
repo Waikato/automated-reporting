@@ -87,6 +87,7 @@ def add_student(data, school, department, supervisor, studentid, program):
         data[school][department][supervisor][program][studentid] = {}
 
     # load student data
+    today = date.today().strftime("%Y-%m-%d")
     sdata = data[school][department][supervisor][program][studentid]
     for s in StudentDates.objects.all().filter(school=school, department=department, student_id=studentid, program=program):
         sname = None
@@ -95,10 +96,11 @@ def add_student(data, school, department, supervisor, studentid, program):
             break
         sdata['name'] = sname
         sdata['start_date'] = s.start_date.strftime("%Y-%m-%d")
-        sdata['end_date'] = s.end_date.strftime("%Y-%m-%d")
+        sdata['end_date'] = s.end_date.strftime("%Y-%m-%d")  # TODO leave empty if current
         sdata['months'] = s.months
         sdata['full_time'] = 'N/A'  # TODO - in studentdates?
         sdata['chief_supervisor'] = 'N/A'  # TODO
+        sdata['current'] = s.end_date.strftime("%Y-%m-%d") < today
 
 def list_supervisors(request):
     # get parameters
