@@ -8,6 +8,9 @@ import sys
 from datetime import datetime
 from django.db import connection
 
+FULL_TIME_CREDITS = 120
+""" the number of credits in order to be considered full time student """
+
 def parse_grade_results_date(name, value):
     """
     Parses the various date formats of the grade results.
@@ -244,11 +247,13 @@ def populate_student_dates():
         master_end = None
         master_school = ''
         master_dept = ''
+        master_fulltime = None
         phd_months = None
         phd_start = None
         phd_end = None
         phd_school = ''
         phd_dept = ''
+        phd_fulltime = None
         try:
             # master - months
             sql = "select sum(credits / cast(regexp_replace(paper_occurrence, '([A-Z]+)59([3456789])-(.*)', '\\2') as integer) / 30 * 12), count(*) " \
@@ -289,6 +294,16 @@ def populate_student_dates():
                 master_end = row2[0]
                 break
 
+            # master - full time
+            sql = "select avg(credits) = " + str(FULL_TIME_CREDITS) + " " \
+                + "from " + table + " " \
+                + "where student_id = '" + id + "' " \
+                + "and programme_type_code = 'MD'"
+            cursor2.execute(sql)
+            for row2 in cursor2.fetchall():
+                master_fulltime = row2[0]
+                break
+
             # PhD - months
             sql = "select sum(coalesce(student_credit_points, credits_per_student) / credits) * 12, count(*) " \
                 + "from " + table + " " \
@@ -324,6 +339,16 @@ def populate_student_dates():
                 phd_end = row2[0]
                 break
 
+            # PhD - full time
+            sql = "select avg(credits) = " + str(FULL_TIME_CREDITS) + " " \
+                + "from " + table + " " \
+                + "where student_id = '" + id + "' " \
+                + "and programme_type_code = 'DP'"
+            cursor2.execute(sql)
+            for row2 in cursor2.fetchall():
+                phd_fulltime = row2[0]
+                break
+
             # save
             if phd_start is not None:
                 r = StudentDates()
@@ -334,6 +359,7 @@ def populate_student_dates():
                 r.months = phd_months
                 r.school = phd_school
                 r.department = phd_dept
+                r.full_time = phd_fulltime
                 r.save()
             if master_start is not None:
                 r = StudentDates()
@@ -344,6 +370,7 @@ def populate_student_dates():
                 r.months = master_months
                 r.school = master_school
                 r.department = master_dept
+                r.full_time = master_fulltime
                 r.save()
 
         except Exception as ex:

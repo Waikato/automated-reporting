@@ -1,7 +1,7 @@
 from django.template import loader
 from django.http import HttpResponse
 from django.db import connection
-from supervisors.models import StudentDates
+from supervisors.models import StudentDates, Supervisors
 from reporting.models import GradeResults
 
 import reporting.applist as applist
@@ -96,12 +96,21 @@ def add_student(data, school, department, supervisor, studentid, program):
         for g in GradeResults.objects.all().filter(student_id=studentid):
             sname = g.name
             break
+        chief = None
+        for sv in Supervisors.objects.all().filter(student_id=studentid, supervisor=supervisor):
+            chief = "Yes" if "Chief" in sv.active_roles else "No"
+        if s.full_time is None:
+            full_time = 'N/A'
+        elif s.full_time:
+            full_time = 'Yes'
+        else:
+            full_time = 'No'
         sdata['name'] = sname
         sdata['start_date'] = s.start_date.strftime("%Y-%m-%d")
         sdata['end_date'] = s.end_date.strftime("%Y-%m-%d")
         sdata['months'] = s.months
-        sdata['full_time'] = 'N/A'  # TODO - in studentdates?
-        sdata['chief_supervisor'] = 'N/A'  # TODO
+        sdata['full_time'] = full_time
+        sdata['chief_supervisor'] = chief
         sdata['current'] = s.end_date.strftime("%Y-%m-%d") < today
 
 def list_supervisors(request):
