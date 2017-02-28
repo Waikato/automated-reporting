@@ -1,6 +1,8 @@
 from django.template import loader
 from django.http import HttpResponse
 from django.db import connection
+from supervisors.models import StudentDates
+from reporting.models import GradeResults
 
 import reporting.applist as applist
 from reporting.error import create_error_response
@@ -41,6 +43,63 @@ def index(request):
         context['max_years'] = int(max_years)
     return HttpResponse(template.render(context, request))
 
+def add_student(data, school, department, supervisor, studentid, program):
+    """
+    Adds the student to the "data" structure. Overview of the data structure (<name> is
+    a key in a dictionary):
+
+    <faculty>
+      - <department>
+        - <supervisor>
+          - <program> (PD, MD)
+            - <studentid>
+              - name (string)
+              - start_date (date)
+              - end_date (date)
+              - months (float)
+              - full_time (True|False)
+              - chief_supervisor (True|False|None)
+
+    :param data: the data structure to extend
+    :type data: dict
+    :param school: the name of the school/faculty
+    :type school: str
+    :param department: the name of the department
+    :type department: str
+    :param supervisor: the name of the supervisor
+    :type supervisor: str
+    :param studentid: the student id
+    :type studentid: str
+    :param program: the program (PD/MD)
+    :type program: str
+    """
+
+    # ensure data structures are present
+    if school not in data:
+        data[school] = {}
+    if department not in data[school]:
+        data[school][department] = {}
+    if supervisor not in data[school][department]:
+        data[school][department][supervisor] = {}
+    if program not in data[school][department][supervisor]:
+        data[school][department][supervisor][program] = {}
+    if studentid not in data[school][department][supervisor][program]:
+        data[school][department][supervisor][program][studentid] = {}
+
+    # load student data
+    sdata = data[school][department][supervisor][program][studentid]
+    for s in StudentDates.objects.all().filter(school=school, department=department, student_id=studentid, program=program):
+        sname = None
+        for g in GradeResults.objects.all().filter(student_id=studentid):
+            sname = g.name
+            break
+        sdata['name'] = sname
+        sdata['start_date'] = s.start_date.strftime("%Y-%m-%d")
+        sdata['end_date'] = s.end_date.strftime("%Y-%m-%d")
+        sdata['months'] = s.months
+        sdata['full_time'] = 'N/A'  # TODO - in studentdates?
+        sdata['chief_supervisor'] = 'N/A'  # TODO
+
 def list_supervisors(request):
     # get parameters
     if "school" not in request.POST:
@@ -53,29 +112,28 @@ def list_supervisors(request):
     start_year = date.today().year - years_back
 
     sql = """
-        select sd.school, s.supervisor, s.student_id
+        select sd.school, sd.department, s.supervisor, s.student_id, sd.program
         from supervisors_studentdates sd, supervisors_supervisors s
         where sd.student_id = s.student_id
         and sd.school in ('%s')
         and sd.start_date >= '%s-01-01'
-        group by sd.school, s.supervisor, s.student_id
-        order by sd.school, s.supervisor, s.student_id
+        group by sd.school, sd.department, s.supervisor, s.student_id, sd.program
+        order by sd.school, sd.department, s.supervisor, s.student_id, sd.program
         """ % ("','".join(schools), str(start_year))
     cursor = connection.cursor()
     cursor.execute(sql)
     result = {}
-    school_set = set()
     for row in cursor.fetchall():
-        school = row[0]
-        school_set.add(school)
-        if school not in result:
-            result[school] = []
-        result[school].append({'supervisor': row[1], 'student': row[2]})
-    school_list = list(school_set)
-    sorted(school_list)
+        try:
+            add_student(data=result, school=row[0], department=row[1], supervisor=row[2], studentid=row[3], program=row[4])
+        except Exception as ex:
+            print("row=" + str(row))
+            traceback.print_exc(file=sys.stdout)
+
+    # TODO: format (CSV or HTML)?
+    print(type(result))
 
     template = loader.get_template('supervisors/list.html')
     context = applist.template_context('supervisors')
-    context['schools'] = school_list
     context['results'] = result
     return HttpResponse(template.render(context, request))

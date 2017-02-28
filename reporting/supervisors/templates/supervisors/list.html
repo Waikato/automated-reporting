@@ -8,7 +8,7 @@
 
 <h3>{{ title }}</h3>
 
-{% for school in schools %}
+{% for school, school_data in results.items %}
 <div class="panel panel-default">
   <div class="panel-heading">
     <h3 class="panel-title">{{ school }}</h3>
@@ -17,11 +17,35 @@
     <div class="table-responsive">
       <table class="table">
         <tr>
-          <th>Header</th>
+          <th>Department</th>
+          <th>Supervisor</th>
+          <th>Program</th>
+          <th>Student</th>
+          <th>Start</th>
+          <th>End</th>
+          <th>Months</th>
+          <th>Full time</th>
+          <th>Chief supervisor</th>
         </tr>
+        {% for dept, dept_data in school_data.items %}
+          {% for supervisor, supervisor_data in dept_data.items %}
+            {% for program, program_data in supervisor_data.items %}
+              {% for student, student_data in program_data.items %}
         <tr>
-          <td>{{ results|get_item:school }}</td>
+          <td>{{ dept }}</td>
+          <td>{{ supervisor }}</td>
+          <td>{{ program }}</td>
+          <td>{{ student }} - {{ student_data|get_item:'name' }}</td>
+          <td>{{ student_data|get_item:'start_date' }}</td>
+          <td>{{ student_data|get_item:'end_date' }}</td>
+          <td>{{ student_data|get_item:'months' }}</td>
+          <td>{{ student_data|get_item:'full_time' }}</td>
+          <td>{{ student_data|get_item:'chief_supervisor' }}</td>
         </tr>
+              {% endfor %}
+            {% endfor %}
+          {% endfor %}
+        {% endfor %}
       </table>
     </div>
   </div>
