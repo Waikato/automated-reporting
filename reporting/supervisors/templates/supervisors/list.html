@@ -18,7 +18,8 @@
     <div class="table-responsive">
       <table class="table">
         <tr>
-          <th>Department</th>
+          <th>F/S</th>
+          <th>Dept.</th>
           <th>Supervisor</th>
           <th>Program</th>
           <th>Student</th>
@@ -34,6 +35,7 @@
               {% for student, student_data in program_data.items %}
                 {% if student_data|get_item:'current' %}
         <tr>
+          <td>{{ school }}</td>
           <td>{{ dept }}</td>
           <td>{{ supervisor }}</td>
           <td>{{ program }}</td>
@@ -63,7 +65,8 @@
     <div class="table-responsive">
       <table class="table">
         <tr>
-          <th>Department</th>
+          <th>F/S</th>
+          <th>Dept.</th>
           <th>Supervisor</th>
           <th>Program</th>
           <th>Student</th>
@@ -79,6 +82,7 @@
               {% for student, student_data in program_data.items %}
                 {% if not student_data|get_item:'current' %}
         <tr>
+          <td>{{ school }}</td>
           <td>{{ dept }}</td>
           <td>{{ supervisor }}</td>
           <td>{{ program }}</td>
