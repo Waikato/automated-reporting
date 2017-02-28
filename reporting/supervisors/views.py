@@ -9,6 +9,7 @@ from reporting.error import create_error_response
 import traceback
 import sys
 from datetime import date
+import csv
 
 YEARS_BACK = 5
 
@@ -114,6 +115,11 @@ def list_supervisors(request):
     years_back = int(request.POST["years_back"])
     start_year = date.today().year - years_back
 
+    if "csv" not in request.POST:
+        export = None
+    else:
+        export = "csv"
+
     sql = """
         select sd.school, sd.department, s.supervisor, s.student_id, sd.program
         from supervisors_studentdates sd, supervisors_supervisors s
@@ -133,10 +139,48 @@ def list_supervisors(request):
             print("row=" + str(row))
             traceback.print_exc(file=sys.stdout)
 
-    # TODO: format (CSV or HTML)?
-    print(type(result))
-
-    template = loader.get_template('supervisors/list.html')
-    context = applist.template_context('supervisors')
-    context['results'] = result
-    return HttpResponse(template.render(context, request))
+    # CSV or HTML?
+    if export == "csv":
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="supervisors-%s.csv"' % date.today().strftime("%Y-%m-%d")
+        writer = csv.writer(response)
+        writer.writerow([
+            'Faculty/School',
+            'Department',
+            'Supervisor',
+            'Program',
+            'ID',
+            'Name',
+            'Start date',
+            'End date',
+            'Months',
+            'Full time',
+            'Chief supervisor',
+            'Current',
+        ])
+        for school in result:
+            for dept in result[school]:
+                for supervisor in result[school][dept]:
+                    for program in result[school][dept][supervisor]:
+                        for student in result[school][dept][supervisor][program]:
+                            sdata = result[school][dept][supervisor][program][student]
+                            writer.writerow([
+                                school,
+                                dept,
+                                supervisor,
+                                program,
+                                student,
+                                sdata['name'],
+                                sdata['start_date'],
+                                sdata['end_date'],
+                                sdata['months'],
+                                sdata['full_time'],
+                                sdata['chief_supervisor'],
+                                sdata['current'],
+                            ])
+        return response
+    else:
+        template = loader.get_template('supervisors/list.html')
+        context = applist.template_context('supervisors')
+        context['results'] = result
+        return HttpResponse(template.render(context, request))
