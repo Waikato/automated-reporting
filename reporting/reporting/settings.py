@@ -172,6 +172,19 @@ STATICFILES_DIRS = [
     'reporting/static/',
 ]
 
+# LDAP settings
+
+# custom settings?
+try:
+    import reporting.settings_ldap
+    print("Using settings from 'settings_ldap.py'")
+except ImportError:
+    print("""
+        Using default LDAP settings
+        Create 'settings_ldap.py' for custom settings, see example:"
+        https://pythonhosted.org/django-auth-ldap/example.html
+        """)
+
 # LPP settings
 
 # custom settings?

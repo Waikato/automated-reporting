@@ -23,6 +23,7 @@ nytprof.out
 *.swp
 settings_db.py
 settings_lpp.py
+settings_ldap.py
 *.sqlite3
 *.pyc
 .idea/
