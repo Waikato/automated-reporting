@@ -27,6 +27,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# authentication
+
+AUTHENTICATION_BACKENDS = [
+]
 
 # Application definition
 
@@ -178,6 +182,8 @@ STATICFILES_DIRS = [
 try:
     import reporting.settings_ldap
     print("Using settings from 'settings_ldap.py'")
+    #INSTALLED_APPS.append('django_python3_ldap')
+    #AUTHENTICATION_BACKENDS.append('django_python3_ldap.auth.LDAPBackend')
 except ImportError:
     print("""
         Using default LDAP settings
