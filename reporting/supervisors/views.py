@@ -12,6 +12,7 @@ from datetime import date
 import csv
 
 YEARS_BACK = 5
+""" the default number of years to go back """
 
 def index(request):
     # get all schools
@@ -39,9 +40,7 @@ def index(request):
     template = loader.get_template('supervisors/index.html')
     context = applist.template_context('supervisors')
     context['schools'] = schools
-    context['years_back'] = YEARS_BACK
-    if max_years is not None:
-        context['max_years'] = int(max_years)
+    context['max_years'] = int(max_years) if max_years is not None else YEARS_BACK
     return HttpResponse(template.render(context, request))
 
 def add_student(data, school, department, supervisor, studentid, program):
