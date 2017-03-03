@@ -9,7 +9,7 @@ from datetime import datetime
 from django.db import connection
 
 FULL_TIME_CREDITS = 120
-""" the number of credits in order to be considered full time student """
+""" the minimum number of credits in order to be considered full time student """
 
 def parse_grade_results_date(name, value):
     """
@@ -295,7 +295,7 @@ def populate_student_dates():
                 break
 
             # master - full time
-            sql = "select avg(credits) = " + str(FULL_TIME_CREDITS) + " " \
+            sql = "select avg(credits) >= " + str(FULL_TIME_CREDITS) + " " \
                 + "from " + table + " " \
                 + "where student_id = '" + id + "' " \
                 + "and programme_type_code = 'MD'"
@@ -340,7 +340,7 @@ def populate_student_dates():
                 break
 
             # PhD - full time
-            sql = "select avg(credits) = " + str(FULL_TIME_CREDITS) + " " \
+            sql = "select avg(credits) >= " + str(FULL_TIME_CREDITS) + " " \
                 + "from " + table + " " \
                 + "where student_id = '" + id + "' " \
                 + "and programme_type_code = 'DP'"
