@@ -2,6 +2,7 @@ from django.template import loader
 import reporting.settings
 import reporting.applist as applist
 from reporting.error import create_error_response
+from reporting.models import GradeResults
 from django.db import connection
 from django.http import HttpResponse
 import tempfile
@@ -14,9 +15,9 @@ def index(request):
     cursor = connection.cursor()
     cursor.execute("""
         SELECT DISTINCT(year)
-        FROM grade_results
+        FROM %s
         ORDER BY year DESC
-        """)
+        """ % GradeResults._meta.db_table)
     years = []
     for row in cursor.fetchall():
         years.append(row[0])
@@ -25,9 +26,9 @@ def index(request):
     cursor = connection.cursor()
     cursor.execute("""
         SELECT DISTINCT(owning_school_clevel)
-        FROM grade_results
+        FROM %s
         ORDER BY owning_school_clevel ASC
-        """)
+        """ % GradeResults._meta.db_table)
     schools = []
     for row in cursor.fetchall():
         schools.append(row[0])
@@ -66,13 +67,13 @@ def output(request):
         SELECT
             {0}
         FROM
-            grade_results
+            {3}
         WHERE
             year = {1}
             {2}
         ORDER BY
             paper_master_code ASC
-        """.format(cols, year, schoolsql))
+        """.format(cols, year, schoolsql, GradeResults._meta.db_table))
 
     # generate CSV
     fd, outname = tempfile.mkstemp(suffix=".csv", prefix="reporting-")

@@ -4,6 +4,7 @@ from django.db import connection
 
 import reporting.applist as applist
 from reporting.error import create_error_response
+from reporting.models import GradeResults
 from csv import DictReader
 import traceback
 import sys
@@ -26,9 +27,9 @@ def index(request):
     cursor = connection.cursor()
     cursor.execute("""
         SELECT DISTINCT(owning_school_clevel)
-        FROM grade_results
+        FROM %s
         ORDER BY owning_school_clevel ASC
-        """)
+        """ % GradeResults._meta.db_table)
     schools = []
     for row in cursor.fetchall():
         schools.append(row[0])

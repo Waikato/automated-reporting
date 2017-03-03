@@ -18,17 +18,17 @@ def index(request):
     cursor = connection.cursor()
     cursor.execute("""
         SELECT DISTINCT(owning_school_clevel)
-        FROM grade_results
+        FROM %s
         ORDER BY owning_school_clevel ASC
-        """)
+        """ % GradeResults._meta.db_table)
     schools = []
     for row in cursor.fetchall():
         schools.append(row[0])
     # get year from earliest start date
     cursor.execute("""
         select extract(year from min(start_date))
-        from supervisors_studentdates
-    """)
+        from %s
+        """ % StudentDates._meta.db_table)
     min_year = None
     max_years = None
     for row in cursor.fetchall():
