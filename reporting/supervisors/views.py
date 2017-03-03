@@ -108,10 +108,12 @@ def add_student(data, school, department, supervisor, studentid, program):
         sdata['name'] = sname
         sdata['start_date'] = s.start_date.strftime("%Y-%m-%d")
         sdata['end_date'] = s.end_date.strftime("%Y-%m-%d")
+        if sdata['end_date'] == "9999-12-31":
+            sdata['end_date'] = "N/A"
         sdata['months'] = s.months
         sdata['full_time'] = full_time
         sdata['chief_supervisor'] = chief
-        sdata['current'] = s.end_date.strftime("%Y-%m-%d") < today
+        sdata['current'] = s.end_date.strftime("%Y-%m-%d") >= today
 
 def list_supervisors(request):
     # get parameters
