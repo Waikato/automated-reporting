@@ -29,3 +29,4 @@ class Supervisors(models.Model):
     title = models.CharField(max_length=250)
     quals = models.CharField(max_length=250)
     comments = models.CharField(max_length=250)
+    active = models.BooleanField(db_index=True)

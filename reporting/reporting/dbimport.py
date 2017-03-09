@@ -406,9 +406,17 @@ def import_supervisors(csv):
                 r.entity = row['entity']
                 r.agreement_status = row['agreement_status']
                 r.date_agreed = row['date_agreed']
-                r.title = row['title']
+                title = row['title']
+                title = title.lower()
+                title = title.replace(".", "").replace("/", "").replace(" ", "")
+                title = title.replace("associate", "a").replace("assoc", "a")
+                title = title.replace("professor", "prof").replace("pro", "prof").replace("proff", "prof")
+                title = title.replace("doctor", "dr")
+                title = title.replace("sir", "")
+                r.title = title
                 r.quals = row['quals']
                 r.comments = row['comments']
+                r.active = "removed" not in title and "replaced" not in title and "informal" not in title # active if not withdrawn
                 r.save()
     except Exception as ex:
         traceback.print_exc(file=sys.stdout)
