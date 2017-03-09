@@ -132,14 +132,16 @@ def list_supervisors(request):
 
     sql = """
         select sd.school, sd.department, s.supervisor, s.student_id, sd.program
-        from supervisors_studentdates sd, supervisors_supervisors s
+        from %s sd, %s s
         where sd.student_id = s.student_id
         and sd.school in ('%s')
         and sd.start_date >= '%s-01-01'
+        and s.active = True
         group by sd.school, sd.department, s.supervisor, s.student_id, sd.program
         order by sd.school, sd.department, s.supervisor, s.student_id, sd.program
-        """ % ("','".join(schools), str(start_year))
+        """ % (StudentDates._meta.db_table, Supervisors._meta.db_table, "','".join(schools), str(start_year))
     cursor = connection.cursor()
+    print(sql)
     cursor.execute(sql)
     result = {}
     for row in cursor.fetchall():
