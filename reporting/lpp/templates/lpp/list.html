@@ -1,0 +1,32 @@
+{% extends "base_navbar.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/lpp.css" type="text/css"/>
+{% endblock %}
+
+{% block main %}
+
+<h3>{{ title }}</h3>
+
+<div class="panel panel-default">
+  <div class="panel-body">
+    <div class="table-responsive">
+      <table class="table">
+        <tr>
+          {% for col in header %}
+          <th>{{ col }}</th>
+          {% endfor %}
+        </tr>
+        {% for row in body %}
+        <tr>
+          {% for col in row %}
+          <td>{{ col }}</td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

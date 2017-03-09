@@ -56,6 +56,11 @@ def output(request):
     if type not in ["master", "occurrence"]:
         return create_error_response(request, 'lpp', 'Unsupported type: {0}'.format(type))
 
+    if "csv" not in request.POST:
+        export = None
+    else:
+        export = "csv"
+
     # load data from DB
     if len(school) == 0:
         schoolsql = ""
@@ -103,14 +108,34 @@ def output(request):
         return create_error_response(request, 'lpp', 'Failed to execute lpp: {0}'.format(retval))
 
     # generate output
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="lpp-{0}.csv"'.format(year)
+    if export == "csv":
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="lpp-{0}.csv"'.format(year)
 
-    with open(genname, 'r') as infile:
-        reader = csv.reader(infile)
-        writer = csv.writer(response)
-        for row in reader:
-            writer.writerow(row)
+        with open(genname, 'r') as infile:
+            reader = csv.reader(infile)
+            writer = csv.writer(response)
+            for row in reader:
+                writer.writerow(row)
+    else:
+        template = loader.get_template('lpp/list.html')
+        context = applist.template_context('lpp')
+        header = []
+        body = []
+
+        with open(genname, 'r') as infile:
+            reader = csv.reader(infile)
+            first = True
+            for row in reader:
+                if first:
+                    header = row
+                    first = False
+                else:
+                    body.append(row)
+
+        context['header'] = header
+        context['body'] = body
+        response = HttpResponse(template.render(context, request))
 
     # remove temp files again
     try:
@@ -127,3 +152,4 @@ def output(request):
         pass
 
     return response
+
