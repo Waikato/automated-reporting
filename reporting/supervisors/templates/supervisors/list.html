@@ -9,10 +9,9 @@
 <h3>{{ title }}</h3>
 
 {% for school, school_data in results.items %}
-{# current #}
 <div class="panel panel-default">
   <div class="panel-heading">
-    <h3 class="panel-title">{{ school }} - Current</h3>
+    <h3 class="panel-title">{{ school }}</h3>
   </div>
   <div class="panel-body">
     <div class="table-responsive">
@@ -28,12 +27,12 @@
           <th>Months</th>
           <th>FT</th>
           <th>Chief</th>
+          <th>Status</th>
         </tr>
         {% for dept, dept_data in school_data.items %}
           {% for supervisor, supervisor_data in dept_data.items %}
             {% for program, program_data in supervisor_data.items %}
               {% for student, student_data in program_data.items %}
-                {% if student_data|get_item:'current' %}
         <tr>
           <td>{{ school }}</td>
           <td>{{ dept }}</td>
@@ -45,55 +44,8 @@
           <td>{{ student_data|get_item:'months' }}</td>
           <td>{{ student_data|get_item:'full_time' }}</td>
           <td>{{ student_data|get_item:'chief_supervisor' }}</td>
+          <td>{{ student_data|get_item:'status' }}</td>
         </tr>
-                {% endif %}
-              {% endfor %}
-            {% endfor %}
-          {% endfor %}
-        {% endfor %}
-      </table>
-    </div>
-  </div>
-</div>
-
-{# historic #}
-<div class="panel panel-default">
-  <div class="panel-heading">
-    <h3 class="panel-title">{{ school }} - Historic</h3>
-  </div>
-  <div class="panel-body">
-    <div class="table-responsive">
-      <table class="table">
-        <tr>
-          <th>F/S</th>
-          <th>Dept.</th>
-          <th>Supervisor</th>
-          <th>Prog.</th>
-          <th>Student</th>
-          <th>Start</th>
-          <th>End</th>
-          <th>Months</th>
-          <th>FT</th>
-          <th>Chief</th>
-        </tr>
-        {% for dept, dept_data in school_data.items %}
-          {% for supervisor, supervisor_data in dept_data.items %}
-            {% for program, program_data in supervisor_data.items %}
-              {% for student, student_data in program_data.items %}
-                {% if not student_data|get_item:'current' %}
-        <tr>
-          <td>{{ school }}</td>
-          <td>{{ dept }}</td>
-          <td>{{ supervisor }}</td>
-          <td>{{ program }}</td>
-          <td>{{ student_data|get_item:'name' }} - {{ student }}</td>
-          <td>{{ student_data|get_item:'start_date' }}</td>
-          <td>{{ student_data|get_item:'end_date' }}</td>
-          <td>{{ student_data|get_item:'months' }}</td>
-          <td>{{ student_data|get_item:'full_time' }}</td>
-          <td>{{ student_data|get_item:'chief_supervisor' }}</td>
-        </tr>
-                {% endif %}
               {% endfor %}
             {% endfor %}
           {% endfor %}

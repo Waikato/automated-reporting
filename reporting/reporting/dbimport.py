@@ -248,12 +248,14 @@ def populate_student_dates():
         master_school = ''
         master_dept = ''
         master_fulltime = None
+        master_incomplete = None
         phd_months = None
         phd_start = None
         phd_end = None
         phd_school = ''
         phd_dept = ''
         phd_fulltime = None
+        phd_incomplete = None
         try:
             # master - months
             sql = "select sum(credits / cast(regexp_replace(paper_occurrence, '([A-Z]+)59([3456789])-(.*)', '\\2') as integer) / 30 * 12), count(*) " \
@@ -304,6 +306,18 @@ def populate_student_dates():
                 master_fulltime = row2[0]
                 break
 
+            # master - incomplete
+            sql = "select student_id, name, year, grade " \
+                + "from " + table + " " \
+                + "where student_id = '" + id + "' " \
+                + "and programme_type_code = 'MD' " \
+                + "and paper_occurrence ~ '([A-Z]+)59([3456789])-(.*)' " \
+                + "order by year desc"
+            cursor2.execute(sql)
+            for row2 in cursor2.fetchall():
+                master_incomplete = row2[3] == "WD"  # withdrawn
+                break
+
             # PhD - months
             sql = "select sum(coalesce(student_credit_points, credits_per_student) / credits) * 12, count(*) " \
                 + "from " + table + " " \
@@ -349,6 +363,17 @@ def populate_student_dates():
                 phd_fulltime = row2[0]
                 break
 
+            # PhD - incomplete
+            sql = "select student_id, name, year, grade " \
+                + "from " + table + " " \
+                + "where student_id = '" + id + "' " \
+                + "and programme_type_code = 'DP' " \
+                + "order by year desc"
+            cursor2.execute(sql)
+            for row2 in cursor2.fetchall():
+                phd_incomplete = row2[3] == "WD"  # withdrawn
+                break
+
             # save
             if phd_start is not None:
                 r = StudentDates()
@@ -360,6 +385,7 @@ def populate_student_dates():
                 r.school = phd_school
                 r.department = phd_dept
                 r.full_time = phd_fulltime
+                r.incomplete = phd_incomplete
                 r.save()
             if master_start is not None:
                 r = StudentDates()
@@ -371,6 +397,7 @@ def populate_student_dates():
                 r.school = master_school
                 r.department = master_dept
                 r.full_time = master_fulltime
+                r.incomplete = master_incomplete
                 r.save()
 
         except Exception as ex:

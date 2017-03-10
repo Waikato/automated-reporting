@@ -14,6 +14,7 @@ class StudentDates(models.Model):
     school = models.CharField(max_length=20, db_index=True, default='')
     department = models.CharField(max_length=20, db_index=True, default='')
     full_time = models.NullBooleanField(default=None, null=True)
+    incomplete = models.NullBooleanField(default=None, null=True)
 
 class Supervisors(models.Model):
     """

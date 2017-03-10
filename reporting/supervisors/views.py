@@ -59,7 +59,7 @@ def add_student(data, school, department, supervisor, studentid, program):
               - months (float)
               - full_time (True|False)
               - chief_supervisor (True|False|None)
-              - current (True|False)
+              - status (current|complete|incomplete)
 
     :param data: the data structure to extend
     :type data: dict
@@ -112,7 +112,10 @@ def add_student(data, school, department, supervisor, studentid, program):
         sdata['months'] = s.months
         sdata['full_time'] = full_time
         sdata['chief_supervisor'] = chief
-        sdata['current'] = s.end_date.strftime("%Y-%m-%d") >= today
+        if s.incomplete:
+            sdata['status'] = "incomplete"
+        else:
+            sdata['status'] = "current" if s.end_date.strftime("%Y-%m-%d") >= today else "complete"
 
 def list_supervisors(request):
     # get parameters
@@ -168,7 +171,7 @@ def list_supervisors(request):
             'Months',
             'Full time',
             'Chief supervisor',
-            'Current',
+            'Status',
         ])
         for school in result:
             for dept in result[school]:
@@ -188,7 +191,7 @@ def list_supervisors(request):
                                 sdata['months'],
                                 sdata['full_time'],
                                 sdata['chief_supervisor'],
-                                sdata['current'],
+                                sdata['status'],
                             ])
         return response
     else:
