@@ -9,11 +9,8 @@
 <h3>{{ title }}</h3>
 
 <div class="panel panel-default">
-  <div class="panel-heading">
-    <h3 class="panel-title">Grade results</h3>
-  </div>
   <div class="panel-body">
-    <form action="/database/graderesults" enctype="multipart/form-data" method="POST">
+    <form action="/import/graderesults" enctype="multipart/form-data" method="POST">
       {% csrf_token %}
       <p>Export CSV from Brio/Hyperion</p>
       <ul>
@@ -58,40 +55,6 @@
           <td></td>
         </tr>
       </table>
-    </form>
-  </div>
-</div>
-
-<div class="panel panel-default">
-  <div class="panel-heading">
-    <h3 class="panel-title">Research supervisors</h3>
-  </div>
-  <div class="panel-body">
-    <p>Export CSV from Jade</p>
-    <ul>
-      <li>open Jade</li>
-      <li>run <em>Research Supervisor Search Form</em></li>
-      <li>export the result as CSV (Extract -&gt; Standard extract)</li>
-    </ul>
-    <form action="/database/supervisors" enctype="multipart/form-data" method="POST">
-      {% csrf_token %}
-      <p>Select exported CSV file</p>
-      <input type="file" name="datafile"/>
-      <br/>
-      <input type="submit" value="Upload"/>
-    </form>
-  </div>
-</div>
-
-<div class="panel panel-default">
-  <div class="panel-heading">
-    <h3 class="panel-title">Recalculate student dates</h3>
-  </div>
-  <div class="panel-body">
-    <form action="/database/studentdates" method="POST">
-      {% csrf_token %}
-      <p>After uploading a new supervisor or grade results file, the start/end dates for students need to get recalculated.</p>
-      <input type="submit" value="Recalculate"/>
     </form>
   </div>
 </div>

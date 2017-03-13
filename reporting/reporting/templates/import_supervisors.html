@@ -1,0 +1,29 @@
+{% extends "base_navbar.html" %}
+
+{% block head %}
+    <link rel="stylesheet" href="/static/css/reporting.css" type="text/css"/>
+{% endblock %}
+
+{% block main %}
+
+<h3>{{ title }}</h3>
+
+<div class="panel panel-default">
+  <div class="panel-body">
+    <p>Export CSV from Jade</p>
+    <ul>
+      <li>open Jade</li>
+      <li>run <em>Research Supervisor Search Form</em></li>
+      <li>export the result as CSV (Extract -&gt; Standard extract)</li>
+    </ul>
+    <form action="/import/supervisors" enctype="multipart/form-data" method="POST">
+      {% csrf_token %}
+      <p>Select exported CSV file</p>
+      <input type="file" name="datafile"/>
+      <br/>
+      <input type="submit" value="Upload"/>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

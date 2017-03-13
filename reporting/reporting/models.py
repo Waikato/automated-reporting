@@ -2,6 +2,13 @@ from __future__ import unicode_literals
 
 from django.db import models
 
+class TableStatus(models.Model):
+    """
+    Status of tables.
+    """
+    table = models.CharField(max_length=250, db_index=True)
+    timestamp = models.DateTimeField()
+
 class GradeResults(models.Model):
     """
     Grade results.

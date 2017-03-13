@@ -1,4 +1,4 @@
-from reporting.models import GradeResults
+from reporting.models import GradeResults, TableStatus
 from supervisors.models import Supervisors, StudentDates
 from reporting.db import truncate_strings, string_cell, int_cell, float_cell
 from csv import DictReader
@@ -450,3 +450,16 @@ def import_supervisors(csv):
         return str(ex)
 
     return None
+
+def update_tablestatus(table):
+    """
+    Updates the table status of the specified table.
+
+    :param table: the table to update the status for
+    :type table: str
+    """
+    TableStatus.objects.all().filter(table=table).delete()
+    r = TableStatus()
+    r.table = table
+    r.timestamp = datetime.now()
+    r.save()

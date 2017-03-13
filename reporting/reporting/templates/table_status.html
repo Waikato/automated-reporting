@@ -1,0 +1,29 @@
+{% extends "base_navbar.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/reporting.css" type="text/css"/>
+{% endblock %}
+
+{% block main %}
+
+<h3>{{ title }}</h3>
+
+<div class="panel panel-default">
+    <div class="table-responsive">
+      <table class="table">
+        <tr>
+          <th>Table</th>
+          <th>Timestamp</th>
+        </tr>
+        {% for table, table_data in tables.items %}
+        <tr>
+          <td>{{ table }}</td>
+          <td>{{ table_data|get_item:'timestamp' }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
