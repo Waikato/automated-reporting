@@ -14,7 +14,7 @@ class StudentDates(models.Model):
     school = models.CharField(max_length=20, db_index=True, default='')
     department = models.CharField(max_length=20, db_index=True, default='')
     full_time = models.NullBooleanField(default=None, null=True)
-    incomplete = models.NullBooleanField(default=None, null=True)
+    status = models.CharField(max_length=4, null=True)
 
 class Supervisors(models.Model):
     """
@@ -31,3 +31,6 @@ class Supervisors(models.Model):
     quals = models.CharField(max_length=250)
     comments = models.CharField(max_length=250)
     active = models.BooleanField(db_index=True)
+    completion_date = models.DateField(null=True, default=None)
+    proposed_enrolment_date = models.DateField(null=True, default=None)
+    proposed_research_topic = models.CharField(max_length=250, blank=True, default='')

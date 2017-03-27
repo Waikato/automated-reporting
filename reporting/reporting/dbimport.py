@@ -102,8 +102,8 @@ def import_grade_results(year, csv, isgzip):
             r.last_sec_school_region = string_cell(row, ['last_sec_school_region'])
             r.highest_sec_qual = string_cell(row, ['highest_sec_qual'])
             r.main_activity = string_cell(row, ['main_activity'])
-            r.award_title = string_cell(row, ['award_title'])
-            r.prog_abbr = string_cell(row, ['prog_abbr'])
+            r.award_title = string_cell(row, ['award_title', 'award'])
+            r.prog_abbr = string_cell(row, ['prog_abbr', 'prog_-_abbr'])
             r.programme = string_cell(row, ['programme'])
             r.programme_type_code = string_cell(row, ['programme_type_code'])
             r.programme_type = string_cell(row, ['programme_type'])
@@ -119,7 +119,7 @@ def import_grade_results(year, csv, isgzip):
             r.occurrence_enddate = parse_grade_results_date('occurrence_enddate', string_cell(row, ['occurrence_enddate']))
             r.stage = int_cell(row, ['stage'])
             r.credits = float_cell(row, ['credits'])
-            r.student_credit_points = float_cell(row, ['student_credit_points'])
+            r.student_credit_points = float_cell(row, ['student_credit_points', 'student_credits'])
             r.iscancelled = int_cell(row, ['iscancelled'])
             r.isoncampus = int_cell(row, ['isoncampus'])
             r.issemesteracourse = int_cell(row, ['issemesteracourse'])
@@ -205,7 +205,7 @@ def import_grade_results(year, csv, isgzip):
             r.awardenrolmentoid = float_cell(row, ['awardenrolmentoid'])
             r.enrolmentorcosuoid = float_cell(row, ['enrolmentorcosuoid'])
             r.isformalprogramme = int_cell(row, ['isformalprogramme'])
-            r.citizenship_simple = string_cell(row, ['citizenship_simple'])
+            r.citizenship_simple = string_cell(row, ['citizenship_simple', 'citizenship_code'])
             r.moe_pbrf_code = string_cell(row, ['moe_pbrf_code'])
             r.moe_pbrf = string_cell(row, ['moe_pbrf'])
             r.achievement_date = parse_grade_results_date('achievement_date', string_cell(row, ['achievement_date']))
@@ -231,16 +231,17 @@ def populate_student_dates():
     StudentDates.objects.all().delete()
 
     # get all students that are supervised
+    table_super = Supervisors._meta.db_table
     cursor = connection.cursor()
     cursor.execute("""
         SELECT DISTINCT(student_id)
         FROM %s
-        """ % Supervisors._meta.db_table)
+        """ % table_super)
 
+    table = GradeResults._meta.db_table
     cursor2 = connection.cursor()
     for row in cursor.fetchall():
         id = str(row[0]).strip()
-        table = GradeResults._meta.db_table
 
         master_months = None
         master_start = None
@@ -248,14 +249,14 @@ def populate_student_dates():
         master_school = ''
         master_dept = ''
         master_fulltime = None
-        master_incomplete = None
+        master_status = None
         phd_months = None
         phd_start = None
         phd_end = None
         phd_school = ''
         phd_dept = ''
         phd_fulltime = None
-        phd_incomplete = None
+        phd_status = None
         try:
             # master - months
             sql = "select sum(credits / cast(regexp_replace(paper_occurrence, '([A-Z]+)59([3456789])-(.*)', '\\2') as integer) / 30 * 12), count(*) " \
@@ -306,8 +307,8 @@ def populate_student_dates():
                 master_fulltime = row2[0]
                 break
 
-            # master - incomplete
-            sql = "select student_id, name, year, grade " \
+            # master - status
+            sql = "select student_id, name, year, final_grade_status " \
                 + "from " + table + " " \
                 + "where student_id = '" + id + "' " \
                 + "and programme_type_code = 'MD' " \
@@ -315,7 +316,9 @@ def populate_student_dates():
                 + "order by year desc"
             cursor2.execute(sql)
             for row2 in cursor2.fetchall():
-                master_incomplete = row2[3] == "WD"  # withdrawn
+                master_status = row2[3]
+                if master_status == "":
+                    master_status = None
                 break
 
             # PhD - months
@@ -329,7 +332,7 @@ def populate_student_dates():
                 phd_months = row2[0]
                 break
 
-            # PhD - start date
+            # PhD - start date (1)
             sql = "select min(occurrence_startdate), owning_school_clevel, owning_department_clevel " \
                 + "from " + table + " " \
                 + "where student_id = '" + id + "' " \
@@ -342,19 +345,40 @@ def populate_student_dates():
                 phd_dept = row2[2]
                 break
 
-            # PhD - end date
-            sql = "select occurrence_enddate " \
-                + "from " + table + " " \
+            # PhD - start date (2)
+            sql = "select proposed_enrolment_date " \
+                + "from " + table_super + " " \
                 + "where student_id = '" + id + "' " \
-                + "and programme_type_code = 'DP' " \
-                + "and not final_grade = '...'"
+                + "and active = 'true'"
+            cursor2.execute(sql)
+            for row2 in cursor2.fetchall():
+                phd_start = row2[0]
+                break
+
+            # PhD - end date (1)
+            sql = "select completion_date " \
+                + "from " + table_super + " " \
+                + "where student_id = '" + id + "' " \
+                + "and active = 'true' "
             cursor2.execute(sql)
             for row2 in cursor2.fetchall():
                 phd_end = row2[0]
                 break
 
+            # PhD - end date (2)
+            if phd_end is None:
+                sql = "select occurrence_enddate " \
+                    + "from " + table + " " \
+                    + "where student_id = '" + id + "' " \
+                    + "and programme_type_code = 'DP' " \
+                    + "and not final_grade = '...'"
+                cursor2.execute(sql)
+                for row2 in cursor2.fetchall():
+                    phd_end = row2[0]
+                    break
+
             # PhD - full time
-            sql = "select avg(credits) >= " + str(FULL_TIME_CREDITS) + " " \
+            sql = "select avg(credits_per_student) >= " + str(FULL_TIME_CREDITS) + " " \
                 + "from " + table + " " \
                 + "where student_id = '" + id + "' " \
                 + "and programme_type_code = 'DP'"
@@ -363,15 +387,17 @@ def populate_student_dates():
                 phd_fulltime = row2[0]
                 break
 
-            # PhD - incomplete
-            sql = "select student_id, name, year, grade " \
+            # PhD - status
+            sql = "select student_id, name, year, final_grade_status " \
                 + "from " + table + " " \
                 + "where student_id = '" + id + "' " \
                 + "and programme_type_code = 'DP' " \
                 + "order by year desc"
             cursor2.execute(sql)
             for row2 in cursor2.fetchall():
-                phd_incomplete = row2[3] == "WD"  # withdrawn
+                phd_status = row2[3]
+                if phd_status == "":
+                    phd_status = None
                 break
 
             # save
@@ -385,7 +411,7 @@ def populate_student_dates():
                 r.school = phd_school
                 r.department = phd_dept
                 r.full_time = phd_fulltime
-                r.incomplete = phd_incomplete
+                r.incomplete = phd_status
                 r.save()
             if master_start is not None:
                 r = StudentDates()
@@ -397,7 +423,7 @@ def populate_student_dates():
                 r.school = master_school
                 r.department = master_dept
                 r.full_time = master_fulltime
-                r.incomplete = master_incomplete
+                r.incomplete = master_status
                 r.save()
 
         except Exception as ex:
@@ -406,6 +432,27 @@ def populate_student_dates():
             traceback.print_exc(file=sys.stdout)
 
     return None
+
+def parse_supervisors_date(name, value):
+    """
+    Parses the various date formats of the grade results.
+    :param name:
+    :param value:
+    :return:
+    """
+    if (value == "") or (value == "*invalid*") or (value is None):
+        return "0001-01-01"
+    if name == "date_agreed":
+        dformat = "%d/%m/%Y"
+    else:
+        dformat = "%d %b %Y"
+    try:
+        d = datetime.strptime(value, dformat)
+        return d.strftime("%Y-%m-%d")
+    except Exception as ex:
+        print("name=" + name + ", value=" + value + ", format=" + dformat)
+        traceback.print_exc(file=sys.stdout)
+        return None
 
 def import_supervisors(csv):
     """
@@ -432,7 +479,10 @@ def import_supervisors(csv):
                 r.active_roles = row['active_roles']
                 r.entity = row['entity']
                 r.agreement_status = row['agreement_status']
-                r.date_agreed = row['date_agreed']
+                r.date_agreed = parse_supervisors_date('date_agreed', row['date_agreed'])
+                r.completion_date = parse_supervisors_date('completion_date', row['completion_date'])
+                r.proposed_enrolment_date = parse_supervisors_date('proposed_enrolment_date', row['proposed_enrolment_date'])
+                r.proposed_research_topic = row['proposed_research_topic']
                 title = row['title']
                 title = title.lower()
                 title = title.replace(".", "").replace("/", "").replace(" ", "")

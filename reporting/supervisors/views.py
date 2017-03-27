@@ -29,6 +29,7 @@ def index(request):
     cursor.execute("""
         select extract(year from min(start_date))
         from %s
+        where start_date > '1900-01-01'
         """ % StudentDates._meta.db_table)
     min_year = None
     max_years = None
@@ -59,7 +60,7 @@ def add_student(data, school, department, supervisor, studentid, program):
               - months (float)
               - full_time (True|False)
               - chief_supervisor (True|False|None)
-              - status (current|complete|incomplete)
+              - status
 
     :param data: the data structure to extend
     :type data: dict
@@ -107,15 +108,20 @@ def add_student(data, school, department, supervisor, studentid, program):
         sdata['name'] = sname
         sdata['start_date'] = s.start_date.strftime("%Y-%m-%d")
         sdata['end_date'] = s.end_date.strftime("%Y-%m-%d")
-        if sdata['end_date'] == "9999-12-31":
+        if sdata['end_date'] == "9999-12-31" or sdata['end_date'] <= "1900-01-01":
             sdata['end_date'] = "N/A"
         sdata['months'] = s.months
         sdata['full_time'] = full_time
         sdata['chief_supervisor'] = chief
-        if s.incomplete:
-            sdata['status'] = "incomplete"
+        if s.status is None:
+            if sdata['end_date'] == "N/A":
+                sdata['status'] = "current"
+            elif s.end_date.strftime("%Y-%m-%d") >= today:
+                sdata['status'] = "current"
+            else:
+                sdata['status'] = "finished"
         else:
-            sdata['status'] = "current" if s.end_date.strftime("%Y-%m-%d") >= today else "complete"
+            sdata['status'] = s.status
 
 def list_supervisors(request):
     # get parameters
