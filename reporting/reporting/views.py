@@ -15,7 +15,7 @@ def index(request):
 
 def database_graderesults(request):
     years = []
-    for year in range(2004, date.today().year + 1):
+    for year in range(2003, date.today().year + 1):
         years.append(year)
     years.reverse()
     template = loader.get_template('import_graderesults.html')
