@@ -11,12 +11,46 @@ from django.db import connection
 FULL_TIME_CREDITS = 120
 """ the minimum number of credits in order to be considered full time student """
 
+def fix_org_unit(unit):
+    """
+    Fixes the organizational unit, e.g., SASS becomes FASS.
+
+    :param unit: the unit to fix
+    :type unit: str
+    :return: the (potentially) fixed unit
+    :rtype: str
+    """
+    if unit == "SASS":
+        return "FASS"
+    if unit == "SHUM":
+        return "FASS"
+    if unit == "SCMS":
+        return "FCMS"
+    if unit == "SEDU":
+        return "FEDU"
+    if unit == "SLAW":
+        return "FLAW"
+    if unit == "SMST":
+        return "FMGT"
+    if unit == "SMPD":
+        return "FMIS"
+    if unit == "SSEN":
+        return "FSEN"
+    if unit == "SSTE":
+        return "FSEN"
+    if unit == "PVCM":
+        return "FMIS"
+    return unit
+
 def parse_grade_results_date(name, value):
     """
     Parses the various date formats of the grade results.
-    :param name:
-    :param value:
-    :return:
+    :param name: the field name
+    :type name: str
+    :param value: the value to parse
+    :type value: str
+    :return: the fixed date
+    :rtype: str
     """
     if value == "" or value is None:
         return "0001-01-01"
@@ -109,7 +143,7 @@ def import_grade_results(year, csv, isgzip):
             r.programme_type = string_cell(row, ['programme_type'])
             r.ishigherdegree = int_cell(row, ['ishigherdegree'])
             r.school_of_study = string_cell(row, ['school_of_study'])
-            r.school_of_study_clevel = string_cell(row, ['school_of_study_clevel'])
+            r.school_of_study_clevel = fix_org_unit(string_cell(row, ['school_of_study_clevel']))
             r.paper_master_code = string_cell(row, ['paper_master_code', 'paper_master'])
             r.paper_occurrence = string_cell(row, ['paper_occurrence'])
             r.paper_title = string_cell(row, ['paper_title'])
@@ -127,7 +161,7 @@ def import_grade_results(year, csv, isgzip):
             r.iswholeyearcourse = int_cell(row, ['iswholeyearcourse'])
             r.location_code = string_cell(row, ['location_code'])
             r.location = string_cell(row, ['location'])
-            r.owning_school_clevel = string_cell(row, ['owning_school_clevel'])
+            r.owning_school_clevel = fix_org_unit(string_cell(row, ['owning_school_clevel']))
             r.owning_school = string_cell(row, ['owning_school'])
             r.owning_department_clevel = string_cell(row, ['owning_department_clevel'])
             r.owning_department = string_cell(row, ['owning_department'])
