@@ -5,8 +5,7 @@ from supervisors.models import StudentDates, Supervisors
 from reporting.models import GradeResults
 
 import reporting.applist as applist
-from reporting.error import create_error_response
-from reporting.form_utils import check_variable_presence, get_variable
+from reporting.form_utils import get_variable_with_error, get_variable
 import traceback
 import sys
 from datetime import date
@@ -47,15 +46,14 @@ def index(request):
 
 def search_by_faculty(request):
     # get parameters
-    response = check_variable_presence(request, 'supervisors', 'school')
+    response, schools = get_variable_with_error(request, 'supervisors', 'school', as_list=True)
     if response is not None:
         return response
-    schools = get_variable(request, 'school', as_list=True)
 
-    response = check_variable_presence(request, 'supervisors', 'years_back')
+    response, years_back_str = get_variable_with_error(request, 'supervisors', 'years_back')
     if response is not None:
         return response
-    years_back = int(get_variable(request, 'years_back'))
+    years_back = int(years_back_str)
 
     sql = """
         select distinct(owning_department_clevel)
@@ -189,20 +187,18 @@ def add_student(data, school, department, supervisor, studentid, program, superv
 
 def list_by_faculty(request):
     # get parameters
-    response = check_variable_presence(request, 'supervisors', 'school')
+    response, schools = get_variable_with_error(request, 'supervisors', 'school', as_list=True)
     if response is not None:
         return response
-    schools = get_variable(request, 'school', as_list=True)
 
-    response = check_variable_presence(request, 'supervisors', 'department')
+    response, departments = get_variable_with_error(request, 'supervisors', 'department', as_list=True)
     if response is not None:
         return response
-    departments = get_variable(request, 'department', as_list=True)
 
-    response = check_variable_presence(request, 'supervisors', 'years_back')
+    response, years_back_str = get_variable_with_error(request, 'supervisors', 'years_back')
     if response is not None:
         return response
-    years_back = int(get_variable(request, 'years_back'))
+    years_back = int(years_back_str)
     start_year = date.today().year - years_back
 
     programs = get_variable(request, 'programs', as_list=True, def_value=["DP", "MD"])
@@ -285,6 +281,9 @@ def list_by_faculty(request):
 
 def search_by_supervisor(request):
     # get parameters
+    response, name = get_variable_with_error(request, 'supervisors', 'name')
+    if response is not None:
+        return response
 
     # TODO
 
@@ -318,6 +317,9 @@ def list_by_supervisor(request):
 
 def search_by_student(request):
     # get parameters
+    response, name = get_variable_with_error(request, 'supervisors', 'name')
+    if response is not None:
+        return response
 
     # TODO
 

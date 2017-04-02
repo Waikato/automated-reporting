@@ -4,10 +4,11 @@ from .error import create_error_response
 
 apps = applist.get_apps()
 
-def check_variable_presence(request, app, var):
+def get_variable_with_error(request, app, var, as_list=False, def_value=None):
     """
-    Checks whether the specified variable is present in POST/GET.
+    Retrieves the specified variable if present in POST/GET.
     If not, generates a response with an error message.
+    Returns a tuple: (HttpResponse, variable value)
 
     :param request: the request to check
     :type request: HttpRequest
@@ -15,13 +16,18 @@ def check_variable_presence(request, app, var):
     :type app: str
     :param var: the variable name to look for
     :type app: str
-    :return: None if present, otherwise http response with error message
-    :rtype: HttpResponse
+    :param as_list: whether to retriev a list
+    :type as_list: bool
+    :param def_value: the default value to use if not present
+    :type def_value: object or list
+    :return: HttpResponse and variable value (either can be None)
+    :rtype: tuple
     """
 
     if (var not in request.POST) and (var not in request.GET):
-        return create_error_response(request, app, 'Missing: ' + var)
-    return None
+        return create_error_response(request, app, 'Missing: ' + var), None
+    else:
+        return None, get_variable(request, var, as_list=as_list, def_value=def_value)
 
 def get_variable(request, var, as_list=False, def_value=None):
     """
