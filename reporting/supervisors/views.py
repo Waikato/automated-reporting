@@ -25,7 +25,21 @@ def index(request):
     schools = []
     for row in cursor.fetchall():
         schools.append(row[0])
+
+    # configure template
+    template = loader.get_template('supervisors/index.html')
+    context = applist.template_context('supervisors')
+    context['schools'] = schools
+    return HttpResponse(template.render(context, request))
+
+def search_by_faculty(request):
+    # get parameters
+    response, schools = get_variable_with_error(request, 'supervisors', 'school', as_list=True)
+    if response is not None:
+        return response
+
     # get year from earliest start date
+    cursor = connection.cursor()
     cursor.execute("""
         select extract(year from min(start_date))
         from %s
@@ -37,23 +51,6 @@ def index(request):
         min_year = row[0]
     if min_year is not None:
         max_years = date.today().year - min_year
-    # configure template
-    template = loader.get_template('supervisors/index.html')
-    context = applist.template_context('supervisors')
-    context['schools'] = schools
-    context['max_years'] = int(max_years) if max_years is not None else YEARS_BACK
-    return HttpResponse(template.render(context, request))
-
-def search_by_faculty(request):
-    # get parameters
-    response, schools = get_variable_with_error(request, 'supervisors', 'school', as_list=True)
-    if response is not None:
-        return response
-
-    response, years_back_str = get_variable_with_error(request, 'supervisors', 'years_back')
-    if response is not None:
-        return response
-    years_back = int(years_back_str)
 
     sql = """
         select distinct(owning_department_clevel)
@@ -72,7 +69,7 @@ def search_by_faculty(request):
     context = applist.template_context('supervisors')
     context['schools'] = schools
     context['departments'] = departments
-    context['max_years'] = years_back
+    context['max_years'] = int(max_years) if max_years is not None else YEARS_BACK
     return HttpResponse(template.render(context, request))
 
 def add_student(data, school, department, supervisor, studentid, program, supervisor_type, study_type, only_current):

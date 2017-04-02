@@ -40,10 +40,13 @@
           </td>
         </tr>
         <tr>
-          <td>Years back</td>
+          {% if max_years %}
+          <td>Years back (start date; max {{ max_years }})</td>
+          {% else %}
+          <td>Years back (start date)</td>
+          {% endif %}
           <td>
-            {{ max_years }}
-            <input type="hidden" name="years_back" value="{{ max_years }}"/>
+            <input type="text" name="years_back" value="{{ max_years }}"/>
           </td>
         </tr>
         <tr>
