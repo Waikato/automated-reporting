@@ -1,0 +1,97 @@
+{% extends "base_navbar.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/reporting.css" type="text/css"/>
+{% endblock %}
+
+{% block main %}
+
+<h3>{{ title }}</h3>
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Search By Faculty</h3>
+  </div>
+  <div class="panel-body">
+    <form action="/supervisors/list-by-faculty" method="POST">
+      {% csrf_token %}
+      <table class="database_params">
+        <tr>
+          <td>Faculty/School</td>
+          <td>
+            <select name="school" size="7" multiple hidden>
+              {% for school in schools %}
+              <option value="{{ school }}" selected>{{ school }}</option>
+              {% endfor %}
+            </select>
+            {% for school in schools %}
+            {{ school }},
+            {% endfor %}
+          </td>
+        </tr>
+        <tr>
+          <td>Department</td>
+          <td>
+            <select name="department" size="5" multiple>
+              {% for department in departments %}
+              <option value="{{ department }}" selected>{{ department }}</option>
+              {% endfor %}
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Years back</td>
+          <td>
+            {{ max_years }}
+            <input type="hidden" name="years_back" value="{{ max_years }}"/>
+          </td>
+        </tr>
+        <tr>
+          <td>Program</td>
+          <td>
+            <select name="program" size="2" multiple>
+              <option value="MD" selected>Master</option>
+              <option value="PD" selected>PhD</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Supervisors</td>
+          <td>
+            <select name="supervisor_type" size="2" multiple>
+              <option value="chief" selected>Chief</option>
+              <option value="other" selected>Other</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Only current students?</td>
+          <td>
+            <input type="checkbox" name="only_current"/>
+          </td>
+        </tr>
+        <tr>
+          <td>Study type</td>
+          <td>
+            <select name="study_type" size="2" multiple>
+              <option value="full" selected>Full time</option>
+              <option value="part" selected>Part time</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Export as CSV</td>
+          <td>
+            <input type="checkbox" name="csv""/>
+          </td>
+        </tr>
+        <tr>
+          <td><input type="submit" value="Generate"/></td>
+          <td></td>
+        </tr>
+      </table>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

@@ -10,16 +10,16 @@
 
 <div class="panel panel-default">
   <div class="panel-heading">
-    <h3 class="panel-title">Query</h3>
+    <h3 class="panel-title">By Faculty</h3>
   </div>
   <div class="panel-body">
-    <form action="/supervisors/list" method="POST">
+    <form action="/supervisors/search-by-faculty" method="POST">
       {% csrf_token %}
       <table class="database_params">
         <tr>
           <td>Faculty/School</td>
           <td>
-            <select name="school" size="10" multiple>
+            <select name="school" size="7" multiple>
               {% if schools %}
               {% for school in schools %}
               <option value="{{ school }}">{{ school }}</option>
@@ -41,13 +41,49 @@
           </td>
         </tr>
         <tr>
-          <td>Export as CSV</td>
-          <td>
-            <input type="checkbox" name="csv""/>
-          </td>
+          <td><input type="submit" value="Search"/></td>
+          <td></td>
+        </tr>
+      </table>
+    </form>
+  </div>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">By Supervisor</h3>
+  </div>
+  <div class="panel-body">
+    <form action="/supervisors/search-by-supervisor" method="POST">
+      {% csrf_token %}
+      <table class="database_params">
+        <tr>
+          <td>Name or ID</td>
+          <td><input type="text" name="name"/></td>
         </tr>
         <tr>
-          <td><input type="submit" value="Generate"/></td>
+          <td><input type="submit" value="Search"/></td>
+          <td></td>
+        </tr>
+      </table>
+    </form>
+  </div>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">By Student</h3>
+  </div>
+  <div class="panel-body">
+    <form action="/supervisors/search-by-student" method="POST">
+      {% csrf_token %}
+      <table class="database_params">
+        <tr>
+          <td>Name or ID</td>
+          <td><input type="text" name="name"/></td>
+        </tr>
+        <tr>
+          <td><input type="submit" value="Search"/></td>
           <td></td>
         </tr>
       </table>
