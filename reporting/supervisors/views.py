@@ -151,7 +151,6 @@ def add_student(data, school, department, supervisor, studentid, program, superv
         if end_date == "9999-12-31" or end_date <= "1900-01-01":
             end_date = "N/A"
 
-        print(studentid, s.status)
         status = s.status
         if status is None:
             if end_date == "N/A":
@@ -223,7 +222,6 @@ def list_by_faculty(request):
     result = {}
     for row in cursor.fetchall():
         try:
-            print(row[4], programs)
             if row[4] not in programs:
                 continue
             add_student(data=result, school=row[0], department=row[1], supervisor=row[2], studentid=row[3],
