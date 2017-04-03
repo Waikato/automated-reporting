@@ -433,7 +433,6 @@ def populate_student_dates():
                     from %s
                     where student_id = '%s'
                     and programme_type_code = 'DP'
-                    and not final_grade = '...'
                     order by occurrence_enddate desc
                     """ % (table, id)
                 cursor2.execute(sql)
@@ -454,12 +453,14 @@ def populate_student_dates():
                 break
 
             # PhD - status
+            phd_status = "current"
             sql = """
                 select student_id, name, year, final_grade_status, final_grade
                 from %s
                 where student_id = '%s'
                 and programme_type_code = 'DP'
                 and final_grade != '...'
+                and final_grade != ''
                 order by year desc
                 """ % (table, id)
             cursor2.execute(sql)
