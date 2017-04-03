@@ -17,7 +17,7 @@
       <li>modify the result to include <em>all</em> columns (right-click on column header and add all additional columns)</li>
       <li>export the result as CSV (Extract -&gt; Standard extract)</li>
     </ul>
-    <form action="/import/supervisors" enctype="multipart/form-data" method="POST">
+    <form action="/database/import/supervisors" enctype="multipart/form-data" method="POST">
       {% csrf_token %}
       <p>Select exported CSV file</p>
       <input type="file" name="datafile"/>

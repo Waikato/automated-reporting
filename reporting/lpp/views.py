@@ -2,7 +2,7 @@ from django.template import loader
 import reporting.settings
 import reporting.applist as applist
 from reporting.error import create_error_response
-from reporting.models import GradeResults
+from database.models import GradeResults
 from django.db import connection
 from django.http import HttpResponse
 import tempfile

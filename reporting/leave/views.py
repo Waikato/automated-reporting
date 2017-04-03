@@ -4,7 +4,7 @@ from django.db import connection
 
 import reporting.applist as applist
 from reporting.error import create_error_response
-from reporting.models import GradeResults
+from database.models import GradeResults
 from csv import DictReader
 import traceback
 import sys

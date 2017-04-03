@@ -2,7 +2,7 @@ from django.template import loader
 from django.http import HttpResponse
 from django.db import connection
 from supervisors.models import StudentDates, Supervisors
-from reporting.models import GradeResults
+from database.models import GradeResults
 
 import reporting.applist as applist
 from reporting.form_utils import get_variable_with_error, get_variable

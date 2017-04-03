@@ -1,4 +1,4 @@
-from reporting.models import GradeResults, TableStatus
+from database.models import GradeResults, TableStatus
 from supervisors.models import Supervisors, StudentDates
 from reporting.db import truncate_strings, string_cell, int_cell, float_cell
 from csv import DictReader

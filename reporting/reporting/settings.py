@@ -35,6 +35,7 @@ AUTHENTICATION_BACKENDS = [
 # Application definition
 
 INSTALLED_APPS = [
+    'database',
     'leave',
     'lpp',
     'reporting',
