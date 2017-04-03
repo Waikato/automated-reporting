@@ -64,7 +64,7 @@ APPS_SHORT = {
 APPS_LONG = {
     'leave': 'Annual Leave',
     'lpp': 'Low performing pass-rates',
-    'supervisors': 'Live Supervisor Register',
+    'supervisors': 'Supervisor Register',
 }
 
 MIDDLEWARE_CLASSES = [
