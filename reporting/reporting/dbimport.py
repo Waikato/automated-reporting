@@ -293,24 +293,28 @@ def populate_student_dates():
         phd_status = None
         try:
             # master - months
-            sql = "select sum(credits / cast(regexp_replace(paper_occurrence, '([A-Z]+)59([3456789])-(.*)', '\\2') as integer) / 30 * 12), count(*) " \
-                + "from " + table + " " \
-                + "where student_id = '" + id + "' " \
-                + "and programme_type_code = 'MD' " \
-                + "and paper_occurrence ~ '([A-Z]+)59([3456789])-(.*)' " \
-                + "group by student_id"
+            sql = """
+                select sum(credits / cast(regexp_replace(paper_occurrence, '([A-Z]+)59([3456789])-(.*)', '\\2') as integer) / 30 * 12), count(*)
+                from %s
+                where student_id = '%s'
+                and programme_type_code = 'MD'
+                and paper_occurrence ~ '([A-Z]+)59([3456789])-(.*)'
+                group by student_id
+                """ % (table, id)
             cursor2.execute(sql)
             for row2 in cursor2.fetchall():
                 master_months = row2[0]
                 break
 
             # master - start date
-            sql = "select min(occurrence_startdate), owning_school_clevel, owning_department_clevel " \
-                + "from " + table + " " \
-                + "where student_id = '" + id + "' " \
-                + "and programme_type_code = 'MD' " \
-                + "and paper_occurrence ~ '([A-Z]+)59([3456789])-(.*)' " \
-                + "group by student_id, owning_school_clevel, owning_department_clevel"
+            sql = """
+                select min(occurrence_startdate), owning_school_clevel, owning_department_clevel
+                from %s
+                where student_id = '%s'
+                and programme_type_code = 'MD'
+                and paper_occurrence ~ '([A-Z]+)59([3456789])-(.*)'
+                group by student_id, owning_school_clevel, owning_department_clevel
+                """ % (table, id)
             cursor2.execute(sql)
             for row2 in cursor2.fetchall():
                 master_start = row2[0]
@@ -319,59 +323,75 @@ def populate_student_dates():
                 break
 
             # master - end date
-            sql = "select max(occurrence_enddate) " \
-                + "from " + table + " " \
-                + "where student_id = '" + id + "' " \
-                + "and programme_type_code = 'MD' " \
-                + "and paper_occurrence ~ '([A-Z]+)59([3456789])-(.*)' " \
-                + "and final_grade is not null " \
-                + "group by student_id"
+            sql = """
+                select max(occurrence_enddate)
+                from %s
+                where student_id = '%s'
+                and programme_type_code = 'MD'
+                and paper_occurrence ~ '([A-Z]+)59([3456789])-(.*)'
+                and final_grade is not null
+                group by student_id
+                """ % (table, id)
             cursor2.execute(sql)
             for row2 in cursor2.fetchall():
                 master_end = row2[0]
                 break
 
             # master - full time
-            sql = "select avg(credits) >= " + str(FULL_TIME_CREDITS) + " " \
-                + "from " + table + " " \
-                + "where student_id = '" + id + "' " \
-                + "and programme_type_code = 'MD'"
+            sql = """
+                select avg(credits) >= %d
+                from %s
+                where student_id = '%s'
+                and programme_type_code = 'MD'
+                """ % (FULL_TIME_CREDITS, table, id)
             cursor2.execute(sql)
             for row2 in cursor2.fetchall():
                 master_fulltime = row2[0]
                 break
 
             # master - status
-            sql = "select student_id, name, year, final_grade_status " \
-                + "from " + table + " " \
-                + "where student_id = '" + id + "' " \
-                + "and programme_type_code = 'MD' " \
-                + "and paper_occurrence ~ '([A-Z]+)59([3456789])-(.*)' " \
-                + "order by year desc"
+            sql = """
+                select student_id, name, year, final_grade_status, final_grade
+                from %s
+                where student_id = '%s'
+                and programme_type_code = 'MD'
+                and paper_occurrence ~ '([A-Z]+)59([3456789])-(.*)'
+                order by year desc
+                """ % (table, id)
             cursor2.execute(sql)
             for row2 in cursor2.fetchall():
                 master_status = row2[3]
                 if master_status == "":
                     master_status = None
+                if master_status == "C":
+                    master_status = "finished"
+                if master_status == "N":
+                    master_status = "current"
+                if row2[4] == "WD":
+                    master_status = "withdrawn"
                 break
 
             # PhD - months
-            sql = "select sum(coalesce(student_credit_points, credits_per_student) / credits) * 12, count(*) " \
-                + "from " + table + " " \
-                + "where student_id = '" + id + "' " \
-                + "and programme_type_code = 'DP' " \
-                + "group by student_id"
+            sql = """
+                select sum(coalesce(student_credit_points, credits_per_student) / credits) * 12, count(*)
+                from %s
+                where student_id = '%s'
+                and programme_type_code = 'DP'
+                group by student_id
+                """ % (table, id)
             cursor2.execute(sql)
             for row2 in cursor2.fetchall():
                 phd_months = row2[0]
                 break
 
             # PhD - start date (1)
-            sql = "select min(occurrence_startdate), owning_school_clevel, owning_department_clevel " \
-                + "from " + table + " " \
-                + "where student_id = '" + id + "' " \
-                + "and programme_type_code = 'DP' " \
-                + "group by student_id, owning_school_clevel, owning_department_clevel"
+            sql = """
+                select min(occurrence_startdate), owning_school_clevel, owning_department_clevel
+                from %s
+                where student_id = '%s'
+                and programme_type_code = 'DP'
+                group by student_id, owning_school_clevel, owning_department_clevel
+                """ % (table, id)
             cursor2.execute(sql)
             for row2 in cursor2.fetchall():
                 phd_start = row2[0]
@@ -380,20 +400,25 @@ def populate_student_dates():
                 break
 
             # PhD - start date (2)
-            sql = "select proposed_enrolment_date " \
-                + "from " + table_super + " " \
-                + "where student_id = '" + id + "' " \
-                + "and active = 'true'"
+            sql = """
+                select proposed_enrolment_date
+                from %s
+                where student_id = '%s'
+                and active = 'true'
+                """ % (table_super, id)
             cursor2.execute(sql)
             for row2 in cursor2.fetchall():
-                phd_start = row2[0]
+                if (phd_start is None) or (row2[0] > phd_start):
+                    phd_start = row2[0]
                 break
 
             # PhD - end date (1)
-            sql = "select completion_date " \
-                + "from " + table_super + " " \
-                + "where student_id = '" + id + "' " \
-                + "and active = 'true' "
+            sql = """
+                select completion_date
+                from %s
+                where student_id = '%s'
+                and active = 'true'
+                """ % (table_super, id)
             cursor2.execute(sql)
             for row2 in cursor2.fetchall():
                 phd_end = row2[0]
@@ -401,37 +426,50 @@ def populate_student_dates():
 
             # PhD - end date (2)
             if phd_end is None:
-                sql = "select occurrence_enddate " \
-                    + "from " + table + " " \
-                    + "where student_id = '" + id + "' " \
-                    + "and programme_type_code = 'DP' " \
-                    + "and not final_grade = '...'"
+                sql = """
+                    select occurrence_enddate
+                    from %s
+                    where student_id = '%s'
+                    and programme_type_code = 'DP'
+                    and not final_grade = '...'
+                    order by occurrence_enddate desc
+                    """ % (table, id)
                 cursor2.execute(sql)
                 for row2 in cursor2.fetchall():
                     phd_end = row2[0]
                     break
 
             # PhD - full time
-            sql = "select avg(credits_per_student) >= " + str(FULL_TIME_CREDITS) + " " \
-                + "from " + table + " " \
-                + "where student_id = '" + id + "' " \
-                + "and programme_type_code = 'DP'"
+            sql = """
+                select avg(credits_per_student) >= %d
+                from %s
+                where student_id = '%s'
+                and programme_type_code = 'DP'
+                """ % (FULL_TIME_CREDITS, table, id)
             cursor2.execute(sql)
             for row2 in cursor2.fetchall():
                 phd_fulltime = row2[0]
                 break
 
             # PhD - status
-            sql = "select student_id, name, year, final_grade_status " \
-                + "from " + table + " " \
-                + "where student_id = '" + id + "' " \
-                + "and programme_type_code = 'DP' " \
-                + "order by year desc"
+            sql = """
+                select student_id, name, year, final_grade_status, final_grade
+                from %s
+                where student_id = '%s'
+                and programme_type_code = 'DP'
+                order by year desc
+                """ % (table, id)
             cursor2.execute(sql)
             for row2 in cursor2.fetchall():
                 phd_status = row2[3]
                 if phd_status == "":
                     phd_status = None
+                if phd_status == "C":
+                    phd_status = "finished"
+                if phd_status == "N":
+                    phd_status = "current"
+                if row2[4] == "WD":
+                    phd_status = "withdrawn"
                 break
 
             # save
@@ -445,7 +483,7 @@ def populate_student_dates():
                 r.school = phd_school
                 r.department = phd_dept
                 r.full_time = phd_fulltime
-                r.incomplete = phd_status
+                r.status = phd_status
                 r.save()
             if master_start is not None:
                 r = StudentDates()
@@ -457,7 +495,7 @@ def populate_student_dates():
                 r.school = master_school
                 r.department = master_dept
                 r.full_time = master_fulltime
-                r.incomplete = master_status
+                r.status = master_status
                 r.save()
 
         except Exception as ex:
