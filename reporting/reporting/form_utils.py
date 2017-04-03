@@ -85,7 +85,6 @@ def request_to_url(request, url_prefix, override=None):
 
     # combine all parameters
     params = {}
-    print("post", request.POST)
     for key in request.POST.keys():
         params[key] = request.POST.getlist(key)
     for key in request.GET.keys():
@@ -103,7 +102,6 @@ def request_to_url(request, url_prefix, override=None):
         value = params[key]
         if not first:
             result += "&"
-        print(key, type(value))
         if type(value) is list:
             first_inner = True
             for v in value:

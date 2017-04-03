@@ -180,8 +180,6 @@ def add_student(data, school, department, supervisor, studentid, program, superv
             else:
                 status = "finished"
 
-        print(studentid, sname, end_date, s.status, status, only_current)
-
         # check conditions
         if chief == "Yes" and "chief" not in supervisor_type:
             continue
