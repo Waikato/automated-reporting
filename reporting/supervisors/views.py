@@ -140,16 +140,6 @@ def add_student(data, school, department, supervisor, studentid, program, superv
     else:
         program_display = program
 
-    # ensure data structures are present
-    if school not in data:
-        data[school] = {}
-    if department not in data[school]:
-        data[school][department] = {}
-    if supervisor not in data[school][department]:
-        data[school][department][supervisor] = {}
-    if program_display not in data[school][department][supervisor]:
-        data[school][department][supervisor][program_display] = {}
-
     # load student data
     today = date.today().strftime("%Y-%m-%d")
     for s in StudentDates.objects.all().filter(school=school, department=department, student_id=studentid, program=program):
@@ -192,6 +182,15 @@ def add_student(data, school, department, supervisor, studentid, program, superv
         if only_current and not status == "current":
             continue
 
+        # ensure data structures are present
+        if school not in data:
+            data[school] = {}
+        if department not in data[school]:
+            data[school][department] = {}
+        if supervisor not in data[school][department]:
+            data[school][department][supervisor] = {}
+        if program_display not in data[school][department][supervisor]:
+            data[school][department][supervisor][program_display] = {}
         if studentid not in data[school][department][supervisor][program_display]:
             data[school][department][supervisor][program_display][studentid] = {}
 
