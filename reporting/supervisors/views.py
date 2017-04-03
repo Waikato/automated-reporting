@@ -220,7 +220,7 @@ def list_by_faculty(request):
     years_back = int(years_back_str)
     start_year = date.today().year - years_back
 
-    programs = get_variable(request, 'programs', as_list=True, def_value=PROGRAM_TYPES)
+    programs = get_variable(request, 'program', as_list=True, def_value=PROGRAM_TYPES)
     supervisor_type = get_variable(request, 'supervisor_type', as_list=True, def_value=SUPERVISOR_TYPES)
     study_type = get_variable(request, 'study_type', as_list=True, def_value=STUDY_TYPES)
     only_current = get_variable(request, 'only_current', def_value="off") == "on"
@@ -344,7 +344,7 @@ def list_by_supervisor(request):
     years_back = int(years_back_str)
     start_year = date.today().year - years_back
 
-    programs = get_variable(request, 'programs', as_list=True, def_value=PROGRAM_TYPES)
+    programs = get_variable(request, 'program', as_list=True, def_value=PROGRAM_TYPES)
     supervisor_type = get_variable(request, 'supervisor_type', as_list=True, def_value=SUPERVISOR_TYPES)
     study_type = get_variable(request, 'study_type', as_list=True, def_value=STUDY_TYPES)
     only_current = get_variable(request, 'only_current', def_value="off") == "on"
