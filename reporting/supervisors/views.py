@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.db import connection
 from supervisors.models import StudentDates, Supervisors
 from database.models import GradeResults
+from reporting.error import create_error_response
 
 import reporting.applist as applist
 from reporting.form_utils import get_variable_with_error, get_variable
@@ -303,6 +304,9 @@ def search_by_supervisor(request):
     if response is not None:
         return response
 
+    if len(name) == 0:
+        return create_error_response(request, 'supervisors', 'No supervisor name provided!')
+
     # get year from earliest start date
     max_years = get_max_years()
 
@@ -422,6 +426,9 @@ def search_by_student(request):
     response, name = get_variable_with_error(request, 'supervisors', 'name')
     if response is not None:
         return response
+
+    if len(name) == 0:
+        return create_error_response(request, 'supervisors', 'No student name/id provided!')
 
     if name.isdigit():
         sql = """
