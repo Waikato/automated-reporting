@@ -189,7 +189,7 @@ def add_student(data, school, department, supervisor, studentid, program, superv
             continue
         if full_time == "No" and "part" not in study_type:
             continue
-        if only_current and status == "finished":
+        if only_current and not status == "current":
             continue
 
         if studentid not in data[school][department][supervisor][program_display]:
