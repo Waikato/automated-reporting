@@ -70,3 +70,12 @@ body {
   color: #fff;
   background-color: #960000;
 }
+
+/* export button, used in conjunction with 'btn btn-default' */
+.btn-export {
+  padding-top: 3px;
+  padding-bottom: 3px;
+  padding-left: 6px;
+  padding-right: 6px;
+  font-size: 10px;
+}

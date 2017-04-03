@@ -11,6 +11,7 @@ import traceback
 import sys
 from datetime import date
 import csv
+import reporting.form_utils as form_utils
 
 YEARS_BACK = 5
 """ the default number of years to go back """
@@ -225,7 +226,7 @@ def list_by_faculty(request):
     supervisor_type = get_variable(request, 'supervisor_type', as_list=True, def_value=SUPERVISOR_TYPES)
     study_type = get_variable(request, 'study_type', as_list=True, def_value=STUDY_TYPES)
     only_current = get_variable(request, 'only_current', def_value="off") == "on"
-    min_months = float(get_variable(request, 'min_months', def_value="-1"))
+    min_months = float(get_variable(request, 'min_months', def_value="-1", blank=False))
     export = get_variable(request, 'csv')
 
     sql = """
@@ -298,6 +299,7 @@ def list_by_faculty(request):
         template = loader.get_template('supervisors/list_by_faculty.html')
         context = applist.template_context('supervisors')
         context['results'] = result
+        context['csv_url'] = form_utils.request_to_url(request, "/supervisors/list-by-faculty", {'csv': 'csv'})
         return HttpResponse(template.render(context, request))
 
 def search_by_supervisor(request):
@@ -348,7 +350,7 @@ def list_by_supervisor(request):
     supervisor_type = get_variable(request, 'supervisor_type', as_list=True, def_value=SUPERVISOR_TYPES)
     study_type = get_variable(request, 'study_type', as_list=True, def_value=STUDY_TYPES)
     only_current = get_variable(request, 'only_current', def_value="off") == "on"
-    min_months = float(get_variable(request, 'min_months', def_value="-1"))
+    min_months = float(get_variable(request, 'min_months', def_value="-1", blank=False))
     export = get_variable(request, 'csv')
 
     sql = """
@@ -423,6 +425,7 @@ def list_by_supervisor(request):
         template = loader.get_template('supervisors/list_by_supervisor.html')
         context = applist.template_context('supervisors')
         context['results'] = result
+        context['csv_url'] = form_utils.request_to_url(request, "/supervisors/list-by-supervisor", {'csv': 'csv'})
         return HttpResponse(template.render(context, request))
 
 def search_by_student(request):
@@ -489,4 +492,5 @@ def list_by_student(request):
         template = loader.get_template('supervisors/list_by_student.html')
         context = applist.template_context('supervisors')
         context['results'] = None  # TODO
+        context['csv_url'] = form_utils.request_to_url(request, "/supervisors/list-by-student", {'csv': 'csv'})
         return HttpResponse(template.render(context, request))

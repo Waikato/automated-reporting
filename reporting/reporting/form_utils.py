@@ -1,10 +1,11 @@
 import reporting.applist as applist
 from django.http import HttpResponse, HttpRequest
 from .error import create_error_response
+import urllib.parse
 
 apps = applist.get_apps()
 
-def get_variable_with_error(request, app, var, as_list=False, def_value=None):
+def get_variable_with_error(request, app, var, as_list=False, def_value=None, blank=True):
     """
     Retrieves the specified variable if present in POST/GET.
     If not, generates a response with an error message.
@@ -20,6 +21,8 @@ def get_variable_with_error(request, app, var, as_list=False, def_value=None):
     :type as_list: bool
     :param def_value: the default value to use if not present
     :type def_value: object or list
+    :param blank: whether the field can be blank
+    :type blank: bool
     :return: HttpResponse and variable value (either can be None)
     :rtype: tuple
     """
@@ -27,9 +30,9 @@ def get_variable_with_error(request, app, var, as_list=False, def_value=None):
     if (var not in request.POST) and (var not in request.GET):
         return create_error_response(request, app, 'Missing: ' + var), None
     else:
-        return None, get_variable(request, var, as_list=as_list, def_value=def_value)
+        return None, get_variable(request, var, as_list=as_list, def_value=def_value, blank=blank)
 
-def get_variable(request, var, as_list=False, def_value=None):
+def get_variable(request, var, as_list=False, def_value=None, blank=True):
     """
     Returns the specified variable from POST/GET.
 
@@ -41,20 +44,81 @@ def get_variable(request, var, as_list=False, def_value=None):
     :type as_list: bool
     :param def_value: the default value to use if not present
     :type def_value: object or list
+    :param blank: whether the field can be blank
+    :type blank: bool
     :return: the default value if variable not present, otherwise value
     :rtype: object or list
     """
 
+    result = def_value
+
     if var in request.POST:
         if as_list:
-            return request.POST.getlist(var)
+            result = request.POST.getlist(var)
         else:
-            return request.POST.get(var)
+            result = request.POST.get(var)
 
     if var in request.GET:
         if as_list:
-            return request.GET.getlist(var)
+            result = request.GET.getlist(var)
         else:
-            return request.GET.get(var)
+            result = request.GET.get(var)
 
-    return def_value
+    if not blank and (len(result) == 0):
+        result = def_value
+
+    return result
+
+def request_to_url(request, url_prefix, override=None):
+    """
+    Generates a URL from the request, using all the GET/POST variables in the URL.
+    The values from the request van be overridden with the "override" dictionary.
+    :param request: the request to turn into a URL
+    :type request: HttpRequest
+    :param url_prefix: the URL prefix to use; ? gets added automatically
+    :type url_prefix: str
+    :param override: the dictionary with the parameters to override
+    :type override: dict
+    :return: the generated URL
+    :rtype: str
+    """
+
+    # combine all parameters
+    params = {}
+    print("post", request.POST)
+    for key in request.POST.keys():
+        params[key] = request.POST.getlist(key)
+    for key in request.GET.keys():
+        params[key] = request.GET.getlist(key)
+    if override is not None:
+        for key in override.keys():
+            params[key] = override[key]
+
+    # generate url
+    result = url_prefix
+    if not result.endswith("?"):
+        result += "?"
+    first = True
+    for key in params.keys():
+        value = params[key]
+        if not first:
+            result += "&"
+        print(key, type(value))
+        if type(value) is list:
+            first_inner = True
+            for v in value:
+                if not first_inner:
+                    result += "&"
+                    result += key
+                else:
+                    result += key
+                result += "="
+                result += urllib.parse.quote_plus(v)
+                first_inner = False
+        else:
+            result += key
+            result += "="
+            result += urllib.parse.quote_plus(value)
+        first = False
+
+    return result

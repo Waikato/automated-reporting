@@ -32,7 +32,7 @@
         <tr>
           <td>Department</td>
           <td>
-            <select name="department" size="5" multiple>
+            <select name="department" size="5" multiple required>
               {% for department in departments %}
               <option value="{{ department }}" selected>{{ department }}</option>
               {% endfor %}
@@ -40,19 +40,15 @@
           </td>
         </tr>
         <tr>
-          {% if max_years %}
-          <td>Years back (start date; max {{ max_years }})</td>
-          {% else %}
-          <td>Years back (start date)</td>
-          {% endif %}
+          <td>Years back</td>
           <td>
-            <input type="text" name="years_back" value="{{ max_years }}"/>
+            <input type="number" name="years_back" value="{{ max_years }}" min="1" max="{{ max_years }}" required/>
           </td>
         </tr>
         <tr>
           <td>Program</td>
           <td>
-            <select name="program" size="2" multiple>
+            <select name="program" size="2" multiple required>
               <option value="MD" selected>Master</option>
               <option value="PD" selected>PhD</option>
             </select>
@@ -61,7 +57,7 @@
         <tr>
           <td>Supervisors</td>
           <td>
-            <select name="supervisor_type" size="2" multiple>
+            <select name="supervisor_type" size="2" multiple required>
               <option value="chief" selected>Chief</option>
               <option value="other" selected>Other</option>
             </select>
@@ -76,7 +72,7 @@
         <tr>
           <td>Study type</td>
           <td>
-            <select name="study_type" size="2" multiple>
+            <select name="study_type" size="2" multiple required>
               <option value="full" selected>Full time</option>
               <option value="part" selected>Part time</option>
             </select>
@@ -85,7 +81,7 @@
         <tr>
           <td>Minimum months</td>
           <td>
-            <input type="text" name="min_months"/>
+            <input type="number" name="min_months" step="0.1" min="0.0"/>
           </td>
         </tr>
         <tr>
