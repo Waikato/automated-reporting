@@ -14,12 +14,44 @@ import csv
 YEARS_BACK = 5
 """ the default number of years to go back """
 
+STUDY_TYPES = ["full", "part"]
+""" all study types """
+
+PROGRAM_TYPES = ["DP", "MD"]
+""" all program types """
+
+SUPERVISOR_TYPES = ["chief", "other"]
+""" all supervisor types """
+
+def get_max_years():
+    """
+    Determines the maximum number of available years to go back.
+    :return: the number of years
+    :rtype: int
+    """
+
+    cursor = connection.cursor()
+    cursor.execute("""
+        select extract(year from min(start_date))
+        from %s
+        where start_date > '1900-01-01'
+        """ % StudentDates._meta.db_table)
+    min_year = None
+    max_years = None
+    for row in cursor.fetchall():
+        min_year = row[0]
+    if min_year is not None:
+        max_years = date.today().year - min_year
+
+    return int(max_years)
+
 def index(request):
     # get all schools
     cursor = connection.cursor()
     cursor.execute("""
         SELECT DISTINCT(school)
         FROM %s
+        WHERE char_length(school) > 0
         ORDER BY school ASC
         """ % StudentDates._meta.db_table)
     schools = []
@@ -39,18 +71,7 @@ def search_by_faculty(request):
         return response
 
     # get year from earliest start date
-    cursor = connection.cursor()
-    cursor.execute("""
-        select extract(year from min(start_date))
-        from %s
-        where start_date > '1900-01-01'
-        """ % StudentDates._meta.db_table)
-    min_year = None
-    max_years = None
-    for row in cursor.fetchall():
-        min_year = row[0]
-    if min_year is not None:
-        max_years = date.today().year - min_year
+    max_years = get_max_years()
 
     sql = """
         select distinct(owning_department_clevel)
@@ -157,6 +178,8 @@ def add_student(data, school, department, supervisor, studentid, program, superv
             else:
                 status = "finished"
 
+        print(studentid, sname, end_date, s.status, status, only_current)
+
         # check conditions
         if chief == "Yes" and "chief" not in supervisor_type:
             continue
@@ -197,9 +220,9 @@ def list_by_faculty(request):
     years_back = int(years_back_str)
     start_year = date.today().year - years_back
 
-    programs = get_variable(request, 'programs', as_list=True, def_value=["DP", "MD"])
-    supervisor_type = get_variable(request, 'supervisor_type', as_list=True, def_value=["chief", "other"])
-    study_type = get_variable(request, 'study_type', as_list=True, def_value=["full", "part"])
+    programs = get_variable(request, 'programs', as_list=True, def_value=PROGRAM_TYPES)
+    supervisor_type = get_variable(request, 'supervisor_type', as_list=True, def_value=SUPERVISOR_TYPES)
+    study_type = get_variable(request, 'study_type', as_list=True, def_value=STUDY_TYPES)
     only_current = get_variable(request, 'only_current', def_value="off") == "on"
     export = get_variable(request, 'csv')
 
@@ -280,34 +303,118 @@ def search_by_supervisor(request):
     if response is not None:
         return response
 
-    # TODO
+    # get year from earliest start date
+    max_years = get_max_years()
+
+    sql = """
+        select distinct(s.supervisor)
+        from %s sd, %s s
+        where lower(s.supervisor) like '%%%s%%'
+        and s.active = True
+        order by s.supervisor
+        """ % (StudentDates._meta.db_table, Supervisors._meta.db_table, name.lower())
+    cursor = connection.cursor()
+    cursor.execute(sql)
+    results = []
+    for row in cursor.fetchall():
+        data = {}
+        data['supervisor'] = row[0]
+        results.append(data)
 
     # configure template
     template = loader.get_template('supervisors/search_by_supervisor.html')
     context = applist.template_context('supervisors')
+    context['results'] = results
+    context['max_years'] = max_years
     return HttpResponse(template.render(context, request))
 
 def list_by_supervisor(request):
     # get parameters
-    # TODO
+    response, name = get_variable_with_error(request, 'supervisors', 'name')
+    if response is not None:
+        return response
 
+    years_back_str = get_variable(request, 'years_back', def_value=str(get_max_years()))
+    years_back = int(years_back_str)
+    start_year = date.today().year - years_back
+
+    programs = get_variable(request, 'programs', as_list=True, def_value=PROGRAM_TYPES)
+    supervisor_type = get_variable(request, 'supervisor_type', as_list=True, def_value=SUPERVISOR_TYPES)
+    study_type = get_variable(request, 'study_type', as_list=True, def_value=STUDY_TYPES)
+    only_current = get_variable(request, 'only_current', def_value="off") == "on"
     export = get_variable(request, 'csv')
+
+    sql = """
+        select sd.school, sd.department, s.supervisor, s.student_id, sd.program
+        from %s sd, %s s
+        where sd.student_id = s.student_id
+        and s.supervisor = '%s'
+        and sd.start_date >= '%s-01-01'
+        and s.active = True
+        group by sd.school, sd.department, s.supervisor, s.student_id, sd.program
+        order by sd.school, sd.department, s.supervisor, s.student_id, sd.program
+        """ % (StudentDates._meta.db_table, Supervisors._meta.db_table, name, start_year)
+    cursor = connection.cursor()
+    cursor.execute(sql)
+    result = {}
+    for row in cursor.fetchall():
+        try:
+            if len(row[0]) < 1:
+                print("empty school: " + str(row))
+                continue
+            if row[4] not in programs:
+                continue
+            add_student(data=result, school=row[0], department=row[1], supervisor=row[2], studentid=row[3],
+                        program=row[4], supervisor_type=supervisor_type, study_type=study_type,
+                        only_current=only_current)
+        except Exception as ex:
+            print("row=" + str(row))
+            traceback.print_exc(file=sys.stdout)
 
     # CSV or HTML?
     if export == "csv":
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="supervisor-%s.csv"' % date.today().strftime("%Y-%m-%d")
+        response['Content-Disposition'] = 'attachment; filename="faculty-%s.csv"' % date.today().strftime("%Y-%m-%d")
         writer = csv.writer(response)
         writer.writerow([
-            'Blah',
-            # TODO headers
+            'Faculty/School',
+            'Department',
+            'Supervisor',
+            'Program',
+            'ID',
+            'Name',
+            'Start date',
+            'End date',
+            'Months',
+            'Full time',
+            'Chief supervisor',
+            'Status',
         ])
-        # TODO data
+        for school in result:
+            for dept in result[school]:
+                for supervisor in result[school][dept]:
+                    for program in result[school][dept][supervisor]:
+                        for student in result[school][dept][supervisor][program]:
+                            sdata = result[school][dept][supervisor][program][student]
+                            writer.writerow([
+                                school,
+                                dept,
+                                supervisor,
+                                program,
+                                student,
+                                sdata['name'],
+                                sdata['start_date'],
+                                sdata['end_date'],
+                                sdata['months'],
+                                sdata['full_time'],
+                                sdata['chief_supervisor'],
+                                sdata['status'],
+                            ])
         return response
     else:
         template = loader.get_template('supervisors/list_by_supervisor.html')
         context = applist.template_context('supervisors')
-        context['results'] = None  # TODO
+        context['results'] = result
         return HttpResponse(template.render(context, request))
 
 def search_by_student(request):
@@ -316,11 +423,38 @@ def search_by_student(request):
     if response is not None:
         return response
 
-    # TODO
+    if name.isdigit():
+        sql = """
+            select s.student_id, sd.program, s.student
+            from %s sd, %s s
+            where s.student_id = '%s'
+            and s.active = True
+            group by s.student_id, sd.program, s.student
+            order by s.student_id, sd.program, s.student
+            """ % (StudentDates._meta.db_table, Supervisors._meta.db_table, name)
+    else:
+        sql = """
+            select s.student_id, sd.program, s.student
+            from %s sd, %s s
+            where lower(s.student) like '%%%s%%'
+            and s.active = True
+            group by s.student_id, sd.program, s.student
+            order by s.student_id, sd.program, s.student
+            """ % (StudentDates._meta.db_table, Supervisors._meta.db_table, name.lower())
+    cursor = connection.cursor()
+    cursor.execute(sql)
+    results = []
+    for row in cursor.fetchall():
+        data = {}
+        data['student_id'] = row[0]
+        data['program'] = row[1]
+        data['student'] = row[2]
+        results.append(data)
 
     # configure template
     template = loader.get_template('supervisors/search_by_student.html')
     context = applist.template_context('supervisors')
+    context['results'] = results
     return HttpResponse(template.render(context, request))
 
 def list_by_student(request):

@@ -17,8 +17,56 @@
       {% csrf_token %}
       <table class="database_params">
         <tr>
-          <td>TODO</td>
+          <td>Supervisor</td>
           <td>
+            <select name="name" size="5">
+              {% for supervisor_data in results %}
+              <option value="{{ supervisor_data|get_item:'supervisor' }}">{{ supervisor_data|get_item:'supervisor' }}</option>
+              {% endfor %}
+            </select>
+          </td>
+        </tr>
+        <tr>
+          {% if max_years %}
+          <td>Years back (start date; max {{ max_years }})</td>
+          {% else %}
+          <td>Years back (start date)</td>
+          {% endif %}
+          <td>
+            <input type="text" name="years_back" value="{{ max_years }}"/>
+          </td>
+        </tr>
+        <tr>
+          <td>Program</td>
+          <td>
+            <select name="program" size="2" multiple>
+              <option value="MD" selected>Master</option>
+              <option value="PD" selected>PhD</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Supervisor type</td>
+          <td>
+            <select name="supervisor_type" size="2" multiple>
+              <option value="chief" selected>Chief</option>
+              <option value="other" selected>Other</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Only current students?</td>
+          <td>
+            <input type="checkbox" name="only_current"/>
+          </td>
+        </tr>
+        <tr>
+          <td>Study type</td>
+          <td>
+            <select name="study_type" size="2" multiple>
+              <option value="full" selected>Full time</option>
+              <option value="part" selected>Part time</option>
+            </select>
           </td>
         </tr>
         <tr>

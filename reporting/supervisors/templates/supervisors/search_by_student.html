@@ -17,8 +17,13 @@
       {% csrf_token %}
       <table class="database_params">
         <tr>
-          <td>TODO</td>
+          <td>Student</td>
           <td>
+            <select name="student" size="5">
+              {% for student_data in results %}
+              <option value="{{ student_data|get_item:'student_id' }}">{{ student_data|get_item:'student' }} - {{ student_data|get_item:'program' }}</option>
+              {% endfor %}
+            </select>
           </td>
         </tr>
         <tr>
