@@ -225,6 +225,7 @@ def list_by_faculty(request):
     supervisor_type = get_variable(request, 'supervisor_type', as_list=True, def_value=SUPERVISOR_TYPES)
     study_type = get_variable(request, 'study_type', as_list=True, def_value=STUDY_TYPES)
     only_current = get_variable(request, 'only_current', def_value="off") == "on"
+    min_months = float(get_variable(request, 'min_months', def_value="-1"))
     export = get_variable(request, 'csv')
 
     sql = """
@@ -235,9 +236,10 @@ def list_by_faculty(request):
         and sd.department in ('%s')
         and sd.start_date >= '%s-01-01'
         and s.active = True
+        and sd.months >= %f
         group by sd.school, sd.department, s.supervisor, s.student_id, sd.program
         order by sd.school, sd.department, s.supervisor, s.student_id, sd.program
-        """ % (StudentDates._meta.db_table, Supervisors._meta.db_table, "','".join(schools), "','".join(departments), str(start_year))
+        """ % (StudentDates._meta.db_table, Supervisors._meta.db_table, "','".join(schools), "','".join(departments), str(start_year), min_months)
     cursor = connection.cursor()
     cursor.execute(sql)
     result = {}
@@ -346,6 +348,7 @@ def list_by_supervisor(request):
     supervisor_type = get_variable(request, 'supervisor_type', as_list=True, def_value=SUPERVISOR_TYPES)
     study_type = get_variable(request, 'study_type', as_list=True, def_value=STUDY_TYPES)
     only_current = get_variable(request, 'only_current', def_value="off") == "on"
+    min_months = float(get_variable(request, 'min_months', def_value="-1"))
     export = get_variable(request, 'csv')
 
     sql = """
@@ -355,9 +358,10 @@ def list_by_supervisor(request):
         and s.supervisor = '%s'
         and sd.start_date >= '%s-01-01'
         and s.active = True
+        and sd.months >= %f
         group by sd.school, sd.department, s.supervisor, s.student_id, sd.program
         order by sd.school, sd.department, s.supervisor, s.student_id, sd.program
-        """ % (StudentDates._meta.db_table, Supervisors._meta.db_table, name, start_year)
+        """ % (StudentDates._meta.db_table, Supervisors._meta.db_table, name, start_year, min_months)
     cursor = connection.cursor()
     cursor.execute(sql)
     result = {}
