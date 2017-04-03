@@ -405,6 +405,7 @@ def populate_student_dates():
                 from %s
                 where student_id = '%s'
                 and active = 'true'
+                and completion_date > '1900-01-01'
                 """ % (table_super, id)
             cursor2.execute(sql)
             for row2 in cursor2.fetchall():
@@ -418,6 +419,7 @@ def populate_student_dates():
                 from %s
                 where student_id = '%s'
                 and active = 'true'
+                and completion_date > '1900-01-01'
                 """ % (table_super, id)
             cursor2.execute(sql)
             for row2 in cursor2.fetchall():
@@ -457,6 +459,7 @@ def populate_student_dates():
                 from %s
                 where student_id = '%s'
                 and programme_type_code = 'DP'
+                and final_grade != '...'
                 order by year desc
                 """ % (table, id)
             cursor2.execute(sql)
