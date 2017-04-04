@@ -2,7 +2,7 @@ from django.template import loader
 from django.template.defaulttags import register
 from django.http import HttpResponse
 from django.db import connection
-from supervisors.models import StudentDates, Supervisors
+from supervisors.models import StudentDates, Supervisors, Scholarship
 from database.models import GradeResults
 from reporting.error import create_error_response
 
@@ -26,6 +26,9 @@ PROGRAM_TYPES = ["DP", "MD"]
 SUPERVISOR_TYPES = ["chief", "other"]
 """ all supervisor types """
 
+NO_SCHOLARSHIP = "-none-"
+""" the indicator for 'no' scholarship """
+
 @register.filter
 def get_item(dictionary, key):
     """
@@ -41,6 +44,7 @@ def get_item(dictionary, key):
 def get_max_years():
     """
     Determines the maximum number of available years to go back.
+
     :return: the number of years
     :rtype: int
     """
@@ -60,8 +64,14 @@ def get_max_years():
 
     return int(max_years)
 
-def index(request):
-    # get all schools
+def get_schools():
+    """
+    Retrieves a sorted list of all the deparments.
+
+    :return: the list of departments
+    :rtype: list
+    """
+
     cursor = connection.cursor()
     cursor.execute("""
         SELECT DISTINCT(school)
@@ -69,14 +79,58 @@ def index(request):
         WHERE char_length(school) > 0
         ORDER BY school ASC
         """ % StudentDates._meta.db_table)
-    schools = []
+    result = []
     for row in cursor.fetchall():
-        schools.append(row[0])
+        result.append(row[0])
+    return result
 
+def get_departments(schools):
+    """
+    Retrieves a sorted list of all the departments.
+
+    :param schools: the list of schools to list the departments for.
+    :type schools: list
+    :return: the list of departments
+    :rtype: list
+    """
+
+    sql = """
+        select distinct(owning_department_clevel)
+        from %s
+        where owning_school_clevel in ('%s')
+        order by owning_department_clevel
+        """ % (GradeResults._meta.db_table, "','".join(schools))
+    cursor = connection.cursor()
+    cursor.execute(sql)
+    result = []
+    for row in cursor.fetchall():
+        result.append(row[0])
+    return result
+
+def get_scholarships():
+    """
+    Retrieves a sorted list of all scholarships available.
+
+    :return: the list of scholarships
+    :rtype: list
+    """
+    cursor = connection.cursor()
+    cursor.execute("""
+        SELECT DISTINCT(name)
+        FROM %s
+        WHERE char_length(name) > 0
+        ORDER BY name ASC
+        """ % Scholarship._meta.db_table)
+    result = []
+    for row in cursor.fetchall():
+        result.append(row[0])
+    return result
+
+def index(request):
     # configure template
     template = loader.get_template('supervisors/index.html')
     context = applist.template_context('supervisors')
-    context['schools'] = schools
+    context['schools'] = get_schools()
     return HttpResponse(template.render(context, request))
 
 def search_by_faculty(request):
@@ -88,27 +142,16 @@ def search_by_faculty(request):
     # get year from earliest start date
     max_years = get_max_years()
 
-    sql = """
-        select distinct(owning_department_clevel)
-        from %s
-        where owning_school_clevel in ('%s')
-        order by owning_department_clevel
-        """ % (GradeResults._meta.db_table, "','".join(schools))
-    cursor = connection.cursor()
-    cursor.execute(sql)
-    departments = []
-    for row in cursor.fetchall():
-        departments.append(row[0])
-
     # configure template
     template = loader.get_template('supervisors/search_by_faculty.html')
     context = applist.template_context('supervisors')
     context['schools'] = schools
-    context['departments'] = departments
+    context['departments'] = get_departments(schools)
     context['max_years'] = int(max_years) if max_years is not None else YEARS_BACK
+    context['scholarships'] = get_scholarships()
     return HttpResponse(template.render(context, request))
 
-def add_student(data, school, department, supervisor, studentid, program, supervisor_type, study_type, only_current):
+def add_student(data, school, department, supervisor, studentid, program, supervisor_type, study_type, only_current, scholarship):
     """
     Adds the student to the "data" structure. Overview of the data structure (<name> is
     a key in a dictionary):
@@ -125,6 +168,7 @@ def add_student(data, school, department, supervisor, studentid, program, superv
         - full_time (True|False)
         - chief_supervisor (True|False|None)
         - status
+        - scholarship (True|False) -- present only if looking for scholarship other than '-none-'
 
     :param data: the data structure to extend
     :type data: dict
@@ -144,6 +188,8 @@ def add_student(data, school, department, supervisor, studentid, program, superv
     :type study_type: list
     :param only_current: whether to list only current students
     :type only_current: bool
+    :param scholarship: the scholarship name to check whether the student has it
+    :type scholarship: str
     """
 
     if program == "DP":
@@ -160,6 +206,8 @@ def add_student(data, school, department, supervisor, studentid, program, superv
         for g in GradeResults.objects.all().filter(student_id=studentid):
             sname = g.name
             break
+
+        # chief?
         chief = None
         for sv in Supervisors.objects.all().filter(student_id=studentid, supervisor=supervisor):
             chief = "Yes" if "Chief" in sv.active_roles else "No"
@@ -170,10 +218,12 @@ def add_student(data, school, department, supervisor, studentid, program, superv
         else:
             full_time = 'No'
 
+        # end date
         end_date = s.end_date.strftime("%Y-%m-%d")
         if end_date == "9999-12-31" or end_date <= "1900-01-01":
             end_date = "N/A"
 
+        # status
         status = s.status
         if status is None:
             if end_date == "N/A":
@@ -182,6 +232,14 @@ def add_student(data, school, department, supervisor, studentid, program, superv
                 status = "current"
             else:
                 status = "finished"
+
+        # scholarship
+        scholarship_status = None
+        if scholarship != NO_SCHOLARSHIP:
+            scholarship_status = "No"
+            for sch in Scholarship.objects.all().filter(student_id=studentid, name=scholarship, decision="Active"):
+                scholarship_status = "Yes"
+                break
 
         # check conditions
         if chief == "Yes" and "chief" not in supervisor_type:
@@ -211,6 +269,7 @@ def add_student(data, school, department, supervisor, studentid, program, superv
         sdata['full_time'] = full_time
         sdata['chief_supervisor'] = chief
         sdata['status'] = status
+        sdata['scholarship'] = scholarship_status
         data[school].append(sdata)
 
 def list_by_faculty(request):
@@ -234,6 +293,7 @@ def list_by_faculty(request):
     study_type = get_variable(request, 'study_type', as_list=True, def_value=STUDY_TYPES)
     only_current = get_variable(request, 'only_current', def_value="off") == "on"
     min_months = float(get_variable(request, 'min_months', def_value="-1", blank=False))
+    scholarship = str(get_variable(request, 'scholarship', def_value="NO_SCHOLARSHIP"))
     sort_column = get_variable(request, 'sort_column', def_value="supervisor")
     sort_order = get_variable(request, 'sort_order', def_value="asc")
     export = get_variable(request, 'csv')
@@ -259,7 +319,7 @@ def list_by_faculty(request):
                 continue
             add_student(data=result, school=row[0], department=row[1], supervisor=row[2], studentid=row[3],
                         program=row[4], supervisor_type=supervisor_type, study_type=study_type,
-                        only_current=only_current)
+                        only_current=only_current, scholarship=scholarship)
         except Exception as ex:
             print("row=" + str(row))
             traceback.print_exc(file=sys.stdout)
@@ -288,6 +348,7 @@ def list_by_faculty(request):
             'Full time',
             'Chief supervisor',
             'Status',
+            'Scholarship (' + scholarship + ')',
         ])
         for school in result:
             for row in result[school]:
@@ -304,6 +365,7 @@ def list_by_faculty(request):
                     row['full_time'],
                     row['chief_supervisor'],
                     row['status'],
+                    row['scholarship'],
                 ])
         return response
     else:
@@ -311,6 +373,8 @@ def list_by_faculty(request):
         context = applist.template_context('supervisors')
         context['results'] = result
         context['csv_url'] = form_utils.request_to_url(request, "/supervisors/list-by-faculty", {'csv': 'csv'})
+        context['scholarship'] = scholarship
+        context['show_scholarship'] = scholarship != NO_SCHOLARSHIP
         return HttpResponse(template.render(context, request))
 
 def search_by_supervisor(request):
@@ -345,6 +409,7 @@ def search_by_supervisor(request):
     context = applist.template_context('supervisors')
     context['results'] = results
     context['max_years'] = max_years
+    context['scholarships'] = get_scholarships()
     return HttpResponse(template.render(context, request))
 
 def list_by_supervisor(request):
@@ -362,6 +427,7 @@ def list_by_supervisor(request):
     study_type = get_variable(request, 'study_type', as_list=True, def_value=STUDY_TYPES)
     only_current = get_variable(request, 'only_current', def_value="off") == "on"
     min_months = float(get_variable(request, 'min_months', def_value="-1", blank=False))
+    scholarship = str(get_variable(request, 'scholarship', def_value="NO_SCHOLARSHIP"))
     sort_column = get_variable(request, 'sort_column', def_value="supervisor")
     sort_order = get_variable(request, 'sort_order', def_value="asc")
     export = get_variable(request, 'csv')
@@ -389,7 +455,7 @@ def list_by_supervisor(request):
                 continue
             add_student(data=result, school=row[0], department=row[1], supervisor=row[2], studentid=row[3],
                         program=row[4], supervisor_type=supervisor_type, study_type=study_type,
-                        only_current=only_current)
+                        only_current=only_current, scholarship=scholarship)
         except Exception as ex:
             print("row=" + str(row))
             traceback.print_exc(file=sys.stdout)
@@ -418,6 +484,7 @@ def list_by_supervisor(request):
             'Full time',
             'Chief supervisor',
             'Status',
+            'Scholarship (' + scholarship + ')',
         ])
         for school in result:
             for row in result[school]:
@@ -434,6 +501,7 @@ def list_by_supervisor(request):
                     row['full_time'],
                     row['chief_supervisor'],
                     row['status'],
+                    row['scholarship'],
                 ])
         return response
     else:
@@ -441,6 +509,8 @@ def list_by_supervisor(request):
         context = applist.template_context('supervisors')
         context['results'] = result
         context['csv_url'] = form_utils.request_to_url(request, "/supervisors/list-by-supervisor", {'csv': 'csv'})
+        context['scholarship'] = scholarship
+        context['show_scholarship'] = scholarship != NO_SCHOLARSHIP
         return HttpResponse(template.render(context, request))
 
 def search_by_student(request):

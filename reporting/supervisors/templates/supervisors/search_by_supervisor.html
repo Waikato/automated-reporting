@@ -72,6 +72,17 @@
           </td>
         </tr>
         <tr>
+          <td>Scholarship</td>
+          <td>
+            <select name="scholarship">
+              <option value="-none-" selected>-none-</option>
+              {% for scholarship in scholarships %}
+              <option value="{{ scholarship }}">{{ scholarship }}</option>
+              {% endfor %}
+            </select>
+          </td>
+        </tr>
+        <tr>
           <td>Sort column</td>
           <td>
             <select name="sort_column" required>

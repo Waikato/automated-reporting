@@ -25,9 +25,12 @@
           <th>Start</th>
           <th>End</th>
           <th>Months</th>
-          <th>FT</th>
+          <th>FT<sup>1</sup></th>
           <th>Chief</th>
           <th>Status</th>
+          {% if show_scholarship %}
+          <th>Scholarship<sup>2</sup></th>
+          {% endif %}
         </tr>
         {% for row in school_data %}
         <tr>
@@ -42,11 +45,19 @@
           <td>{{ row|get_item:'full_time' }}</td>
           <td>{{ row|get_item:'chief_supervisor' }}</td>
           <td>{{ row|get_item:'status' }}</td>
+          {% if show_scholarship %}
+          <td>{{ row|get_item:'scholarship' }}</td>
+          {% endif %}
         </tr>
         {% endfor %}
       </table>
     </div>
   </div>
+
+  <p><sup>1</sup> Full time or part time</p>
+  {% if show_scholarship %}
+  <p><sup>2</sup> Scholarship type: {{ scholarship }}</p>
+  {% endif %}
 </div>
 {% endfor %}
 
