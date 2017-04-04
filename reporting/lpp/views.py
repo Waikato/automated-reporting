@@ -1,6 +1,8 @@
 from django.template import loader
 import reporting.settings
 import reporting.applist as applist
+import reporting.form_utils as form_utils
+from reporting.form_utils import get_variable_with_error, get_variable
 from reporting.error import create_error_response
 from database.models import GradeResults
 from django.db import connection
@@ -42,24 +44,21 @@ def index(request):
 
 def output(request):
     # get parameters
-    if "year" not in request.POST:
-        return create_error_response(request, 'lpp', 'No year defined!')
-    year = request.POST["year"]
+    response, year = get_variable_with_error(request, 'lpp', 'year')
+    if response is not None:
+        return response
 
-    if "school" not in request.POST:
-        return create_error_response(request, 'lpp', 'No school defined!')
-    school = request.POST.getlist("school")
+    response, school = get_variable_with_error(request, 'lpp', 'school', as_list=True)
+    if response is not None:
+        return response
 
-    if "type" not in request.POST:
-        return create_error_response(request, 'lpp', 'No paper type defined!')
-    type = request.POST["type"]
+    response, type = get_variable_with_error(request, 'lpp', 'type')
+    if response is not None:
+        return response
     if type not in ["master", "occurrence"]:
         return create_error_response(request, 'lpp', 'Unsupported type: {0}'.format(type))
 
-    if "csv" not in request.POST:
-        export = None
-    else:
-        export = "csv"
+    export = get_variable(request, 'csv')
 
     # load data from DB
     if len(school) == 0:
@@ -135,6 +134,7 @@ def output(request):
 
         context['header'] = header
         context['body'] = body
+        context['csv_url'] = form_utils.request_to_url(request, "/lpp/output", {'csv': 'csv'})
         response = HttpResponse(template.render(context, request))
 
     # remove temp files again
