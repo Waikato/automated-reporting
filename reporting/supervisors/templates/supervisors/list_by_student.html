@@ -13,6 +13,24 @@
     <h3 class="panel-title">List By Student <span style="float: right;"><a class="btn btn-default btn-export" href="{{ csv_url }}" role="button">CSV</a></span></h3>
   </div>
   <div class="panel-body">
+    <div class="table-responsive">
+      <table class="table">
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Supervisor</th>
+          <th>Role</th>
+        </tr>
+        {% for row in results %}
+        <tr>
+          <td>{{ row|get_item:'studentid' }}</td>
+          <td>{{ row|get_item:'studentname' }}</td>
+          <td><a href="/supervisors/search-by-supervisor?name={{ supervisor }}">{{ row|get_item:'supervisor' }}</a></td>
+          <td>{{ row|get_item:'role' }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
   </div>
 </div>
 

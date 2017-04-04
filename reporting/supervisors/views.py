@@ -1,4 +1,5 @@
 from django.template import loader
+from django.template.defaulttags import register
 from django.http import HttpResponse
 from django.db import connection
 from supervisors.models import StudentDates, Supervisors
@@ -24,6 +25,18 @@ PROGRAM_TYPES = ["DP", "MD"]
 
 SUPERVISOR_TYPES = ["chief", "other"]
 """ all supervisor types """
+
+@register.filter
+def get_item(dictionary, key):
+    """
+    Filter method for retrieving the value of a dictionary.
+
+    Taken from here:
+    http://stackoverflow.com/a/8000091
+
+    {{ mydict|get_item:item.NAME }}
+    """
+    return dictionary.get(key)
 
 def get_max_years():
     """
@@ -470,9 +483,26 @@ def search_by_student(request):
 
 def list_by_student(request):
     # get parameters
-    # TODO
+    response, studentid = get_variable_with_error(request, 'supervisors', 'student')
+    if response is not None:
+        return response
 
     export = get_variable(request, 'csv')
+
+    result = []
+    for sv in Supervisors.objects.all().filter(student_id=studentid):
+        sname = None
+        for g in GradeResults.objects.all().filter(student_id=studentid):
+            sname = g.name
+            break
+        data = {}
+        data["studentid"] = studentid
+        data["studentname"] = sname
+        data["supervisor"] = sv.supervisor
+        data["role"] = sv.active_roles
+        if (data["role"] is None) or (len(data["role"]) == 0):
+            data["role"] = "N/A"
+        result.append(data)
 
     # CSV or HTML?
     if export == "csv":
@@ -480,14 +510,22 @@ def list_by_student(request):
         response['Content-Disposition'] = 'attachment; filename="student-%s.csv"' % date.today().strftime("%Y-%m-%d")
         writer = csv.writer(response)
         writer.writerow([
-            'Blah',
-            # TODO headers
+            'ID',
+            'Name',
+            'Supervisor',
+            'Role',
         ])
-        # TODO data
+        for row in result:
+            writer.writerow([
+                row["studentid"],
+                row["studentname"],
+                row["supervisor"],
+                row["role"],
+            ])
         return response
     else:
         template = loader.get_template('supervisors/list_by_student.html')
         context = applist.template_context('supervisors')
-        context['results'] = None  # TODO
+        context['results'] = result
         context['csv_url'] = form_utils.request_to_url(request, "/supervisors/list-by-student", {'csv': 'csv'})
         return HttpResponse(template.render(context, request))
