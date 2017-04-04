@@ -114,17 +114,17 @@ def add_student(data, school, department, supervisor, studentid, program, superv
     a key in a dictionary):
 
     <faculty>
-      - <department>
-        - <supervisor>
-          - <program> (PD, MD)
-            - <studentid>
-              - name (string)
-              - start_date (date)
-              - end_date (date)
-              - months (float)
-              - full_time (True|False)
-              - chief_supervisor (True|False|None)
-              - status
+        - department
+        - supervisor
+        - program (DP, MD)
+        - studentid
+        - name (string)
+        - start_date (date)
+        - end_date (date)
+        - months (float)
+        - full_time (True|False)
+        - chief_supervisor (True|False|None)
+        - status
 
     :param data: the data structure to extend
     :type data: dict
@@ -197,17 +197,13 @@ def add_student(data, school, department, supervisor, studentid, program, superv
 
         # ensure data structures are present
         if school not in data:
-            data[school] = {}
-        if department not in data[school]:
-            data[school][department] = {}
-        if supervisor not in data[school][department]:
-            data[school][department][supervisor] = {}
-        if program_display not in data[school][department][supervisor]:
-            data[school][department][supervisor][program_display] = {}
-        if studentid not in data[school][department][supervisor][program_display]:
-            data[school][department][supervisor][program_display][studentid] = {}
+            data[school] = []
 
-        sdata = data[school][department][supervisor][program_display][studentid]
+        sdata = {}
+        sdata['department'] = department
+        sdata['supervisor'] = supervisor
+        sdata['program'] = program_display
+        sdata['id'] = studentid
         sdata['name'] = sname
         sdata['start_date'] = s.start_date.strftime("%Y-%m-%d")
         sdata['end_date'] = end_date
@@ -215,6 +211,7 @@ def add_student(data, school, department, supervisor, studentid, program, superv
         sdata['full_time'] = full_time
         sdata['chief_supervisor'] = chief
         sdata['status'] = status
+        data[school].append(sdata)
 
 def list_by_faculty(request):
     # get parameters
@@ -285,25 +282,21 @@ def list_by_faculty(request):
             'Status',
         ])
         for school in result:
-            for dept in result[school]:
-                for supervisor in result[school][dept]:
-                    for program in result[school][dept][supervisor]:
-                        for student in result[school][dept][supervisor][program]:
-                            sdata = result[school][dept][supervisor][program][student]
-                            writer.writerow([
-                                school,
-                                dept,
-                                supervisor,
-                                program,
-                                student,
-                                sdata['name'],
-                                sdata['start_date'],
-                                sdata['end_date'],
-                                sdata['months'],
-                                sdata['full_time'],
-                                sdata['chief_supervisor'],
-                                sdata['status'],
-                            ])
+            for row in result[school]:
+                writer.writerow([
+                    school,
+                    row['department'],
+                    row['supervisor'],
+                    row['program'],
+                    row['id'],
+                    row['name'],
+                    row['start_date'],
+                    row['end_date'],
+                    row['months'],
+                    row['full_time'],
+                    row['chief_supervisor'],
+                    row['status'],
+                ])
         return response
     else:
         template = loader.get_template('supervisors/list_by_faculty.html')
@@ -411,25 +404,21 @@ def list_by_supervisor(request):
             'Status',
         ])
         for school in result:
-            for dept in result[school]:
-                for supervisor in result[school][dept]:
-                    for program in result[school][dept][supervisor]:
-                        for student in result[school][dept][supervisor][program]:
-                            sdata = result[school][dept][supervisor][program][student]
-                            writer.writerow([
-                                school,
-                                dept,
-                                supervisor,
-                                program,
-                                student,
-                                sdata['name'],
-                                sdata['start_date'],
-                                sdata['end_date'],
-                                sdata['months'],
-                                sdata['full_time'],
-                                sdata['chief_supervisor'],
-                                sdata['status'],
-                            ])
+            for row in result[school]:
+                writer.writerow([
+                    school,
+                    row['department'],
+                    row['supervisor'],
+                    row['program'],
+                    row['id'],
+                    row['name'],
+                    row['start_date'],
+                    row['end_date'],
+                    row['months'],
+                    row['full_time'],
+                    row['chief_supervisor'],
+                    row['status'],
+                ])
         return response
     else:
         template = loader.get_template('supervisors/list_by_supervisor.html')
