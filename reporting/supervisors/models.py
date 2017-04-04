@@ -18,7 +18,8 @@ class StudentDates(models.Model):
 
 class Supervisors(models.Model):
     """
-    Grade results.
+    Supervisor data.
+    TODO: program = [DP, MD]
     """
     student_id = models.CharField(max_length=250, db_index=True)
     student = models.CharField(max_length=250)
