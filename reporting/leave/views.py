@@ -4,6 +4,8 @@ from django.db import connection
 
 import reporting.applist as applist
 from reporting.error import create_error_response
+import reporting.form_utils as form_utils
+from reporting.form_utils import get_variable_with_error
 from database.models import GradeResults
 from csv import DictReader
 import traceback
@@ -42,13 +44,14 @@ def index(request):
 
 def upload(request):
     # get parameters
-    if "school" not in request.POST:
-        return create_error_response(request, 'leave', 'No school defined!')
-    schools = request.POST.getlist("school")
+    response, schools = get_variable_with_error(request, 'leave', 'school', as_list=True)
+    if response is not None:
+        return response
 
-    if "minimum" not in request.POST:
-        return create_error_response(request, 'leave', 'No minimum number of days defined!')
-    minimum = int(request.POST["minimum"])
+    response, minimum_str = get_variable_with_error(request, 'leave', 'minimum', def_value="0")
+    if response is not None:
+        return response
+    minimum = int(minimum_str)
 
     csv = request.FILES['datafile']
 
