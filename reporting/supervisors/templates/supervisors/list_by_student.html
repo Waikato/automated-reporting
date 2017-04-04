@@ -25,7 +25,7 @@
         <tr>
           <td>{{ row|get_item:'studentid' }}</td>
           <td>{{ row|get_item:'studentname' }}</td>
-          <td><a href="/supervisors/search-by-supervisor?name={{ supervisor }}">{{ row|get_item:'supervisor' }}</a></td>
+          <td><a href="/supervisors/search-by-supervisor?name={{ row|get_item:'supervisor' }}">{{ row|get_item:'supervisor' }}</a></td>
           <td>{{ row|get_item:'role' }}</td>
         </tr>
         {% endfor %}
