@@ -6,7 +6,7 @@ from . import dbimport
 from datetime import date
 
 from database.models import TableStatus, GradeResults
-from supervisors.models import Supervisors, StudentDates
+from supervisors.models import Supervisors, StudentDates, Scholarship
 
 def database_graderesults(request):
     years = []
@@ -23,6 +23,12 @@ def database_supervisors(request):
     template = loader.get_template('database/import_supervisors.html')
     context = applist.template_context()
     context['title'] = 'Import supervisors'
+    return HttpResponse(template.render(context, request))
+
+def database_scholarships(request):
+    template = loader.get_template('database/import_scholarships.html')
+    context = applist.template_context()
+    context['title'] = 'Import scholarships'
     return HttpResponse(template.render(context, request))
 
 def database_studentdates(request):
@@ -53,6 +59,19 @@ def import_supervisors(request):
         dbimport.update_tablestatus(Supervisors._meta.db_table)
     else:
         context['message'] = "Failed to upload supervisors: " + msg
+    return HttpResponse(template.render(context, request))
+
+def import_scholarships(request):
+    # configure template
+    csv = request.FILES['datafile']
+    msg = dbimport.import_scholarships(csv.temporary_file_path())
+    template = loader.get_template('message.html')
+    context = applist.template_context()
+    if msg is None:
+        context['message'] = "Successful upload of scholarships!"
+        dbimport.update_tablestatus(Scholarship._meta.db_table)
+    else:
+        context['message'] = "Failed to upload scholarships: " + msg
     return HttpResponse(template.render(context, request))
 
 def import_graderesults(request):

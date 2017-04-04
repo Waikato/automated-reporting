@@ -35,3 +35,13 @@ class Supervisors(models.Model):
     completion_date = models.DateField(null=True, default=None)
     proposed_enrolment_date = models.DateField(null=True, default=None)
     proposed_research_topic = models.CharField(max_length=250, blank=True, default='')
+
+class Scholarship(models.Model):
+    """
+    Scholarship data.
+    """
+    student_id = models.CharField(max_length=250, db_index=True)
+    name = models.CharField(max_length=250, db_index=True, default='')
+    status = models.CharField(max_length=20, db_index=True, default='')
+    decision = models.CharField(max_length=20, db_index=True, default='')
+    year = models.IntegerField(null=True, db_index=True)

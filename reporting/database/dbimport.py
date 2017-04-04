@@ -1,5 +1,5 @@
 from database.models import GradeResults, TableStatus
-from supervisors.models import Supervisors, StudentDates
+from supervisors.models import Supervisors, StudentDates, Scholarship
 from reporting.db import truncate_strings, string_cell, int_cell, float_cell
 from csv import DictReader
 import gzip
@@ -570,6 +570,37 @@ def import_supervisors(csv):
                 r.quals = row['quals']
                 r.comments = row['comments']
                 r.active = "removed" not in title and "replaced" not in title and "informal" not in title # active if not withdrawn
+                r.save()
+    except Exception as ex:
+        traceback.print_exc(file=sys.stdout)
+        return str(ex)
+
+    return None
+
+def import_scholarships(csv):
+    """
+    Imports the scholarships (Jade Export).
+
+    :param csv: the CSV file to import
+    :type csv: str
+    :return: None if successful, otherwise error message
+    :rtype: str
+    """
+    # empty table
+    Scholarship.objects.all().delete()
+    # import
+    try:
+        with open(csv, encoding='ISO-8859-1') as csvfile:
+            reader = DictReader(csvfile)
+            reader.fieldnames = [name.lower().replace(" ", "_") for name in reader.fieldnames]
+            for row in reader:
+                truncate_strings(row, 250)
+                r = Scholarship()
+                r.student_id = row['person_id']
+                r.name = row['template']
+                r.status = row['status']
+                r.decision = row['decision']
+                r.year = int(row['year'])
                 r.save()
     except Exception as ex:
         traceback.print_exc(file=sys.stdout)
