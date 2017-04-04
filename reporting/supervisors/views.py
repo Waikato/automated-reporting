@@ -234,6 +234,8 @@ def list_by_faculty(request):
     study_type = get_variable(request, 'study_type', as_list=True, def_value=STUDY_TYPES)
     only_current = get_variable(request, 'only_current', def_value="off") == "on"
     min_months = float(get_variable(request, 'min_months', def_value="-1", blank=False))
+    sort_column = get_variable(request, 'sort_column', def_value="supervisor")
+    sort_order = get_variable(request, 'sort_order', def_value="asc")
     export = get_variable(request, 'csv')
 
     sql = """
@@ -261,6 +263,12 @@ def list_by_faculty(request):
         except Exception as ex:
             print("row=" + str(row))
             traceback.print_exc(file=sys.stdout)
+
+    # sort
+    for school in result:
+        school_data = result[school]
+        school_data_sorted = sorted(school_data, key=lambda row: row[sort_column], reverse=(sort_order == "desc"))
+        result[school] = school_data_sorted
 
     # CSV or HTML?
     if export == "csv":
@@ -354,6 +362,8 @@ def list_by_supervisor(request):
     study_type = get_variable(request, 'study_type', as_list=True, def_value=STUDY_TYPES)
     only_current = get_variable(request, 'only_current', def_value="off") == "on"
     min_months = float(get_variable(request, 'min_months', def_value="-1", blank=False))
+    sort_column = get_variable(request, 'sort_column', def_value="supervisor")
+    sort_order = get_variable(request, 'sort_order', def_value="asc")
     export = get_variable(request, 'csv')
 
     sql = """
@@ -383,6 +393,12 @@ def list_by_supervisor(request):
         except Exception as ex:
             print("row=" + str(row))
             traceback.print_exc(file=sys.stdout)
+
+    # sort
+    for school in result:
+        school_data = result[school]
+        school_data_sorted = sorted(school_data, key=lambda row: row[sort_column], reverse=(sort_order == "desc"))
+        result[school] = school_data_sorted
 
     # CSV or HTML?
     if export == "csv":
