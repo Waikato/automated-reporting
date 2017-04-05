@@ -578,10 +578,12 @@ def import_supervisors(csv):
                 # active if not withdrawn
                 r.active = ("removed" not in title) and ("replaced" not in title) and ("informal" not in title)
                 # determine program type
-                program = p2.sub('', p1.sub('', row['entity']))
-                if program == "PHD":
+                program = p2.sub('', p1.sub('', row['entity'])).upper()
+                if program in ["PHD", 'DMA', 'EDD', "SJD"]:
                     r.program = "DP"
-                # TODO other types: MPHIL, IPC, DMA, EDD, SJD
+                elif program in ["MPHIL"]:
+                    r.program = "MD"
+                # other types: IPC, ...
                 else:
                     r.program = "Other"
                 r.save()
