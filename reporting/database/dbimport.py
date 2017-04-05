@@ -5,6 +5,7 @@ from csv import DictReader
 import gzip
 import traceback
 import sys
+import re
 from datetime import datetime
 from django.db import connection
 
@@ -405,6 +406,7 @@ def populate_student_dates():
                 from %s
                 where student_id = '%s'
                 and active = 'true'
+                and program = 'DP'
                 and completion_date > '1900-01-01'
                 """ % (table_super, id)
             cursor2.execute(sql)
@@ -419,6 +421,7 @@ def populate_student_dates():
                 from %s
                 where student_id = '%s'
                 and active = 'true'
+                and program = 'DP'
                 and completion_date > '1900-01-01'
                 """ % (table_super, id)
             cursor2.execute(sql)
@@ -542,6 +545,8 @@ def import_supervisors(csv):
     # empty table
     Supervisors.objects.all().delete()
     # import
+    p1 = re.compile('.*\/')
+    p2 = re.compile(' .*')
     try:
         with open(csv, encoding='ISO-8859-1') as csvfile:
             reader = DictReader(csvfile)
@@ -559,6 +564,7 @@ def import_supervisors(csv):
                 r.completion_date = parse_supervisors_date('completion_date', row['completion_date'])
                 r.proposed_enrolment_date = parse_supervisors_date('proposed_enrolment_date', row['proposed_enrolment_date'])
                 r.proposed_research_topic = row['proposed_research_topic']
+                # normalize title a bit
                 title = row['title']
                 title = title.lower()
                 title = title.replace(".", "").replace("/", "").replace(" ", "")
@@ -569,7 +575,15 @@ def import_supervisors(csv):
                 r.title = title
                 r.quals = row['quals']
                 r.comments = row['comments']
-                r.active = "removed" not in title and "replaced" not in title and "informal" not in title # active if not withdrawn
+                # active if not withdrawn
+                r.active = ("removed" not in title) and ("replaced" not in title) and ("informal" not in title)
+                # determine program type
+                program = p2.sub('', p1.sub('', row['entity']))
+                if program == "PHD":
+                    r.program = "DP"
+                # TODO other types: MPHIL, IPC, DMA, EDD, SJD
+                else:
+                    r.program = "Other"
                 r.save()
     except Exception as ex:
         traceback.print_exc(file=sys.stdout)

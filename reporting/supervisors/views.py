@@ -302,6 +302,7 @@ def list_by_faculty(request):
         select sd.school, sd.department, s.supervisor, s.student_id, sd.program
         from %s sd, %s s
         where sd.student_id = s.student_id
+        and sd.program = s.program
         and sd.school in ('%s')
         and sd.department in ('%s')
         and sd.start_date >= '%s-01-01'
@@ -436,6 +437,7 @@ def list_by_supervisor(request):
         select sd.school, sd.department, s.supervisor, s.student_id, sd.program
         from %s sd, %s s
         where sd.student_id = s.student_id
+        and sd.program = s.program
         and s.supervisor = '%s'
         and sd.start_date >= '%s-01-01'
         and s.active = True
@@ -528,6 +530,8 @@ def search_by_student(request):
             from %s sd, %s s
             where s.student_id = '%s'
             and s.active = True
+            and s.student_id = sd.student_id
+            and s.program = sd.program
             group by s.student_id, sd.program, s.student
             order by s.student_id, sd.program, s.student
             """ % (StudentDates._meta.db_table, Supervisors._meta.db_table, name)
@@ -537,6 +541,8 @@ def search_by_student(request):
             from %s sd, %s s
             where lower(s.student) like '%%%s%%'
             and s.active = True
+            and s.student_id = sd.student_id
+            and s.program = sd.program
             group by s.student_id, sd.program, s.student
             order by s.student_id, sd.program, s.student
             """ % (StudentDates._meta.db_table, Supervisors._meta.db_table, name.lower())
