@@ -218,7 +218,8 @@ def add_student(data, school, department, supervisor, studentid, program, superv
         else:
             full_time = 'No'
 
-        # end date
+        # dates
+        start_date = s.start_date.strftime("%Y-%m-%d")
         end_date = s.end_date.strftime("%Y-%m-%d")
         if end_date == "9999-12-31" or end_date <= "1900-01-01":
             end_date = "N/A"
@@ -238,8 +239,13 @@ def add_student(data, school, department, supervisor, studentid, program, superv
         if scholarship != NO_SCHOLARSHIP:
             scholarship_status = "No"
             for sch in Scholarship.objects.all().filter(student_id=studentid, name=scholarship, decision="Active"):
-                scholarship_status = "Yes"
-                break
+                if str(sch.year) >= start_date[0:4]:
+                    if end_date == "N/A":
+                        scholarship_status = "Yes"
+                        break
+                    if str(sch.year) <= end_date[0:4]:
+                        scholarship_status = "Yes"
+                        break
 
         # check conditions
         if chief == "Yes" and "chief" not in supervisor_type:
@@ -263,7 +269,7 @@ def add_student(data, school, department, supervisor, studentid, program, superv
         sdata['program'] = program_display
         sdata['id'] = studentid
         sdata['name'] = sname
-        sdata['start_date'] = s.start_date.strftime("%Y-%m-%d")
+        sdata['start_date'] = start_date
         sdata['end_date'] = end_date
         sdata['months'] = s.months
         sdata['full_time'] = full_time
