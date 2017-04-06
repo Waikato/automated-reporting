@@ -177,6 +177,12 @@ STATICFILES_DIRS = [
     'reporting/static/',
 ]
 
+# general options
+# NB: this gets added to the context of templates
+REPORTING_OPTIONS = {
+    'supervisor.only_phd': True,
+}
+
 # LDAP settings
 
 # custom settings?

@@ -45,6 +45,9 @@
             <input type="number" name="years_back" value="{{ max_years }}" min="1" max="{{ max_years }}" required/>
           </td>
         </tr>
+        {% if options|get_item:'supervisor.only_phd' %}
+        <input type="hidden" name="program" value="DP"/>
+        {% else %}
         <tr>
           <td>Program</td>
           <td>
@@ -54,6 +57,7 @@
             </select>
           </td>
         </tr>
+        {% endif %}
         <tr>
           <td>Supervisors</td>
           <td>

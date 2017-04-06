@@ -1,6 +1,7 @@
 from reporting.settings import APPS_LIST
 from reporting.settings import APPS_SHORT
 from reporting.settings import APPS_LONG
+from reporting.settings import REPORTING_OPTIONS
 
 def get_apps():
     """
@@ -58,5 +59,6 @@ def template_context(app=None):
         result['app'] = app
     else:
         result['title'] = 'Automated Reporting'
+    result['options'] = REPORTING_OPTIONS
 
     return result
