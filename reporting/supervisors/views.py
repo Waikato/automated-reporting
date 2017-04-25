@@ -584,7 +584,8 @@ def list_by_student(request):
 
     export = get_variable(request, 'csv')
 
-    result = []
+    # supervisors
+    supervisors = []
     for sv in Supervisors.objects.all().filter(student_id=studentid):
         sname = None
         for g in GradeResults.objects.all().filter(student_id=studentid):
@@ -597,7 +598,19 @@ def list_by_student(request):
         data["role"] = sv.active_roles
         if (data["role"] is None) or (len(data["role"]) == 0):
             data["role"] = "N/A"
-        result.append(data)
+        supervisors.append(data)
+
+    # scholarships
+    scholarships = []
+    for sc in Scholarship.objects.all().filter(student_id=studentid):
+        data = {}
+        data["studentid"] = studentid
+        data["studentname"] = sname
+        data["scholarship"] = sc.name
+        data["status"] = sc.status
+        data["decision"] = sc.decision
+        data["year"] = sc.year
+        scholarships.append(data)
 
     # CSV or HTML?
     if export == "csv":
@@ -610,17 +623,36 @@ def list_by_student(request):
             'Supervisor',
             'Role',
         ])
-        for row in result:
+        for row in supervisors:
             writer.writerow([
                 row["studentid"],
                 row["studentname"],
                 row["supervisor"],
                 row["role"],
             ])
+        writer.writerow([])
+        writer.writerow([
+            'ID',
+            'Name',
+            'Scholarship',
+            'Status',
+            'Decision',
+            'Year',
+        ])
+        for row in scholarships:
+            writer.writerow([
+                row["studentid"],
+                row["studentname"],
+                row["scholarship"],
+                row["status"],
+                row["decision"],
+                row["year"],
+            ])
         return response
     else:
         template = loader.get_template('supervisors/list_by_student.html')
         context = applist.template_context('supervisors')
-        context['results'] = result
+        context['supervisors'] = supervisors
+        context['scholarships'] = scholarships
         context['csv_url'] = form_utils.request_to_url(request, "/supervisors/list-by-student", {'csv': 'csv'})
         return HttpResponse(template.render(context, request))

@@ -21,12 +21,42 @@
           <th>Supervisor</th>
           <th>Role</th>
         </tr>
-        {% for row in results %}
+        {% for row in supervisors %}
         <tr>
           <td>{{ row|get_item:'studentid' }}</td>
           <td>{{ row|get_item:'studentname' }}</td>
           <td><a href="/supervisors/search-by-supervisor?name={{ row|get_item:'supervisor' }}">{{ row|get_item:'supervisor' }}</a></td>
           <td>{{ row|get_item:'role' }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Scholarships for student <span style="float: right;"><a class="btn btn-default btn-export" href="{{ csv_url }}" role="button">CSV</a></span></h3>
+  </div>
+  <div class="panel-body">
+    <div class="table-responsive">
+      <table class="table">
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Scholarship</th>
+          <th>Status</th>
+          <th>Decision</th>
+          <th>Year</th>
+        </tr>
+        {% for row in scholarships %}
+        <tr>
+          <td>{{ row|get_item:'studentid' }}</td>
+          <td>{{ row|get_item:'studentname' }}</td>
+          <td>{{ row|get_item:'scholarship' }}</td>
+          <td>{{ row|get_item:'status' }}</td>
+          <td>{{ row|get_item:'decision' }}</td>
+          <td>{{ row|get_item:'year' }}</td>
         </tr>
         {% endfor %}
       </table>
