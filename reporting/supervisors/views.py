@@ -160,16 +160,16 @@ def add_student(data, school, department, supervisor, studentid, program, superv
     <faculty>
         - department
         - supervisor
-        - program (DP, MD)
+        - program
         - studentid
         - name (string)
         - start_date (date)
         - end_date (date)
         - months (float)
-        - full_time (True|False)
-        - chief_supervisor (True|False|None)
+        - full_time
+        - chief_supervisor
         - status
-        - scholarship (True|False) -- present only if looking for scholarship other than '-none-'
+        - scholarship -- present only if looking for scholarship other than '-none-'
 
     :param data: the data structure to extend
     :type data: dict
@@ -211,7 +211,10 @@ def add_student(data, school, department, supervisor, studentid, program, superv
         # chief?
         chief = None
         for sv in Supervisors.objects.all().filter(student_id=studentid, supervisor=supervisor):
-            chief = "Yes" if "Chief" in sv.active_roles else "No"
+            if sv.active_roles == "":
+                chief = "N/A"
+            else:
+                chief = "Yes" if "Chief" in sv.active_roles else "No"
         if s.full_time is None:
             full_time = 'N/A'
         elif s.full_time:
