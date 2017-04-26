@@ -42,6 +42,6 @@ class Scholarship(models.Model):
     """
     student_id = models.CharField(max_length=250, db_index=True)
     name = models.CharField(max_length=250, db_index=True, default='')
-    status = models.CharField(max_length=20, db_index=True, default='')
-    decision = models.CharField(max_length=20, db_index=True, default='')
+    status = models.CharField(max_length=50, db_index=True, default='')
+    decision = models.CharField(max_length=50, db_index=True, default='')
     year = models.IntegerField(null=True, db_index=True)
