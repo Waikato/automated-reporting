@@ -602,7 +602,7 @@ def list_by_student(request):
 
     # scholarships
     scholarships = []
-    for sc in Scholarship.objects.all().filter(student_id=studentid):
+    for sc in Scholarship.objects.all().filter(student_id=studentid).order_by('-year'):
         data = {}
         data["studentid"] = studentid
         data["studentname"] = sname
