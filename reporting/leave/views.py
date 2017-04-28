@@ -1,7 +1,7 @@
 from django.template import loader
 from django.http import HttpResponse
 from django.db import connection
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 
 import reporting.applist as applist
 from reporting.error import create_error_response
@@ -26,6 +26,7 @@ def actual_balance_key(a):
     return float(a['actual_balance'])
 
 @login_required
+@permission_required("leave.can_use_leave")
 def index(request):
     # get all schools
     cursor = connection.cursor()
@@ -45,6 +46,7 @@ def index(request):
     return HttpResponse(template.render(context, request))
 
 @login_required
+@permission_required("leave.can_use_leave")
 def upload(request):
     # get parameters
     response, schools = get_variable_with_error(request, 'leave', 'school', as_list=True)

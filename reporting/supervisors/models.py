@@ -16,6 +16,12 @@ class StudentDates(models.Model):
     full_time = models.NullBooleanField(default=None, null=True)
     status = models.CharField(max_length=20, null=True)
 
+    class Meta:
+        permissions = (
+            ("can_use_student_dates", "Can use Student Dates"),
+            ("can_update_student_dates", "Can update Student Dates"),
+        )
+
 class Supervisors(models.Model):
     """
     Supervisor data.
@@ -36,6 +42,12 @@ class Supervisors(models.Model):
     proposed_research_topic = models.CharField(max_length=250, blank=True, default='')
     program = models.CharField(max_length=20, db_index=True, blank=True, default='')
 
+    class Meta:
+        permissions = (
+            ("can_use_supervisors", "Can use Supervisors"),
+            ("can_update_supervisors", "Can update Supervisors"),
+        )
+
 class Scholarship(models.Model):
     """
     Scholarship data.
@@ -45,3 +57,9 @@ class Scholarship(models.Model):
     status = models.CharField(max_length=50, db_index=True, default='')
     decision = models.CharField(max_length=50, db_index=True, default='')
     year = models.IntegerField(null=True, db_index=True)
+
+    class Meta:
+        permissions = (
+            ("can_use_scholarship", "Can use Scholarship"),
+            ("can_update_scholarship", "Can update Scholarship"),
+        )

@@ -129,6 +129,7 @@ def get_scholarships():
     return result
 
 @login_required
+@permission_required("supervisors.can_use_supervisors")
 def index(request):
     # configure template
     template = loader.get_template('supervisors/index.html')
@@ -137,6 +138,7 @@ def index(request):
     return HttpResponse(template.render(context, request))
 
 @login_required
+@permission_required("supervisors.can_use_supervisors")
 def search_by_faculty(request):
     # get parameters
     response, schools = get_variable_with_error(request, 'supervisors', 'school', as_list=True)
@@ -286,6 +288,7 @@ def add_student(data, school, department, supervisor, studentid, program, superv
         data[school].append(sdata)
 
 @login_required
+@permission_required("supervisors.can_use_supervisors")
 def list_by_faculty(request):
     # get parameters
     response, schools = get_variable_with_error(request, 'supervisors', 'school', as_list=True)
@@ -395,6 +398,7 @@ def list_by_faculty(request):
         return HttpResponse(template.render(context, request))
 
 @login_required
+@permission_required("supervisors.can_use_supervisors")
 def search_by_supervisor(request):
     # get parameters
     response, name = get_variable_with_error(request, 'supervisors', 'name')
@@ -431,6 +435,7 @@ def search_by_supervisor(request):
     return HttpResponse(template.render(context, request))
 
 @login_required
+@permission_required("supervisors.can_use_supervisors")
 def list_by_supervisor(request):
     # get parameters
     response, name = get_variable_with_error(request, 'supervisors', 'name')
@@ -536,6 +541,7 @@ def list_by_supervisor(request):
         return HttpResponse(template.render(context, request))
 
 @login_required
+@permission_required("supervisors.can_use_supervisors")
 def search_by_student(request):
     # get parameters
     response, name = get_variable_with_error(request, 'supervisors', 'name')
@@ -584,6 +590,7 @@ def search_by_student(request):
     return HttpResponse(template.render(context, request))
 
 @login_required
+@permission_required("supervisors.can_use_supervisors")
 def list_by_student(request):
     # get parameters
     response, studentid = get_variable_with_error(request, 'supervisors', 'student')

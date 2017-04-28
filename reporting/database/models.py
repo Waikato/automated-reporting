@@ -9,6 +9,12 @@ class TableStatus(models.Model):
     table = models.CharField(max_length=250, db_index=True)
     timestamp = models.DateTimeField()
 
+    class Meta:
+        permissions = (
+            ("can_use_table_status", "Can use Table Status"),
+            ("can_update_table_status", "Can update Table Status"),
+        )
+
 class GradeResults(models.Model):
     """
     Grade results.
@@ -165,3 +171,9 @@ class GradeResults(models.Model):
     moe_pbrf = models.CharField(max_length=250, null=True, blank=True)
     achievement_date = models.DateField(null=True)
     te_reo = models.IntegerField(null=True)
+
+    class Meta:
+        permissions = (
+            ("can_use_grade_results", "Can use Grade Results"),
+            ("can_update_grade_results", "Can update Grade Results"),
+        )
