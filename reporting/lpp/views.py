@@ -7,11 +7,13 @@ from reporting.error import create_error_response
 from database.models import GradeResults
 from django.db import connection
 from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
 import tempfile
 import csv
 import os
 import subprocess
 
+@login_required
 def index(request):
     # get all years
     cursor = connection.cursor()
@@ -42,6 +44,7 @@ def index(request):
     context['schools'] = schools
     return HttpResponse(template.render(context, request))
 
+@login_required
 def output(request):
     # get parameters
     response, year = get_variable_with_error(request, 'lpp', 'year')

@@ -30,6 +30,7 @@ ALLOWED_HOSTS = []
 # authentication
 
 AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
 ]
 
 # Application definition
@@ -104,6 +105,8 @@ FILE_UPLOAD_HANDLERS = (
 
 WSGI_APPLICATION = 'reporting.wsgi.application'
 
+# Redirect to home URL after login (Default redirects to /accounts/profile/)
+LOGIN_REDIRECT_URL = '/'
 
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
@@ -160,7 +163,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Pacific/Auckland'
 
 USE_I18N = True
 

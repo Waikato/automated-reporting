@@ -2,6 +2,7 @@ from django.template import loader
 from django.template.defaulttags import register
 from django.http import HttpResponse
 from django.db import connection
+from django.contrib.auth.decorators import login_required
 from supervisors.models import StudentDates, Supervisors, Scholarship
 from database.models import GradeResults
 from reporting.error import create_error_response
@@ -127,6 +128,7 @@ def get_scholarships():
         result.append(row[0])
     return result
 
+@login_required
 def index(request):
     # configure template
     template = loader.get_template('supervisors/index.html')
@@ -134,6 +136,7 @@ def index(request):
     context['schools'] = get_schools()
     return HttpResponse(template.render(context, request))
 
+@login_required
 def search_by_faculty(request):
     # get parameters
     response, schools = get_variable_with_error(request, 'supervisors', 'school', as_list=True)
@@ -282,6 +285,7 @@ def add_student(data, school, department, supervisor, studentid, program, superv
         sdata['scholarship'] = scholarship_status
         data[school].append(sdata)
 
+@login_required
 def list_by_faculty(request):
     # get parameters
     response, schools = get_variable_with_error(request, 'supervisors', 'school', as_list=True)
@@ -390,6 +394,7 @@ def list_by_faculty(request):
         context['show_scholarship'] = scholarship != NO_SCHOLARSHIP
         return HttpResponse(template.render(context, request))
 
+@login_required
 def search_by_supervisor(request):
     # get parameters
     response, name = get_variable_with_error(request, 'supervisors', 'name')
@@ -425,6 +430,7 @@ def search_by_supervisor(request):
     context['scholarships'] = get_scholarships()
     return HttpResponse(template.render(context, request))
 
+@login_required
 def list_by_supervisor(request):
     # get parameters
     response, name = get_variable_with_error(request, 'supervisors', 'name')
@@ -529,6 +535,7 @@ def list_by_supervisor(request):
         context['show_scholarship'] = scholarship != NO_SCHOLARSHIP
         return HttpResponse(template.render(context, request))
 
+@login_required
 def search_by_student(request):
     # get parameters
     response, name = get_variable_with_error(request, 'supervisors', 'name')
@@ -576,6 +583,7 @@ def search_by_student(request):
     context['results'] = results
     return HttpResponse(template.render(context, request))
 
+@login_required
 def list_by_student(request):
     # get parameters
     response, studentid = get_variable_with_error(request, 'supervisors', 'student')

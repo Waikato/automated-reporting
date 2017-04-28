@@ -1,6 +1,7 @@
 from django.template import loader
 from django.http import HttpResponse
 from django.db import connection
+from django.contrib.auth.decorators import login_required
 
 import reporting.applist as applist
 from reporting.error import create_error_response
@@ -24,6 +25,7 @@ def actual_balance_key(a):
     """
     return float(a['actual_balance'])
 
+@login_required
 def index(request):
     # get all schools
     cursor = connection.cursor()
@@ -42,6 +44,7 @@ def index(request):
     context['minimum'] = MINIMUM_DAYS
     return HttpResponse(template.render(context, request))
 
+@login_required
 def upload(request):
     # get parameters
     response, schools = get_variable_with_error(request, 'leave', 'school', as_list=True)

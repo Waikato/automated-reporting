@@ -2,12 +2,14 @@ from django.http import HttpResponse
 from django.template import loader
 import reporting.applist as applist
 from django.template.defaulttags import register
+from django.contrib.auth.decorators import login_required
 from . import dbimport
 from datetime import date
 
 from database.models import TableStatus, GradeResults
 from supervisors.models import Supervisors, StudentDates, Scholarship
 
+@login_required
 def database_graderesults(request):
     years = []
     for year in range(2003, date.today().year + 1):
@@ -19,24 +21,28 @@ def database_graderesults(request):
     context['years'] = years
     return HttpResponse(template.render(context, request))
 
+@login_required
 def database_supervisors(request):
     template = loader.get_template('database/import_supervisors.html')
     context = applist.template_context()
     context['title'] = 'Import supervisors'
     return HttpResponse(template.render(context, request))
 
+@login_required
 def database_scholarships(request):
     template = loader.get_template('database/import_scholarships.html')
     context = applist.template_context()
     context['title'] = 'Import scholarships'
     return HttpResponse(template.render(context, request))
 
+@login_required
 def database_studentdates(request):
     template = loader.get_template('database/update_studentdates.html')
     context = applist.template_context()
     context['title'] = 'Update student dates'
     return HttpResponse(template.render(context, request))
 
+@login_required
 def database_tablestatus(request):
     template = loader.get_template('database/table_status.html')
     tables = {}
@@ -48,6 +54,7 @@ def database_tablestatus(request):
     context['tables'] = tables
     return HttpResponse(template.render(context, request))
 
+@login_required
 def import_supervisors(request):
     # configure template
     csv = request.FILES['datafile']
@@ -61,6 +68,7 @@ def import_supervisors(request):
         context['message'] = "Failed to upload supervisors: " + msg
     return HttpResponse(template.render(context, request))
 
+@login_required
 def import_scholarships(request):
     # configure template
     csv = request.FILES['datafile']
@@ -74,6 +82,7 @@ def import_scholarships(request):
         context['message'] = "Failed to upload scholarships: " + msg
     return HttpResponse(template.render(context, request))
 
+@login_required
 def import_graderesults(request):
     # configure template
     csv = request.FILES['datafile']
@@ -89,6 +98,7 @@ def import_graderesults(request):
         context['message'] = "Failed to upload grade results: " + msg
     return HttpResponse(template.render(context, request))
 
+@login_required
 def update_studentdates(request):
     # configure template
     msg = dbimport.populate_student_dates()

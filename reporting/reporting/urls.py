@@ -25,4 +25,5 @@ urlpatterns = [
     url(r'^lpp/', include('lpp.urls')),
     url(r'^supervisors/', include('supervisors.urls')),
     url(r'^admin/', admin.site.urls),
+    url(r'^accounts/', include('django.contrib.auth.urls')),
 ]
