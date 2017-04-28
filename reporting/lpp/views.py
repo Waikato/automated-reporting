@@ -7,7 +7,7 @@ from reporting.error import create_error_response
 from database.models import GradeResults
 from django.db import connection
 from django.http import HttpResponse
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 import tempfile
 import csv
 import os

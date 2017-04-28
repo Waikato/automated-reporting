@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.template import loader
 import reporting.applist as applist
 from django.template.defaulttags import register
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from . import dbimport
 from datetime import date
 

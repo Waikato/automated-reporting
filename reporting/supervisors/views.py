@@ -2,7 +2,7 @@ from django.template import loader
 from django.template.defaulttags import register
 from django.http import HttpResponse
 from django.db import connection
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from supervisors.models import StudentDates, Supervisors, Scholarship
 from database.models import GradeResults
 from reporting.error import create_error_response
