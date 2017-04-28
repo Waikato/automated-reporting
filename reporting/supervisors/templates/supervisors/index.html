@@ -15,7 +15,7 @@
   <div class="panel-body">
     <form action="/supervisors/search-by-faculty" method="POST">
       {% csrf_token %}
-      <table class="database_params">
+      <table class="table_params">
         <tr>
           <td>Faculty/School</td>
           <td>
@@ -46,7 +46,7 @@
   <div class="panel-body">
     <form action="/supervisors/search-by-supervisor" method="POST">
       {% csrf_token %}
-      <table class="database_params">
+      <table class="table_params">
         <tr>
           <td>Name or ID</td>
           <td><input type="text" name="name" required/></td>
@@ -67,7 +67,7 @@
   <div class="panel-body">
     <form action="/supervisors/search-by-student" method="POST">
       {% csrf_token %}
-      <table class="database_params">
+      <table class="table_params">
         <tr>
           <td>Name or ID</td>
           <td><input type="text" name="name" required/></td>
