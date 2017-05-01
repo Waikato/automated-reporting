@@ -8,6 +8,7 @@ class Leave(models.Model):
     """
 
     class Meta:
+        managed = False
         permissions = (
             ("can_use_leave", "Can use Leave"),
             ("can_update_leave", "Can update Leave"),
