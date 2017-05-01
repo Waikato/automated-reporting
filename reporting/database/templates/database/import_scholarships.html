@@ -19,10 +19,24 @@
     </ul>
     <form action="/database/import/scholarships" enctype="multipart/form-data" method="POST">
       {% csrf_token %}
-      <p>Select exported CSV file</p>
-      <input type="file" name="datafile"/>
-      <br/>
-      <input type="submit" value="Upload"/>
+      <table class="table_params">
+        <tr>
+          <td>CSV file</td>
+          <td><input type="file" name="datafile"/></td>
+        </tr>
+        <tr>
+          <td>Encoding</td>
+          <td>
+            <select name="encoding">
+              <option value="iso-8859-1" selected>ISO-8859-1</option>
+              <option value="utf-8">UTF-8</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2"><input type="submit" value="Upload"/></td>
+        </tr>
+      </table>
     </form>
   </div>
 </div>

@@ -8,6 +8,7 @@ from datetime import date
 
 from database.models import TableStatus, GradeResults
 from supervisors.models import Supervisors, StudentDates, Scholarship
+from reporting.form_utils import get_variable
 
 @login_required
 @permission_required("database.can_update_grade_results")
@@ -64,7 +65,8 @@ def database_tablestatus(request):
 def import_supervisors(request):
     # configure template
     csv = request.FILES['datafile']
-    msg = dbimport.import_supervisors(csv.temporary_file_path())
+    enc = get_variable(request, 'encoding', def_value='iso-8859-1')
+    msg = dbimport.import_supervisors(csv.temporary_file_path(), enc)
     template = loader.get_template('message.html')
     context = applist.template_context()
     if msg is None:
@@ -79,7 +81,8 @@ def import_supervisors(request):
 def import_scholarships(request):
     # configure template
     csv = request.FILES['datafile']
-    msg = dbimport.import_scholarships(csv.temporary_file_path())
+    enc = get_variable(request, 'encoding', def_value='iso-8859-1')
+    msg = dbimport.import_scholarships(csv.temporary_file_path(), enc)
     template = loader.get_template('message.html')
     context = applist.template_context()
     if msg is None:
@@ -96,7 +99,8 @@ def import_graderesults(request):
     csv = request.FILES['datafile']
     year = int(request.POST['year'])
     gzip = (request.POST['gzip'] == "on")
-    msg = dbimport.import_grade_results(year, csv.temporary_file_path(), gzip)
+    enc = get_variable(request, 'encoding', def_value='iso-8859-1')
+    msg = dbimport.import_grade_results(year, csv.temporary_file_path(), gzip, enc)
     template = loader.get_template('message.html')
     context = applist.template_context()
     if msg is None:

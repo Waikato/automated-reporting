@@ -1,6 +1,6 @@
 from database.models import GradeResults, TableStatus
 from supervisors.models import Supervisors, StudentDates, Scholarship
-from reporting.db import truncate_strings, string_cell, int_cell, float_cell
+from reporting.db import truncate_strings, encode_strings, string_cell, int_cell, float_cell
 from csv import DictReader
 import gzip
 import traceback
@@ -71,7 +71,7 @@ def parse_grade_results_date(name, value):
         traceback.print_exc(file=sys.stdout)
         return None
 
-def import_grade_results(year, csv, isgzip):
+def import_grade_results(year, csv, isgzip, encoding):
     """
     Imports the grade results for a specific year (Brio/Hyperion export).
 
@@ -81,6 +81,8 @@ def import_grade_results(year, csv, isgzip):
     :type csv: str
     :param isgzip: true if GZIP compressed
     :type isgzip: bool
+    :param encoding: the file encoding (eg utf-8)
+    :type encoding: str
     :return: None if successful, otherwise error message
     :rtype: str
     """
@@ -89,13 +91,14 @@ def import_grade_results(year, csv, isgzip):
     # import
     try:
         if isgzip:
-            csvfile = gzip.open(csv, mode='rt', encoding='ISO-8859-1')
+            csvfile = gzip.open(csv, mode='rt', encoding=encoding)
         else:
-            csvfile = open(csv, encoding='ISO-8859-1')
+            csvfile = open(csv, encoding=encoding)
         reader = DictReader(csvfile)
         reader.fieldnames = [name.lower().replace(" ", "_") for name in reader.fieldnames]
         for row in reader:
             truncate_strings(row, 250)
+            encode_strings(row, 'utf-8')
             r = GradeResults()
             r.year = year
             r.student_id = string_cell(row, ['student_id'])
@@ -533,12 +536,14 @@ def parse_supervisors_date(name, value):
         traceback.print_exc(file=sys.stdout)
         return None
 
-def import_supervisors(csv):
+def import_supervisors(csv, encoding):
     """
     Imports the supervisors (Jade Export).
 
     :param csv: the CSV file to import
     :type csv: str
+    :param encoding: the file encoding (eg utf-8)
+    :type encoding: str
     :return: None if successful, otherwise error message
     :rtype: str
     """
@@ -548,11 +553,12 @@ def import_supervisors(csv):
     p1 = re.compile('.*\/')
     p2 = re.compile(' .*')
     try:
-        with open(csv, encoding='ISO-8859-1') as csvfile:
+        with open(csv, encoding=encoding) as csvfile:
             reader = DictReader(csvfile)
             reader.fieldnames = [name.lower().replace(" ", "_") for name in reader.fieldnames]
             for row in reader:
                 truncate_strings(row, 250)
+                encode_strings(row, 'utf-8')
                 r = Supervisors()
                 r.student_id = row['student'][row['student'].rfind(' ')+1:]  # extract ID at end of string
                 r.student = row['student']
@@ -593,12 +599,14 @@ def import_supervisors(csv):
 
     return None
 
-def import_scholarships(csv):
+def import_scholarships(csv, encoding):
     """
     Imports the scholarships (Jade Export).
 
     :param csv: the CSV file to import
     :type csv: str
+    :param encoding: the file encoding (eg utf-8)
+    :type encoding: str
     :return: None if successful, otherwise error message
     :rtype: str
     """
@@ -606,11 +614,12 @@ def import_scholarships(csv):
     Scholarship.objects.all().delete()
     # import
     try:
-        with open(csv, encoding='ISO-8859-1') as csvfile:
+        with open(csv, encoding=encoding) as csvfile:
             reader = DictReader(csvfile)
             reader.fieldnames = [name.lower().replace(" ", "_") for name in reader.fieldnames]
             for row in reader:
                 truncate_strings(row, 250)
+                encode_strings(row, 'utf-8')
                 r = Scholarship()
                 r.student_id = row['person_id']
                 r.name = row['template']

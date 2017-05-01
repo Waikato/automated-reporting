@@ -8,18 +8,33 @@ def null_empty_cells(row):
         if row[k] == "":
             row[k] = None
 
-def truncate_strings(row, max):
+def truncate_strings(row, max, enc='utf-8'):
     """
     Truncates strings to the maximum length.
 
-    :param row: the dicationary to process
+    :param row: the dictionary to process
     :type row: dict
     :param max: the maximum length
     :type max: int
+    :param enc: the encoding to use
+    :type enc: str
     """
     for k in row.keys():
         if len(row[k]) > max:
             row[k] = row[k][:max]
+
+def encode_strings(row, enc='utf-8'):
+    """
+    Encodes strings with the specified encoding.
+
+    :param row: the dictionary to process
+    :type row: dict
+    :param enc: the encoding to use
+    :type enc: str
+    """
+    for k in row.keys():
+        if len(row[k]) > 0:
+            row[k] = row[k].encode(enc)
 
 def string_cell(row, names, defvalue=None):
     """
