@@ -11,7 +11,7 @@ from supervisors.models import Supervisors, StudentDates, Scholarship
 from reporting.form_utils import get_variable
 
 @login_required
-@permission_required("database.can_update_grade_results")
+@permission_required("database.can_manage_grade_results")
 def database_graderesults(request):
     years = []
     for year in range(2003, date.today().year + 1):
@@ -24,7 +24,7 @@ def database_graderesults(request):
     return HttpResponse(template.render(context, request))
 
 @login_required
-@permission_required("supervisors.can_update_supervisors")
+@permission_required("supervisors.can_manage_supervisors")
 def database_supervisors(request):
     template = loader.get_template('database/import_supervisors.html')
     context = applist.template_context()
@@ -32,7 +32,7 @@ def database_supervisors(request):
     return HttpResponse(template.render(context, request))
 
 @login_required
-@permission_required("supervisors.can_update_scholarships")
+@permission_required("supervisors.can_manage_scholarships")
 def database_scholarships(request):
     template = loader.get_template('database/import_scholarships.html')
     context = applist.template_context()
@@ -40,7 +40,7 @@ def database_scholarships(request):
     return HttpResponse(template.render(context, request))
 
 @login_required
-@permission_required("supervisors.can_update_student_dates")
+@permission_required("supervisors.can_manage_student_dates")
 def database_studentdates(request):
     template = loader.get_template('database/update_studentdates.html')
     context = applist.template_context()
@@ -48,7 +48,7 @@ def database_studentdates(request):
     return HttpResponse(template.render(context, request))
 
 @login_required
-@permission_required("database.can_update_table_status")
+@permission_required("database.can_manage_table_status")
 def database_tablestatus(request):
     template = loader.get_template('database/table_status.html')
     tables = {}
@@ -61,7 +61,7 @@ def database_tablestatus(request):
     return HttpResponse(template.render(context, request))
 
 @login_required
-@permission_required("supervisors.can_update_supervisors")
+@permission_required("supervisors.can_manage_supervisors")
 def import_supervisors(request):
     # configure template
     csv = request.FILES['datafile']
@@ -77,7 +77,7 @@ def import_supervisors(request):
     return HttpResponse(template.render(context, request))
 
 @login_required
-@permission_required("supervisors.can_update_scholarships")
+@permission_required("supervisors.can_manage_scholarships")
 def import_scholarships(request):
     # configure template
     csv = request.FILES['datafile']
@@ -93,7 +93,7 @@ def import_scholarships(request):
     return HttpResponse(template.render(context, request))
 
 @login_required
-@permission_required("database.can_update_grade_results")
+@permission_required("database.can_manage_grade_results")
 def import_graderesults(request):
     # configure template
     csv = request.FILES['datafile']
@@ -111,7 +111,7 @@ def import_graderesults(request):
     return HttpResponse(template.render(context, request))
 
 @login_required
-@permission_required("supervisors.can_update_student_dates")
+@permission_required("supervisors.can_manage_student_dates")
 def update_studentdates(request):
     # configure template
     msg = dbimport.populate_student_dates()

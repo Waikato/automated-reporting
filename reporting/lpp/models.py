@@ -10,6 +10,6 @@ class LowPerformingPassRates(models.Model):
     class Meta:
         managed = False
         permissions = (
-            ("can_use_lpp", "Can use LPP"),
-            ("can_update_lpp", "Can update LPP"),
+            ("can_access_lpp", "Can access LPP"),
+            ("can_manage_lpp", "Can manage LPP"),
         )

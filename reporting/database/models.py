@@ -11,8 +11,8 @@ class TableStatus(models.Model):
 
     class Meta:
         permissions = (
-            ("can_use_table_status", "Can use Table Status"),
-            ("can_update_table_status", "Can update Table Status"),
+            ("can_access_table_status", "Can access Table Status"),
+            ("can_manage_table_status", "Can manage Table Status"),
         )
 
 class GradeResults(models.Model):
@@ -174,6 +174,6 @@ class GradeResults(models.Model):
 
     class Meta:
         permissions = (
-            ("can_use_grade_results", "Can use Grade Results"),
-            ("can_update_grade_results", "Can update Grade Results"),
+            ("can_access_grade_results", "Can access Grade Results"),
+            ("can_manage_grade_results", "Can manage Grade Results"),
         )

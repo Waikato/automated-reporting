@@ -18,8 +18,8 @@ class StudentDates(models.Model):
 
     class Meta:
         permissions = (
-            ("can_use_student_dates", "Can use Student Dates"),
-            ("can_update_student_dates", "Can update Student Dates"),
+            ("can_access_student_dates", "Can access Student Dates"),
+            ("can_manage_student_dates", "Can manage Student Dates"),
         )
 
 class Supervisors(models.Model):
@@ -44,8 +44,8 @@ class Supervisors(models.Model):
 
     class Meta:
         permissions = (
-            ("can_use_supervisors", "Can use Supervisors"),
-            ("can_update_supervisors", "Can update Supervisors"),
+            ("can_access_supervisors", "Can access Supervisors"),
+            ("can_manage_supervisors", "Can manage Supervisors"),
         )
 
 class Scholarship(models.Model):
@@ -60,6 +60,6 @@ class Scholarship(models.Model):
 
     class Meta:
         permissions = (
-            ("can_use_scholarship", "Can use Scholarship"),
-            ("can_update_scholarship", "Can update Scholarship"),
+            ("can_access_scholarship", "Can access Scholarship"),
+            ("can_manage_scholarship", "Can manage Scholarship"),
         )
