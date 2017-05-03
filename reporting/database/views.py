@@ -65,7 +65,7 @@ def database_tablestatus(request):
 def import_supervisors(request):
     # configure template
     csv = request.FILES['datafile']
-    enc = get_variable(request, 'encoding', def_value='iso-8859-1')
+    enc = get_variable(request, 'encoding')
     msg = dbimport.import_supervisors(csv.temporary_file_path(), enc)
     template = loader.get_template('message.html')
     context = applist.template_context()
@@ -81,7 +81,7 @@ def import_supervisors(request):
 def import_scholarships(request):
     # configure template
     csv = request.FILES['datafile']
-    enc = get_variable(request, 'encoding', def_value='iso-8859-1')
+    enc = get_variable(request, 'encoding')
     msg = dbimport.import_scholarships(csv.temporary_file_path(), enc)
     template = loader.get_template('message.html')
     context = applist.template_context()
@@ -98,9 +98,9 @@ def import_graderesults(request):
     # configure template
     csv = request.FILES['datafile']
     year = int(request.POST['year'])
-    gzip = (request.POST['gzip'] == "on")
-    enc = get_variable(request, 'encoding', def_value='iso-8859-1')
-    msg = dbimport.import_grade_results(year, csv.temporary_file_path(), gzip, enc)
+    isgzip = (request.POST['gzip'] == "on")
+    enc = get_variable(request, 'encoding')
+    msg = dbimport.import_grade_results(year, csv.temporary_file_path(), isgzip, enc)
     template = loader.get_template('message.html')
     context = applist.template_context()
     if msg is None:

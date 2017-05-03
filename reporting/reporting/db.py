@@ -25,7 +25,7 @@ def truncate_strings(row, max, enc='utf-8'):
 
 def encode_strings(row, enc='utf-8'):
     """
-    Encodes strings with the specified encoding.
+    Encodes strings (bytes objects) with the specified encoding.
 
     :param row: the dictionary to process
     :type row: dict
@@ -34,7 +34,8 @@ def encode_strings(row, enc='utf-8'):
     """
     for k in row.keys():
         if len(row[k]) > 0:
-            row[k] = row[k].encode(enc)
+            if not isinstance(row[k], str):
+                row[k] = row[k].decode(enc)
 
 def string_cell(row, names, defvalue=None):
     """
@@ -52,7 +53,8 @@ def string_cell(row, names, defvalue=None):
     result = defvalue
     for name in names:
         if name in row:
-            return row[name]
+            if not isinstance(row[name], str):
+                return row[name].decode('utf-8')
     return result
 
 def int_cell(row, names, defvalue=None):
