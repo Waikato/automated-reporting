@@ -22,8 +22,21 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '5)!dc%xc6622p!!wa54qaf+$_8v5a29ax04+$b)nc8x@-jtu$_'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# custom database settings?
+try:
+    import reporting.settings_debug
+    DEBUG = reporting.settings_debug.DEBUG
+    print("Using debug settings from 'settings_debug.py'")
+except ImportError:
+    DEBUG = False
+    print("""
+        Using default debug settings (ie debugging turned off)
+
+        Create 'settings_debug.py' for custom settings, e.g. for turning debugging on:
+        DEBUG = True
+
+        SECURITY WARNING: don't run with debug turned on in production!
+        """)
 
 ALLOWED_HOSTS = []
 
