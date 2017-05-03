@@ -97,8 +97,8 @@ def import_scholarships(request):
 def import_graderesults(request):
     # configure template
     csv = request.FILES['datafile']
-    year = int(request.POST['year'])
-    isgzip = (request.POST['gzip'] == "on")
+    year = int(get_variable(request, 'year', def_value='1900'))
+    isgzip = (get_variable(request, 'gzip', def_value='off') == 'on')
     enc = get_variable(request, 'encoding')
     msg = dbimport.import_grade_results(year, csv.temporary_file_path(), isgzip, enc)
     template = loader.get_template('message.html')
