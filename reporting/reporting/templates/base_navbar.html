@@ -4,10 +4,11 @@
 
 {% block top %}
 
-<nav class="navbar navbar-inverse navbar-fixed-top">
-  <div class="container">
+<nav class="navbar navbar-default navbar-fixed-top navbar-inverse">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
     <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
         <span class="sr-only">Toggle navigation</span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
@@ -17,6 +18,10 @@
         <img alt="Brand" src="/static/img/coat-of-arms_alone_small.png">
       </a>
       <a class="navbar-brand" href="/">Reporting</a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
         {% if user.is_authenticated %}
         <li class="dropdown">
@@ -66,8 +71,8 @@
         <li><a href="{% url 'login'%}?next={{request.path}}">Login</a></li>
         {% endif %}
       </ul>
-    </div>
-  </div>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
 </nav>
 
 {% endblock %}
