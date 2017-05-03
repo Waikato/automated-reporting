@@ -22,7 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '5)!dc%xc6622p!!wa54qaf+$_8v5a29ax04+$b)nc8x@-jtu$_'
 
-# custom database settings?
+# custom debug settings?
 try:
     import reporting.settings_debug
     DEBUG = reporting.settings_debug.DEBUG
