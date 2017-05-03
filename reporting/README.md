@@ -4,7 +4,7 @@ Reporting - Django
 Requirements
 ------------
 
-* PostgreSQL support - [psycopg2](http://stackoverflow.com/questions/5394331/how-to-setup-postgresql-database-in-django/5421511#5421511)
+* PostgreSQL support: [psycopg2](http://stackoverflow.com/questions/5394331/how-to-setup-postgresql-database-in-django/5421511#5421511)
 
 
 Changing models
@@ -42,13 +42,6 @@ Setup users/groups
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     ```
 
-  * for emailing password resets etc
-
-    ```
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-    ```
-
-
 * run the following command to create superuser
 
   ```
@@ -60,3 +53,67 @@ Setup users/groups
   http://127.0.0.1:8000/admin/
   ```
 
+LDAP
+----
+
+* Requirement: [django-python3-ldap>=0.9.14](https://github.com/etianen/django-python3-ldap)
+
+* add LDAP support to `INSTALLED_APPS`:
+
+  ```
+  INSTALLED_APPS = [
+      ...
+      'django_python3_ldap',
+      ...
+  ]
+  ```
+
+* create `settings_ldap.py` in the same directory as `settings.py` with something like this:
+
+  ```
+  AUTHENTICATION_BACKENDS = [
+      'django_python3_ldap.auth.LDAPBackend',
+  ]
+
+  LDAP_AUTH_URL = "ldaps://server.example.com:636"
+  LDAP_AUTH_USE_TLS = False
+  LDAP_AUTH_CONNECTION_USERNAME = None
+  LDAP_AUTH_CONNECTION_PASSWORD = None
+  LDAP_AUTH_SEARCH_BASE = "ou=Active,ou=People,dc=example,dc=com"
+  LOGGING = {
+      "version": 1,
+      "disable_existing_loggers": False,
+      "handlers": {
+          "console": {
+              "class": "logging.StreamHandler",
+          },
+      },
+      "loggers": {
+          "django_python3_ldap": {
+              "handlers": ["console"],
+              "level": "INFO",
+          },
+      },
+  }
+  ```
+
+* By default, the django ldap module limits first and last name to 30 characters.
+  After the initial `python3 manage.py migrate` call, alter the `auth_user` table
+  as follows:
+
+  ```
+  ALTER TABLE public.auth_user ALTER COLUMN first_name TYPE varchar(75);
+  ALTER TABLE public.auth_user ALTER COLUMN last_name TYPE varchar(75);
+  ```
+
+* syncing the users with the LDAP server:
+
+  ```
+  python3 manage.py ldap_sync_users
+  ```
+
+* Turning a user into a superuser:
+
+  ```
+  python3 manage.py ldap_promote <username>
+  ```
