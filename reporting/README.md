@@ -117,3 +117,13 @@ LDAP
   ```
   python3 manage.py ldap_promote <username>
   ```
+
+PostgreSQL
+----------
+
+* give permissions to user `reporting` on current database's schema `public`:
+
+  ```
+  GRANT USAGE ON SCHEMA public TO reporting;
+  GRANT CREATE ON SCHEMA public TO reporting;
+  ```
