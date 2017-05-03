@@ -2,6 +2,7 @@ from reporting.settings import APPS_LIST
 from reporting.settings import APPS_SHORT
 from reporting.settings import APPS_LONG
 from reporting.settings import REPORTING_OPTIONS
+from reporting.settings import USING_LDAP
 
 def get_apps():
     """
@@ -52,6 +53,7 @@ def template_context(app=None):
         'apps': APPS_LIST,
         'apps_short': APPS_SHORT,
         'apps_long': APPS_LONG,
+        'ldap': USING_LDAP,
     }
 
     if app is not None:

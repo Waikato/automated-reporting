@@ -213,7 +213,9 @@ try:
     LDAP_AUTH_CONNECTION_PASSWORD = reporting.settings_ldap.LDAP_AUTH_CONNECTION_PASSWORD
     LDAP_AUTH_SEARCH_BASE = reporting.settings_ldap.LDAP_AUTH_SEARCH_BASE
     LOGGING = reporting.settings_ldap.LOGGING
+    USING_LDAP = True
 except ImportError:
+    USING_LDAP = False
     print("""
         No LDAP settings defined!
         Create 'settings_ldap.py' for custom settings, see details:"
