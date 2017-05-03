@@ -6,11 +6,11 @@
 <p>Please choose from one of the following applications:</p>
 
 {% if apps %}
-    <ul>
+    <div class="btn-group-vertical btn-group-vertical-separated" role="group" aria-label="...">
     {% for a in apps %}
-        <li><a href="/{{ a }}/">{{ apps_long|get_item:a }}</a></li>
+        <button type="button" class="btn btn-default applist-button"><a href="/{{ a }}/">{{ apps_long|get_item:a }}</a></button>
     {% endfor %}
-    </ul>
+    </div>
 {% else %}
     <p>No apps available.</p>
 {% endif %}
