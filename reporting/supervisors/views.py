@@ -14,7 +14,6 @@ from reporting.form_utils import get_variable_with_error, get_variable
 import traceback
 import sys
 from datetime import date
-import csv
 import reporting.form_utils as form_utils
 import django_excel as excel
 
