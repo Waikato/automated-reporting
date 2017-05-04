@@ -10,8 +10,12 @@ setup(
     url="https://github.com/Waikato/automated-reporting",
     packages=find_packages(),
     install_requires=[
+        "Django",
+        "ldap3",
         "django-python3-ldap>=0.9.14",
         "psycopg2",
+        "django-excel",
+        "jsonfield",
     ],
     classifiers=[
         "Development Status :: 4 - Beta",

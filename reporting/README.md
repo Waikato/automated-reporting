@@ -4,8 +4,9 @@ Reporting - Django
 Requirements
 ------------
 
-* PostgreSQL support: [psycopg2](http://stackoverflow.com/questions/5394331/how-to-setup-postgresql-database-in-django/5421511#5421511)
-
+* PostgreSQL: [psycopg2](http://stackoverflow.com/questions/5394331/how-to-setup-postgresql-database-in-django/5421511#5421511)
+* Excel: [django-excel](http://django-excel.readthedocs.io/en/latest/)
+* Dictionaries in models: [django-jsonfield](https://github.com/bradjasper/django-jsonfield)
 
 Changing models
 ---------------
