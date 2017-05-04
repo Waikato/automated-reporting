@@ -8,7 +8,7 @@
 {% if apps %}
     <div class="btn-group-vertical btn-group-vertical-separated" role="group" aria-label="...">
     {% for a in apps %}
-        <button type="button" class="btn btn-default applist-button"><a href="/{{ a }}/">{{ apps_long|get_item:a }}</a></button>
+        <a type="button" class="btn btn-default applist-button" href="/{{ a }}/">{{ apps_long|get_item:a }}</a>
     {% endfor %}
     </div>
 {% else %}
