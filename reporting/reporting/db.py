@@ -55,6 +55,8 @@ def string_cell(row, names, defvalue=None):
         if name in row:
             if not isinstance(row[name], str):
                 return row[name].decode('utf-8')
+            else:
+                return row[name]
     return result
 
 def int_cell(row, names, defvalue=None):
