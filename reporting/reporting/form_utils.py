@@ -73,6 +73,7 @@ def request_to_url(request, url_prefix, override=None):
     """
     Generates a URL from the request, using all the GET/POST variables in the URL.
     The values from the request van be overridden with the "override" dictionary.
+
     :param request: the request to turn into a URL
     :type request: HttpRequest
     :param url_prefix: the URL prefix to use; ? gets added automatically
@@ -120,3 +121,23 @@ def request_to_url(request, url_prefix, override=None):
         first = False
 
     return result
+
+def add_export_urls(request, context, url, formats):
+    """
+    Adds export urls to the template context. Uses the parameter 'format'
+    and '<format>_url' for the context.
+
+    :param request: the request to extract the parameters for the URL from
+    :type request: HttpRequest
+    :param context: the template context
+    :type context: dict
+    :param url: the URL to use
+    :type url: str
+    :param formats: the formats to generated URLs for and add as parameters
+                    to the context (eg {'csv', 'xls'})
+    :type formats: list
+    """
+
+    for f in formats:
+        context[f + '_url'] = request_to_url(request, url, {'format': f})
+

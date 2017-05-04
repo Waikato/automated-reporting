@@ -12,6 +12,7 @@ import tempfile
 import csv
 import os
 import subprocess
+import django_excel as excel
 
 @login_required
 @permission_required("lpp.can_use_lpp")
@@ -63,7 +64,7 @@ def output(request):
     if type not in ["master", "occurrence"]:
         return create_error_response(request, 'lpp', 'Unsupported type: {0}'.format(type))
 
-    export = get_variable(request, 'csv')
+    format = get_variable(request, 'format')
 
     # load data from DB
     if len(school) == 0:
@@ -111,35 +112,30 @@ def output(request):
     if retval != 0:
         return create_error_response(request, 'lpp', 'Failed to execute lpp: {0}'.format(retval))
 
-    # generate output
-    if export == "csv":
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="lpp-{0}.csv"'.format(year)
+    # read data
+    header = []
+    body = []
+    with open(genname, 'r') as infile:
+        reader = csv.reader(infile)
+        first = True
+        for row in reader:
+            if first:
+                header = row
+                first = False
+            else:
+                body.append(row)
 
-        with open(genname, 'r') as infile:
-            reader = csv.reader(infile)
-            writer = csv.writer(response)
-            for row in reader:
-                writer.writerow(row)
+    # generate output
+    if format in ["csv", "xls"]:
+        book = excel.pe.Book({'LPP': [header] + body})
+        response = excel.make_response(book, format, file_name="lpp-{0}.{1}".format(year, format))
+        return response
     else:
         template = loader.get_template('lpp/list.html')
         context = applist.template_context('lpp')
-        header = []
-        body = []
-
-        with open(genname, 'r') as infile:
-            reader = csv.reader(infile)
-            first = True
-            for row in reader:
-                if first:
-                    header = row
-                    first = False
-                else:
-                    body.append(row)
-
         context['header'] = header
         context['body'] = body
-        context['csv_url'] = form_utils.request_to_url(request, "/lpp/output", {'csv': 'csv'})
+        form_utils.add_export_urls(request, context, "/lpp/output", ['csv', 'xls'])
         response = HttpResponse(template.render(context, request))
 
     # remove temp files again

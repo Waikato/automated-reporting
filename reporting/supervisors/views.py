@@ -1,14 +1,14 @@
+from collections import OrderedDict
 from django.template import loader
 from django.template.defaulttags import register
 from django.http import HttpResponse
 from django.db import connection
 from django.contrib.auth.decorators import login_required, permission_required
-from database.models import LastParameters, read_last_parameter, write_last_parameter
+from database.models import read_last_parameter, write_last_parameter
 from supervisors.models import StudentDates, Supervisors, Scholarship
 from database.models import GradeResults
 from reporting.error import create_error_response
 from reporting.settings import REPORTING_OPTIONS
-
 import reporting.applist as applist
 from reporting.form_utils import get_variable_with_error, get_variable
 import traceback
@@ -16,6 +16,7 @@ import sys
 from datetime import date
 import csv
 import reporting.form_utils as form_utils
+import django_excel as excel
 
 YEARS_BACK = 5
 """ the default number of years to go back """
@@ -316,7 +317,7 @@ def list_by_faculty(request):
     scholarship = str(get_variable(request, 'scholarship', def_value="NO_SCHOLARSHIP"))
     sort_column = get_variable(request, 'sort_column', def_value="supervisor")
     sort_order = get_variable(request, 'sort_order', def_value="asc")
-    export = get_variable(request, 'csv')
+    format = get_variable(request, 'format')
 
     sql = """
         select sd.school, sd.department, s.supervisor, s.student_id, sd.program
@@ -351,12 +352,49 @@ def list_by_faculty(request):
         school_data_sorted = sorted(school_data, key=lambda row: row[sort_column], reverse=(sort_order == "desc"))
         result[school] = school_data_sorted
 
-    # CSV or HTML?
-    if export == "csv":
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="faculty-%s.csv"' % date.today().strftime("%Y-%m-%d")
-        writer = csv.writer(response)
-        writer.writerow([
+    # generate output
+    if format == "xls":
+        content = OrderedDict()
+        for school in result:
+            data = []
+            data.append([
+                'Faculty/School',
+                'Department',
+                'Supervisor',
+                'Program',
+                'ID',
+                'Name',
+                'Start date',
+                'End date',
+                'Months',
+                'Full time',
+                'Chief supervisor',
+                'Status',
+                'Scholarship (' + scholarship + ')',
+            ])
+            for row in result[school]:
+                data.append([
+                    school,
+                    row['department'],
+                    row['supervisor'],
+                    row['program'],
+                    row['id'],
+                    row['name'],
+                    row['start_date'],
+                    row['end_date'],
+                    row['months'],
+                    row['full_time'],
+                    row['chief_supervisor'],
+                    row['status'],
+                    row['scholarship'],
+                ])
+            content[school] = data
+        book = excel.pe.Book(content)
+        response = excel.make_response(book, format, file_name="faculty-{0}.{1}".format(date.today().strftime("%Y-%m-%d"), format))
+        return response
+    elif format == "csv":
+        data = []
+        data.append([
             'Faculty/School',
             'Department',
             'Supervisor',
@@ -373,7 +411,7 @@ def list_by_faculty(request):
         ])
         for school in result:
             for row in result[school]:
-                writer.writerow([
+                data.append([
                     school,
                     row['department'],
                     row['supervisor'],
@@ -388,14 +426,16 @@ def list_by_faculty(request):
                     row['status'],
                     row['scholarship'],
                 ])
+        sheet = excel.pe.Sheet(data)
+        response = excel.make_response(sheet, format, file_name="faculty-{0}.{1}".format(date.today().strftime("%Y-%m-%d"), format), sheet_name="Faculty")
         return response
     else:
         template = loader.get_template('supervisors/list_by_faculty.html')
         context = applist.template_context('supervisors')
         context['results'] = result
-        context['csv_url'] = form_utils.request_to_url(request, "/supervisors/list-by-faculty", {'csv': 'csv'})
         context['scholarship'] = scholarship
         context['show_scholarship'] = scholarship != NO_SCHOLARSHIP
+        form_utils.add_export_urls(request, context, "/supervisors/list-by-faculty", ['csv', 'xls'])
         return HttpResponse(template.render(context, request))
 
 @login_required
@@ -458,7 +498,7 @@ def list_by_supervisor(request):
     scholarship = str(get_variable(request, 'scholarship', def_value="NO_SCHOLARSHIP"))
     sort_column = get_variable(request, 'sort_column', def_value="supervisor")
     sort_order = get_variable(request, 'sort_order', def_value="asc")
-    export = get_variable(request, 'csv')
+    format = get_variable(request, 'format')
 
     # save parameters
     write_last_parameter(request.user, 'search_by_supervisor.scholarship', scholarship)
@@ -499,11 +539,10 @@ def list_by_supervisor(request):
         result[school] = school_data_sorted
 
     # CSV or HTML?
-    if export == "csv":
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="faculty-%s.csv"' % date.today().strftime("%Y-%m-%d")
-        writer = csv.writer(response)
-        writer.writerow([
+    # generate output
+    if format in ["csv", "xls"]:
+        data = []
+        data.append([
             'Faculty/School',
             'Department',
             'Supervisor',
@@ -520,7 +559,7 @@ def list_by_supervisor(request):
         ])
         for school in result:
             for row in result[school]:
-                writer.writerow([
+                data.append([
                     school,
                     row['department'],
                     row['supervisor'],
@@ -535,14 +574,16 @@ def list_by_supervisor(request):
                     row['status'],
                     row['scholarship'],
                 ])
+        book = excel.pe.Book({'Supervisor': data})
+        response = excel.make_response(book, format, file_name="supervisor-{0}.{1}".format(date.today().strftime("%Y-%m-%d"), format))
         return response
     else:
         template = loader.get_template('supervisors/list_by_supervisor.html')
         context = applist.template_context('supervisors')
         context['results'] = result
-        context['csv_url'] = form_utils.request_to_url(request, "/supervisors/list-by-supervisor", {'csv': 'csv'})
         context['scholarship'] = scholarship
         context['show_scholarship'] = scholarship != NO_SCHOLARSHIP
+        form_utils.add_export_urls(request, context, "/supervisors/list-by-supervisor", ['csv', 'xls'])
         return HttpResponse(template.render(context, request))
 
 @login_required
@@ -602,7 +643,7 @@ def list_by_student(request):
     if response is not None:
         return response
 
-    export = get_variable(request, 'csv')
+    format = get_variable(request, 'format')
 
     # supervisors
     supervisors = []
@@ -633,25 +674,29 @@ def list_by_student(request):
         scholarships.append(data)
 
     # CSV or HTML?
-    if export == "csv":
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="student-%s.csv"' % date.today().strftime("%Y-%m-%d")
-        writer = csv.writer(response)
-        writer.writerow([
+    if format in ['csv', 'xls']:
+        content = OrderedDict()
+
+        # supervisors
+        data = []
+        data.append([
             'ID',
             'Name',
             'Supervisor',
             'Role',
         ])
         for row in supervisors:
-            writer.writerow([
+            data.append([
                 row["studentid"],
                 row["studentname"],
                 row["supervisor"],
                 row["role"],
             ])
-        writer.writerow([])
-        writer.writerow([
+        content['Supervisors'] = data
+
+        # scholarships
+        data = []
+        data.append([
             'ID',
             'Name',
             'Scholarship',
@@ -660,7 +705,7 @@ def list_by_student(request):
             'Year',
         ])
         for row in scholarships:
-            writer.writerow([
+            data.append([
                 row["studentid"],
                 row["studentname"],
                 row["scholarship"],
@@ -668,11 +713,15 @@ def list_by_student(request):
                 row["decision"],
                 row["year"],
             ])
+        content['Scholarships'] = data
+
+        book = excel.pe.Book(content)
+        response = excel.make_response(book, format, file_name="student-{0}.{1}".format(studentid, format))
         return response
     else:
         template = loader.get_template('supervisors/list_by_student.html')
         context = applist.template_context('supervisors')
         context['supervisors'] = supervisors
         context['scholarships'] = scholarships
-        context['csv_url'] = form_utils.request_to_url(request, "/supervisors/list-by-student", {'csv': 'csv'})
+        form_utils.add_export_urls(request, context, "/supervisors/list-by-student", ['csv', 'xls'])
         return HttpResponse(template.render(context, request))
