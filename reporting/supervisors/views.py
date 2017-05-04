@@ -3,6 +3,7 @@ from django.template.defaulttags import register
 from django.http import HttpResponse
 from django.db import connection
 from django.contrib.auth.decorators import login_required, permission_required
+from database.models import LastParameters, read_last_parameter, write_last_parameter
 from supervisors.models import StudentDates, Supervisors, Scholarship
 from database.models import GradeResults
 from reporting.error import create_error_response
@@ -432,6 +433,7 @@ def search_by_supervisor(request):
     context['results'] = results
     context['max_years'] = max_years
     context['scholarships'] = get_scholarships()
+    context['last_scholarship'] = read_last_parameter(request.user, 'search_by_supervisor.scholarship', 'University of Waikato Doctoral Scholarship')
     return HttpResponse(template.render(context, request))
 
 @login_required
@@ -457,6 +459,9 @@ def list_by_supervisor(request):
     sort_column = get_variable(request, 'sort_column', def_value="supervisor")
     sort_order = get_variable(request, 'sort_order', def_value="asc")
     export = get_variable(request, 'csv')
+
+    # save parameters
+    write_last_parameter(request.user, 'search_by_supervisor.scholarship', scholarship)
 
     sql = """
         select sd.school, sd.department, s.supervisor, s.student_id, sd.program

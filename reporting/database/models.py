@@ -1,6 +1,66 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from django.contrib.auth.models import User
+from jsonfield import JSONField
+import json
+
+
+class LastParameters(models.Model):
+    """
+    Model for storing preferences per user.
+    """
+    user = models.OneToOneField(User)
+    parameters = JSONField()
+
+
+def read_last_parameter(user, param, def_value=None):
+    """
+    Returns the last parameter for the user.
+
+    :param user: the user to get the parameter for
+    :type user: User
+    :param param: the name of the parameter to retrieve
+    :type param: str
+    :param def_value: the default value to use
+    :type def_value: str
+    :return: the parameter value (or default value if not found)
+    :rtype: str
+    """
+    params = LastParameters.objects.all().filter(user=user)
+    result = def_value
+    if len(params) > 0:
+        jparams = json.loads(params[0].parameters)
+        if param in jparams:
+            result = jparams[param]
+    return result
+
+
+def write_last_parameter(user, param, value):
+    """
+    Saves the parameter value for the user.
+
+    :param user: the user to save the parameter for
+    :type user: User
+    :param param: the name of the parameter to save
+    :type param: str
+    :param value: the value to store
+    :type value: str
+    """
+    params = LastParameters.objects.all().filter(user=user)
+    if len(params) == 0:
+        p = LastParameters()
+        p.user = user
+        p.parameters = JSONField()
+        jparams = json.loads("{}")
+    else:
+        p = params[0]
+        jparams = json.loads(p.parameters)
+
+    jparams[param] = value
+    p.parameters = json.dumps(jparams)
+    p.save()
+
 
 class TableStatus(models.Model):
     """

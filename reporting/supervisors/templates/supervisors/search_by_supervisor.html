@@ -81,7 +81,7 @@
             <select name="scholarship">
               <option value="-none-" selected>-none-</option>
               {% for scholarship in scholarships %}
-                {% if scholarship == "University of Waikato Doctoral Scholarship" %}
+                {% if scholarship == last_scholarship %}
               <option value="{{ scholarship }}" selected>{{ scholarship }}</option>
                 {% else %}
               <option value="{{ scholarship }}">{{ scholarship }}</option>
