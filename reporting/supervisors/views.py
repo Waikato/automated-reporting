@@ -32,6 +32,9 @@ SUPERVISOR_TYPES = ["chief", "other"]
 NO_SCHOLARSHIP = "-none-"
 """ the indicator for 'no' scholarship """
 
+DEFAULT_SCHOLARSHIP = "University of Waikato Doctoral Scholarship"
+""" the default scholarship """
+
 @register.filter
 def get_item(dictionary, key):
     """
@@ -156,6 +159,14 @@ def search_by_faculty(request):
     context['departments'] = get_departments(schools)
     context['max_years'] = int(max_years) if max_years is not None else YEARS_BACK
     context['scholarships'] = get_scholarships()
+    context['last_programs'] = read_last_parameter(request.user, 'search_by_faculty.programs', PROGRAM_TYPES)
+    context['last_supervisor_type'] = read_last_parameter(request.user, 'search_by_faculty.supervisor_type', SUPERVISOR_TYPES)
+    context['last_study_type'] = read_last_parameter(request.user, 'search_by_faculty.study_type', STUDY_TYPES)
+    context['last_only_current'] = read_last_parameter(request.user, 'search_by_faculty.only_current', True)
+    context['last_min_months'] = read_last_parameter(request.user, 'search_by_faculty.min_months', -1)
+    context['last_scholarship'] = read_last_parameter(request.user, 'search_by_faculty.scholarship', DEFAULT_SCHOLARSHIP)
+    context['last_sort_column'] = read_last_parameter(request.user, 'search_by_faculty.sort_column', "supervisor")
+    context['last_sort_order'] = read_last_parameter(request.user, 'search_by_faculty.sort_order', "asc")
     return HttpResponse(template.render(context, request))
 
 def add_student(data, school, department, supervisor, studentid, program, supervisor_type, study_type, only_current, scholarship):
@@ -318,6 +329,16 @@ def list_by_faculty(request):
     sort_order = get_variable(request, 'sort_order', def_value="asc")
     format = get_variable(request, 'format')
 
+    # save parameters
+    write_last_parameter(request.user, 'search_by_faculty.programs', programs)
+    write_last_parameter(request.user, 'search_by_faculty.supervisor_type', supervisor_type)
+    write_last_parameter(request.user, 'search_by_faculty.study_type', study_type)
+    write_last_parameter(request.user, 'search_by_faculty.only_current', only_current)
+    write_last_parameter(request.user, 'search_by_faculty.min_months', min_months)
+    write_last_parameter(request.user, 'search_by_faculty.scholarship', scholarship)
+    write_last_parameter(request.user, 'search_by_faculty.sort_column', sort_column)
+    write_last_parameter(request.user, 'search_by_faculty.sort_order', sort_order)
+
     sql = """
         select sd.school, sd.department, s.supervisor, s.student_id, sd.program
         from %s sd, %s s
@@ -472,7 +493,14 @@ def search_by_supervisor(request):
     context['results'] = results
     context['max_years'] = max_years
     context['scholarships'] = get_scholarships()
-    context['last_scholarship'] = read_last_parameter(request.user, 'search_by_supervisor.scholarship', 'University of Waikato Doctoral Scholarship')
+    context['last_programs'] = read_last_parameter(request.user, 'search_by_supervisor.programs', PROGRAM_TYPES)
+    context['last_supervisor_type'] = read_last_parameter(request.user, 'search_by_supervisor.supervisor_type', SUPERVISOR_TYPES)
+    context['last_study_type'] = read_last_parameter(request.user, 'search_by_supervisor.study_type', STUDY_TYPES)
+    context['last_only_current'] = read_last_parameter(request.user, 'search_by_supervisor.only_current', True)
+    context['last_min_months'] = read_last_parameter(request.user, 'search_by_supervisor.min_months', -1)
+    context['last_scholarship'] = read_last_parameter(request.user, 'search_by_supervisor.scholarship', DEFAULT_SCHOLARSHIP)
+    context['last_sort_column'] = read_last_parameter(request.user, 'search_by_supervisor.sort_column', "supervisor")
+    context['last_sort_order'] = read_last_parameter(request.user, 'search_by_supervisor.sort_order', "asc")
     return HttpResponse(template.render(context, request))
 
 @login_required
@@ -500,7 +528,14 @@ def list_by_supervisor(request):
     format = get_variable(request, 'format')
 
     # save parameters
+    write_last_parameter(request.user, 'search_by_supervisor.programs', programs)
+    write_last_parameter(request.user, 'search_by_supervisor.supervisor_type', supervisor_type)
+    write_last_parameter(request.user, 'search_by_supervisor.study_type', study_type)
+    write_last_parameter(request.user, 'search_by_supervisor.only_current', only_current)
+    write_last_parameter(request.user, 'search_by_supervisor.min_months', min_months)
     write_last_parameter(request.user, 'search_by_supervisor.scholarship', scholarship)
+    write_last_parameter(request.user, 'search_by_supervisor.sort_column', sort_column)
+    write_last_parameter(request.user, 'search_by_supervisor.sort_order', sort_order)
 
     sql = """
         select sd.school, sd.department, s.supervisor, s.student_id, sd.program

@@ -52,8 +52,16 @@
           <td>Program</td>
           <td>
             <select name="program" size="2" multiple required>
+              {% if "MD" in last_programs %}
               <option value="MD" selected>Master</option>
+              {% else %}
+              <option value="MD">Master</option>
+              {% endif %}
+              {% if "DP" in last_programs %}
               <option value="DP" selected>PhD</option>
+              {% else %}
+              <option value="DP">PhD</option>
+              {% endif %}
             </select>
           </td>
         </tr>
@@ -62,39 +70,67 @@
           <td>Supervisors</td>
           <td>
             <select name="supervisor_type" size="2" multiple required>
+              {% if "chief" in last_supervisor_type %}
               <option value="chief" selected>Chief</option>
+              {% else %}
+              <option value="chief">Chief</option>
+              {% endif %}
+              {% if "other" in last_supervisor_type %}
               <option value="other" selected>Other</option>
+              {% else %}
+              <option value="other">Other</option>
+              {% endif %}
             </select>
           </td>
         </tr>
         <tr>
           <td>Only current students?</td>
           <td>
+            {% if last_only_current %}
             <input type="checkbox" name="only_current" checked/>
+            {% else %}
+            <input type="checkbox" name="only_current"/>
+            {% endif %}
           </td>
         </tr>
         <tr>
           <td>Study type</td>
           <td>
             <select name="study_type" size="2" multiple required>
+              {% if "full" in last_study_type %}
               <option value="full" selected>Full time</option>
+              {% else %}
+              <option value="full">Full time</option>
+              {% endif %}
+              {% if "part" in last_study_type %}
               <option value="part" selected>Part time</option>
+              {% else %}
+              <option value="part">Part time</option>
+              {% endif %}
             </select>
           </td>
         </tr>
         <tr>
           <td>Minimum months</td>
           <td>
+            {% if last_min_months > 0 %}
+            <input type="number" name="min_months" step="0.1" min="0.0" value="{{ last_min_months }}"/>
+            {% else %}
             <input type="number" name="min_months" step="0.1" min="0.0"/>
+            {% endif %}
           </td>
         </tr>
         <tr>
           <td>Scholarship</td>
           <td>
             <select name="scholarship">
+              {% if last_scholarship == "-none" %}
               <option value="-none-" selected>-none-</option>
+              {% else %}
+              <option value="-none-">-none-</option>
+              {% endif %}
               {% for scholarship in scholarships %}
-                {% if scholarship == "University of Waikato Doctoral Scholarship" %}
+                {% if scholarship == last_scholarship %}
               <option value="{{ scholarship }}" selected>{{ scholarship }}</option>
                 {% else %}
               <option value="{{ scholarship }}">{{ scholarship }}</option>
@@ -107,11 +143,26 @@
           <td>Sort column</td>
           <td>
             <select name="sort_column" required>
-              <option value="supervisor" selected>Supervisor</option>
+              {% if last_sort_column == "program" %}
+              <option value="program" selected>Program</option>
+              {% else %}
               <option value="program">Program</option>
+              {% endif %}
+              {% if last_sort_column == "start_date" %}
+              <option value="start_date" selected>Start date</option>
+              {% else %}
               <option value="start_date">Start date</option>
+              {% endif %}
+              {% if last_sort_column == "end_date" %}
+              <option value="end_date" selected>End date</option>
+              {% else %}
               <option value="end_date">End date</option>
+              {% endif %}
+              {% if last_sort_column == "months" %}
+              <option value="months" selected>Months</option>
+              {% else %}
               <option value="months">Months</option>
+              {% endif %}
             </select>
           </td>
         </tr>
@@ -119,8 +170,13 @@
           <td>Sort order</td>
           <td>
             <select name="sort_order" required>
+              {% if last_sort_order == "asc" %}
               <option value="asc" selected>Ascending</option>
               <option value="desc">Descending</option>
+              {% else %}
+              <option value="asc">Ascending</option>
+              <option value="desc" selected>Descending</option>
+              {% endif %}
             </select>
           </td>
         </tr>
