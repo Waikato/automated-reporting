@@ -314,6 +314,7 @@ def import_bulk(csv):
     if len(result) == 0:
         print("Populating student dates")
         populate_student_dates()
+        update_tablestatus(StudentDates._meta.db_table)
         return None
     else:
         return '\n'.join(result)
