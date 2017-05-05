@@ -14,7 +14,7 @@ setup(
         "ldap3",
         "django-python3-ldap>=0.9.14",
         "psycopg2",
-        "pyexcel-xls",
+        "django_excel",
         "jsonfield",
     ],
     classifiers=[
