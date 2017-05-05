@@ -2,13 +2,21 @@ from django.http import HttpResponse
 from django.template import loader
 import reporting.applist as applist
 from django.template.defaulttags import register
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from . import dbimport
 from datetime import date
 
 from database.models import TableStatus, GradeResults
 from supervisors.models import Supervisors, StudentDates, Scholarship
 from reporting.form_utils import get_variable
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def database_bulk(request):
+    template = loader.get_template('database/import_bulk.html')
+    context = applist.template_context()
+    context['title'] = 'Bulk import'
+    return HttpResponse(template.render(context, request))
 
 @login_required
 @permission_required("database.can_manage_grade_results")
@@ -108,6 +116,21 @@ def import_graderesults(request):
         dbimport.update_tablestatus(GradeResults._meta.db_table)
     else:
         context['message'] = "Failed to upload grade results: " + msg
+    return HttpResponse(template.render(context, request))
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def import_bulk(request):
+    # configure template
+    csv = request.FILES['datafile']
+    msg = dbimport.import_bulk(csv.temporary_file_path())
+    template = loader.get_template('message.html')
+    context = applist.template_context()
+    if msg is None:
+        context['message'] = "Successful bulk import!"
+        dbimport.update_tablestatus(GradeResults._meta.db_table)
+    else:
+        context['message'] = "Failed to bulk import: " + msg
     return HttpResponse(template.render(context, request))
 
 @login_required

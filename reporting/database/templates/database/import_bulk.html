@@ -1,0 +1,40 @@
+{% extends "base_navbar.html" %}
+
+{% block head %}
+    <link rel="stylesheet" href="/static/css/database.css" type="text/css"/>
+{% endblock %}
+
+{% block main %}
+
+<h3>{{ title }}</h3>
+
+<div class="panel panel-default">
+  <div class="panel-body">
+    <form action="/database/import/bulk" enctype="multipart/form-data" method="POST">
+      {% csrf_token %}
+      <p>Bulk import using a CSV file with the following structure (header row is case-sensitive):</p>
+      <pre>
+type,year,file,isgzip,encoding
+graderesults,2007,/some/where/2007.csv.gz,True,iso-8859-1
+graderesults,2006,/some/where/2006.csv,False,utf-8
+scholarships,,/some/where/scholarships.csv,False,iso-8859-1
+supervisors,,/some/where/supervisors.csv,False,iso-8859-1
+...
+      </pre>
+      <table class="table_params">
+        <tr>
+          <td>CSV file</td>
+          <td>
+            <input type="file" name="datafile"/>
+          </td>
+        </tr>
+        <tr>
+          <td><input type="submit" value="Start"/></td>
+          <td></td>
+        </tr>
+      </table>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
