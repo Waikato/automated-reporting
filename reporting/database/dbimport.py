@@ -12,6 +12,7 @@ from django.db import connection
 FULL_TIME_CREDITS = 120
 """ the minimum number of credits in order to be considered full time student """
 
+
 def fix_org_unit(unit):
     """
     Fixes the organizational unit, e.g., SASS becomes FASS.
@@ -43,6 +44,7 @@ def fix_org_unit(unit):
         return "FMIS"
     return unit
 
+
 def parse_grade_results_date(name, value):
     """
     Parses the various date formats of the grade results.
@@ -70,6 +72,7 @@ def parse_grade_results_date(name, value):
         print("name=" + name + ", value=" + value + ", format=" + dformat)
         traceback.print_exc(file=sys.stdout)
         return None
+
 
 def import_grade_results(year, csv, isgzip, encoding):
     """
@@ -258,6 +261,7 @@ def import_grade_results(year, csv, isgzip, encoding):
 
     return None
 
+
 def import_bulk(csv):
     """
     Performs a bulk import. The CSV file has to have the following layout
@@ -318,6 +322,7 @@ def import_bulk(csv):
         return None
     else:
         return '\n'.join(result)
+
 
 def populate_student_dates():
     """
@@ -576,6 +581,7 @@ def populate_student_dates():
 
     return None
 
+
 def parse_supervisors_date(name, value):
     """
     Parses the various date formats of the grade results.
@@ -596,6 +602,7 @@ def parse_supervisors_date(name, value):
         print("name=" + name + ", value=" + value + ", format=" + dformat)
         traceback.print_exc(file=sys.stdout)
         return None
+
 
 def import_supervisors(csv, encoding):
     """
@@ -660,6 +667,7 @@ def import_supervisors(csv, encoding):
 
     return None
 
+
 def import_scholarships(csv, encoding):
     """
     Imports the scholarships (Jade Export).
@@ -693,6 +701,7 @@ def import_scholarships(csv, encoding):
         return str(ex)
 
     return None
+
 
 def update_tablestatus(table):
     """

@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 
+
 class StudentDates(models.Model):
     """
     Start/end dates for students.
@@ -21,6 +22,7 @@ class StudentDates(models.Model):
             ("can_access_student_dates", "Can access Student Dates"),
             ("can_manage_student_dates", "Can manage Student Dates"),
         )
+
 
 class Supervisors(models.Model):
     """
@@ -47,6 +49,7 @@ class Supervisors(models.Model):
             ("can_access_supervisors", "Can access Supervisors"),
             ("can_manage_supervisors", "Can manage Supervisors"),
         )
+
 
 class Scholarship(models.Model):
     """

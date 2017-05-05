@@ -35,6 +35,7 @@ NO_SCHOLARSHIP = "-none-"
 DEFAULT_SCHOLARSHIP = "University of Waikato Doctoral Scholarship"
 """ the default scholarship """
 
+
 @register.filter
 def get_item(dictionary, key):
     """
@@ -46,6 +47,7 @@ def get_item(dictionary, key):
     {{ mydict|get_item:item.NAME }}
     """
     return dictionary.get(key)
+
 
 def get_max_years():
     """
@@ -70,6 +72,7 @@ def get_max_years():
 
     return int(max_years)
 
+
 def get_schools():
     """
     Retrieves a sorted list of all the deparments.
@@ -89,6 +92,7 @@ def get_schools():
     for row in cursor.fetchall():
         result.append(row[0])
     return result
+
 
 def get_departments(schools):
     """
@@ -113,6 +117,7 @@ def get_departments(schools):
         result.append(row[0])
     return result
 
+
 def get_scholarships():
     """
     Retrieves a sorted list of all scholarships available.
@@ -132,6 +137,7 @@ def get_scholarships():
         result.append(row[0])
     return result
 
+
 @login_required
 @permission_required("supervisors.can_use_supervisors")
 def index(request):
@@ -140,6 +146,7 @@ def index(request):
     context = applist.template_context('supervisors')
     context['schools'] = get_schools()
     return HttpResponse(template.render(context, request))
+
 
 @login_required
 @permission_required("supervisors.can_use_supervisors")
@@ -168,6 +175,7 @@ def search_by_faculty(request):
     context['last_sort_column'] = read_last_parameter(request.user, 'search_by_faculty.sort_column', "supervisor")
     context['last_sort_order'] = read_last_parameter(request.user, 'search_by_faculty.sort_order', "asc")
     return HttpResponse(template.render(context, request))
+
 
 def add_student(data, school, department, supervisor, studentid, program, supervisor_type, study_type, only_current, scholarship):
     """
@@ -284,7 +292,7 @@ def add_student(data, school, department, supervisor, studentid, program, superv
         if school not in data:
             data[school] = []
 
-        sdata = {}
+        sdata = dict()
         sdata['department'] = department
         sdata['supervisor'] = supervisor
         sdata['program'] = program_display
@@ -298,6 +306,7 @@ def add_student(data, school, department, supervisor, studentid, program, superv
         sdata['status'] = status
         sdata['scholarship'] = scholarship_status
         data[school].append(sdata)
+
 
 @login_required
 @permission_required("supervisors.can_use_supervisors")
@@ -327,7 +336,7 @@ def list_by_faculty(request):
     scholarship = str(get_variable(request, 'scholarship', def_value="NO_SCHOLARSHIP"))
     sort_column = get_variable(request, 'sort_column', def_value="supervisor")
     sort_order = get_variable(request, 'sort_order', def_value="asc")
-    format = get_variable(request, 'format')
+    formattype = get_variable(request, 'format')
 
     # save parameters
     write_last_parameter(request.user, 'search_by_faculty.programs', programs)
@@ -373,10 +382,10 @@ def list_by_faculty(request):
         result[school] = school_data_sorted
 
     # generate output
-    if format == "xls":
+    if formattype == "xls":
         content = OrderedDict()
         for school in result:
-            data = []
+            data = list()
             data.append([
                 'Faculty/School',
                 'Department',
@@ -410,10 +419,10 @@ def list_by_faculty(request):
                 ])
             content[school] = data
         book = excel.pe.Book(content)
-        response = excel.make_response(book, format, file_name="faculty-{0}.{1}".format(date.today().strftime("%Y-%m-%d"), format))
+        response = excel.make_response(book, formattype, file_name="faculty-{0}.{1}".format(date.today().strftime("%Y-%m-%d"), formattype))
         return response
-    elif format == "csv":
-        data = []
+    elif formattype == "csv":
+        data = list()
         data.append([
             'Faculty/School',
             'Department',
@@ -447,7 +456,7 @@ def list_by_faculty(request):
                     row['scholarship'],
                 ])
         sheet = excel.pe.Sheet(data)
-        response = excel.make_response(sheet, format, file_name="faculty-{0}.{1}".format(date.today().strftime("%Y-%m-%d"), format), sheet_name="Faculty")
+        response = excel.make_response(sheet, formattype, file_name="faculty-{0}.{1}".format(date.today().strftime("%Y-%m-%d"), formattype), sheet_name="Faculty")
         return response
     else:
         template = loader.get_template('supervisors/list_by_faculty.html')
@@ -457,6 +466,7 @@ def list_by_faculty(request):
         context['show_scholarship'] = scholarship != NO_SCHOLARSHIP
         form_utils.add_export_urls(request, context, "/supervisors/list-by-faculty", ['csv', 'xls'])
         return HttpResponse(template.render(context, request))
+
 
 @login_required
 @permission_required("supervisors.can_use_supervisors")
@@ -481,9 +491,9 @@ def search_by_supervisor(request):
         """ % (StudentDates._meta.db_table, Supervisors._meta.db_table, name.lower())
     cursor = connection.cursor()
     cursor.execute(sql)
-    results = []
+    results = list()
     for row in cursor.fetchall():
-        data = {}
+        data = dict()
         data['supervisor'] = row[0]
         results.append(data)
 
@@ -502,6 +512,7 @@ def search_by_supervisor(request):
     context['last_sort_column'] = read_last_parameter(request.user, 'search_by_supervisor.sort_column', "supervisor")
     context['last_sort_order'] = read_last_parameter(request.user, 'search_by_supervisor.sort_order', "asc")
     return HttpResponse(template.render(context, request))
+
 
 @login_required
 @permission_required("supervisors.can_use_supervisors")
@@ -525,7 +536,7 @@ def list_by_supervisor(request):
     scholarship = str(get_variable(request, 'scholarship', def_value="NO_SCHOLARSHIP"))
     sort_column = get_variable(request, 'sort_column', def_value="supervisor")
     sort_order = get_variable(request, 'sort_order', def_value="asc")
-    format = get_variable(request, 'format')
+    formattype = get_variable(request, 'format')
 
     # save parameters
     write_last_parameter(request.user, 'search_by_supervisor.programs', programs)
@@ -551,7 +562,7 @@ def list_by_supervisor(request):
         """ % (StudentDates._meta.db_table, Supervisors._meta.db_table, name, start_year, min_months)
     cursor = connection.cursor()
     cursor.execute(sql)
-    result = {}
+    result = dict()
     for row in cursor.fetchall():
         try:
             if len(row[0]) < 1:
@@ -574,8 +585,8 @@ def list_by_supervisor(request):
 
     # CSV or HTML?
     # generate output
-    if format in ["csv", "xls"]:
-        data = []
+    if formattype in ["csv", "xls"]:
+        data = list()
         data.append([
             'Faculty/School',
             'Department',
@@ -609,7 +620,7 @@ def list_by_supervisor(request):
                     row['scholarship'],
                 ])
         book = excel.pe.Book({'Supervisor': data})
-        response = excel.make_response(book, format, file_name="supervisor-{0}.{1}".format(date.today().strftime("%Y-%m-%d"), format))
+        response = excel.make_response(book, formattype, file_name="supervisor-{0}.{1}".format(date.today().strftime("%Y-%m-%d"), formattype))
         return response
     else:
         template = loader.get_template('supervisors/list_by_supervisor.html')
@@ -619,6 +630,7 @@ def list_by_supervisor(request):
         context['show_scholarship'] = scholarship != NO_SCHOLARSHIP
         form_utils.add_export_urls(request, context, "/supervisors/list-by-supervisor", ['csv', 'xls'])
         return HttpResponse(template.render(context, request))
+
 
 @login_required
 @permission_required("supervisors.can_use_supervisors")
@@ -655,9 +667,9 @@ def search_by_student(request):
             """ % (StudentDates._meta.db_table, Supervisors._meta.db_table, name.lower())
     cursor = connection.cursor()
     cursor.execute(sql)
-    results = []
+    results = list()
     for row in cursor.fetchall():
-        data = {}
+        data = dict()
         data['student_id'] = row[0]
         data['program'] = row[1]
         data['student'] = row[2]
@@ -669,6 +681,7 @@ def search_by_student(request):
     context['results'] = results
     return HttpResponse(template.render(context, request))
 
+
 @login_required
 @permission_required("supervisors.can_use_supervisors")
 def list_by_student(request):
@@ -677,16 +690,16 @@ def list_by_student(request):
     if response is not None:
         return response
 
-    format = get_variable(request, 'format')
+    formattype = get_variable(request, 'format')
 
     # supervisors
-    supervisors = []
+    supervisors = list()
     for sv in Supervisors.objects.all().filter(student_id=studentid):
         sname = None
         for g in GradeResults.objects.all().filter(student_id=studentid):
             sname = g.name
             break
-        data = {}
+        data = dict()
         data["studentid"] = studentid
         data["studentname"] = sname
         data["supervisor"] = sv.supervisor
@@ -698,7 +711,7 @@ def list_by_student(request):
     # scholarships
     scholarships = []
     for sc in Scholarship.objects.all().filter(student_id=studentid).order_by('-year'):
-        data = {}
+        data = dict()
         data["studentid"] = studentid
         data["studentname"] = sname
         data["scholarship"] = sc.name
@@ -708,11 +721,11 @@ def list_by_student(request):
         scholarships.append(data)
 
     # CSV or HTML?
-    if format in ['csv', 'xls']:
+    if formattype in ['csv', 'xls']:
         content = OrderedDict()
 
         # supervisors
-        data = []
+        data = list()
         data.append([
             'ID',
             'Name',
@@ -729,7 +742,7 @@ def list_by_student(request):
         content['Supervisors'] = data
 
         # scholarships
-        data = []
+        data = list()
         data.append([
             'ID',
             'Name',
@@ -750,7 +763,7 @@ def list_by_student(request):
         content['Scholarships'] = data
 
         book = excel.pe.Book(content)
-        response = excel.make_response(book, format, file_name="student-{0}.{1}".format(studentid, format))
+        response = excel.make_response(book, formattype, file_name="student-{0}.{1}".format(studentid, formattype))
         return response
     else:
         template = loader.get_template('supervisors/list_by_student.html')

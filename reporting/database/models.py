@@ -75,6 +75,7 @@ class TableStatus(models.Model):
             ("can_manage_table_status", "Can manage Table Status"),
         )
 
+
 class GradeResults(models.Model):
     """
     Grade results.

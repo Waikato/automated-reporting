@@ -14,6 +14,7 @@ import os
 import subprocess
 import django_excel as excel
 
+
 @login_required
 @permission_required("lpp.can_use_lpp")
 def index(request):
@@ -46,6 +47,7 @@ def index(request):
     context['schools'] = schools
     return HttpResponse(template.render(context, request))
 
+
 @login_required
 @permission_required("lpp.can_use_lpp")
 def output(request):
@@ -64,7 +66,7 @@ def output(request):
     if type not in ["master", "occurrence"]:
         return create_error_response(request, 'lpp', 'Unsupported type: {0}'.format(type))
 
-    format = get_variable(request, 'format')
+    formattype = get_variable(request, 'format')
 
     # load data from DB
     if len(school) == 0:
@@ -126,9 +128,9 @@ def output(request):
                 body.append(row)
 
     # generate output
-    if format in ["csv", "xls"]:
+    if formattype in ["csv", "xls"]:
         book = excel.pe.Book({'LPP': [header] + body})
-        response = excel.make_response(book, format, file_name="lpp-{0}.{1}".format(year, format))
+        response = excel.make_response(book, formattype, file_name="lpp-{0}.{1}".format(year, formattype))
         return response
     else:
         template = loader.get_template('lpp/list.html')
@@ -153,4 +155,3 @@ def output(request):
         pass
 
     return response
-

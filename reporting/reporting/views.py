@@ -4,11 +4,13 @@ import reporting.applist as applist
 from django.template.defaulttags import register
 from django.contrib.auth.decorators import login_required
 
+
 @login_required
 def index(request):
     template = loader.get_template('applist.html')
     context = applist.template_context()
     return HttpResponse(template.render(context, request))
+
 
 @register.filter
 def get_item(dictionary, key):

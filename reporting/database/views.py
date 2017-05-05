@@ -10,6 +10,7 @@ from database.models import TableStatus, GradeResults
 from supervisors.models import Supervisors, StudentDates, Scholarship
 from reporting.form_utils import get_variable
 
+
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def database_bulk(request):
@@ -17,6 +18,7 @@ def database_bulk(request):
     context = applist.template_context()
     context['title'] = 'Bulk import'
     return HttpResponse(template.render(context, request))
+
 
 @login_required
 @permission_required("database.can_manage_grade_results")
@@ -31,6 +33,7 @@ def database_graderesults(request):
     context['years'] = years
     return HttpResponse(template.render(context, request))
 
+
 @login_required
 @permission_required("supervisors.can_manage_supervisors")
 def database_supervisors(request):
@@ -38,6 +41,7 @@ def database_supervisors(request):
     context = applist.template_context()
     context['title'] = 'Import supervisors'
     return HttpResponse(template.render(context, request))
+
 
 @login_required
 @permission_required("supervisors.can_manage_scholarships")
@@ -47,6 +51,7 @@ def database_scholarships(request):
     context['title'] = 'Import scholarships'
     return HttpResponse(template.render(context, request))
 
+
 @login_required
 @permission_required("supervisors.can_manage_student_dates")
 def database_studentdates(request):
@@ -54,6 +59,7 @@ def database_studentdates(request):
     context = applist.template_context()
     context['title'] = 'Update student dates'
     return HttpResponse(template.render(context, request))
+
 
 @login_required
 @permission_required("database.can_manage_table_status")
@@ -67,6 +73,7 @@ def database_tablestatus(request):
     context['title'] = 'Table status'
     context['tables'] = tables
     return HttpResponse(template.render(context, request))
+
 
 @login_required
 @permission_required("supervisors.can_manage_supervisors")
@@ -84,6 +91,7 @@ def import_supervisors(request):
         context['message'] = "Failed to upload supervisors: " + msg
     return HttpResponse(template.render(context, request))
 
+
 @login_required
 @permission_required("supervisors.can_manage_scholarships")
 def import_scholarships(request):
@@ -99,6 +107,7 @@ def import_scholarships(request):
     else:
         context['message'] = "Failed to upload scholarships: " + msg
     return HttpResponse(template.render(context, request))
+
 
 @login_required
 @permission_required("database.can_manage_grade_results")
@@ -118,6 +127,7 @@ def import_graderesults(request):
         context['message'] = "Failed to upload grade results: " + msg
     return HttpResponse(template.render(context, request))
 
+
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def import_bulk(request):
@@ -133,6 +143,7 @@ def import_bulk(request):
         context['message'] = "Failed to bulk import: " + msg
     return HttpResponse(template.render(context, request))
 
+
 @login_required
 @permission_required("supervisors.can_manage_student_dates")
 def update_studentdates(request):
@@ -146,6 +157,7 @@ def update_studentdates(request):
     else:
         context['message'] = "Failed to recalculate student dates: " + msg
     return HttpResponse(template.render(context, request))
+
 
 @register.filter
 def get_item(dictionary, key):
