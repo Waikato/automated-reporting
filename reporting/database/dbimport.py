@@ -258,6 +258,66 @@ def import_grade_results(year, csv, isgzip, encoding):
 
     return None
 
+def import_bulk(csv):
+    """
+    Performs a bulk import. The CSV file has to have the following layout
+    (headers must match!):
+
+    type,year,file,isgzip,encoding
+    graderesults,2007,/some/where/2007.csv.gz,True,iso-8859-1
+    graderesults,2006,/some/where/2006.csv,False,iso-8859-1
+    scholarships,,/some/where/scholarships.csv,False,iso-8859-1
+    supervisors,,/some/where/supervisors.csv,False,iso-8859-1
+    ...
+
+    :param csv: the CSV file with the files to bulk import
+    :type csv: str
+    :return: None if successful, otherwise error message
+    :rtype: str
+    """
+    result = []
+    try:
+        csvfile = open(csv)
+        reader = DictReader(csvfile)
+        for row in reader:
+            if len(row) != 5:
+                continue
+            try:
+                print("Importing: " + str(row))
+                if row['type'] == 'graderesults':
+                    msg = import_grade_results(int(row['year']), row['file'], bool(row['isgzip']), row['encoding'])
+                    if msg is None:
+                        update_tablestatus(GradeResults._meta.db_table)
+                    else:
+                        result.append(msg)
+                elif row['type'] == 'supervisors':
+                    msg = import_supervisors(row['file'], row['encoding'])
+                    if msg is None:
+                        update_tablestatus(Supervisors._meta.db_table)
+                    else:
+                        result.append(msg)
+                elif row['type'] == 'scholarships':
+                    msg = import_scholarships(row['file'], row['encoding'])
+                    if msg is None:
+                        update_tablestatus(Scholarship._meta.db_table)
+                    else:
+                        result.append(msg)
+                else:
+                    result.append("Unhandled file type: " + str(row['type']))
+            except Exception as ex:
+                traceback.print_exc(file=sys.stdout)
+                result.append(str(ex))
+    except Exception as ex:
+        traceback.print_exc(file=sys.stdout)
+        result.append(str(ex))
+
+    if len(result) == 0:
+        print("Populating student dates")
+        populate_student_dates()
+        return None
+    else:
+        return '\n'.join(result)
+
 def populate_student_dates():
     """
     Populates the studentdates table. Truncates the table first.
