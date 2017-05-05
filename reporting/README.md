@@ -128,3 +128,25 @@ PostgreSQL
   GRANT USAGE ON SCHEMA public TO reporting;
   GRANT CREATE ON SCHEMA public TO reporting;
   ```
+
+* backup
+
+  only backup the following tables:
+
+  * database_graderesults;
+  * database_lastparameters;
+  * database_tablestatus;
+  * supervisors_scholarship;
+  * supervisors_supervisors;
+
+* restore
+
+  empty the relevant tables first:
+
+  ```
+  truncate database_graderesults;
+  truncate database_lastparameters;
+  truncate database_tablestatus;
+  truncate supervisors_scholarship;
+  truncate supervisors_supervisors;
+  ```
