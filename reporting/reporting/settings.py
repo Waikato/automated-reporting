@@ -126,8 +126,6 @@ LOGIN_REDIRECT_URL = '/'
 
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
-
-# custom database settings?
 try:
     import reporting.settings_db
     DATABASES = reporting.settings_db.DATABASES
@@ -203,8 +201,6 @@ REPORTING_OPTIONS = {
 }
 
 # LDAP settings
-
-# custom settings?
 try:
     import reporting.settings_ldap
     print("Using settings from 'settings_ldap.py'")
@@ -215,9 +211,9 @@ try:
     LDAP_AUTH_CONNECTION_PASSWORD = reporting.settings_ldap.LDAP_AUTH_CONNECTION_PASSWORD
     LDAP_AUTH_SEARCH_BASE = reporting.settings_ldap.LDAP_AUTH_SEARCH_BASE
     LOGGING = reporting.settings_ldap.LOGGING
-    USING_LDAP = True
+    LOCAL_USERS = False
 except ImportError:
-    USING_LDAP = False
+    LOCAL_USERS = True
     print("""
         No LDAP settings defined!
         Create 'settings_ldap.py' for custom settings, see details:"
@@ -252,8 +248,6 @@ except ImportError:
         """)
 
 # LPP settings
-
-# custom settings?
 try:
     import reporting.settings_lpp
     print("Using settings from 'settings_lpp.py'")
@@ -268,4 +262,3 @@ except ImportError:
         """)
     PERL = "/usr/bin/perl"
     LPP_SCRIPT = "/usr/local/bin/LPP/pass-rates"
-

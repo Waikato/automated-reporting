@@ -21,10 +21,7 @@ nytprof.out
 *.csv
 *~
 *.swp
-settings_db.py
-settings_debug.py
-settings_lpp.py
-settings_ldap.py
+settings_*.py
 *.sqlite3
 *.pyc
 .idea/
