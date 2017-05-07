@@ -5,7 +5,6 @@ from django.contrib.auth.decorators import login_required, permission_required
 
 import reporting.applist as applist
 from reporting.error import create_error_response
-import reporting.form_utils as form_utils
 from reporting.form_utils import get_variable_with_error
 from database.models import GradeResults
 from csv import DictReader
@@ -13,6 +12,7 @@ import traceback
 import sys
 
 MINIMUM_DAYS = 25
+
 
 def actual_balance_key(a):
     """
@@ -25,6 +25,7 @@ def actual_balance_key(a):
     """
     return float(a['actual_balance'])
 
+
 @login_required
 @permission_required("leave.can_use_leave")
 def index(request):
@@ -35,7 +36,7 @@ def index(request):
         FROM %s
         ORDER BY owning_school_clevel ASC
         """ % GradeResults._meta.db_table)
-    schools = []
+    schools = list()
     for row in cursor.fetchall():
         schools.append(row[0])
     # configure template
@@ -44,6 +45,7 @@ def index(request):
     context['schools'] = schools
     context['minimum'] = MINIMUM_DAYS
     return HttpResponse(template.render(context, request))
+
 
 @login_required
 @permission_required("leave.can_use_leave")
@@ -61,7 +63,7 @@ def upload(request):
     csv = request.FILES['datafile']
 
     order = ['school', 'employee', 'manager', 'actual_balance', 'leave_accrued', 'future_leave_bookings', 'current_balance', 'current_allocated_balance']
-    header = {}
+    header = dict()
     header['school'] = 'Faculty/School'
     header['employee'] = 'Employee'
     header['manager'] = 'Manager'
@@ -70,7 +72,7 @@ def upload(request):
     header['future_leave_bookings'] = 'Future bookings'
     header['current_balance'] = 'Current balance'
     header['current_allocated_balance'] = 'Current allocated balance'
-    result = []
+    result = list()
     try:
         with open(csv.temporary_file_path(), encoding='ISO-8859-1') as csvfile:
             reader = DictReader(csvfile)
@@ -82,7 +84,7 @@ def upload(request):
                 leave_type = row['leave_type']
                 if leave_type != "AL":  # TODO any other types of leave to add/include?
                     continue
-                rrow = {}
+                rrow = dict()
                 rrow['school'] = school
                 rrow['employee'] = row['employee_name']
                 rrow['manager'] = row['manager']
