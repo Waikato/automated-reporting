@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'lpp',
     'reporting',
     'supervisors',
+    'hyperlinkgrades',
     'django_python3_ldap',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -67,18 +68,21 @@ INSTALLED_APPS = [
 
 APPS_LIST = [
     'leave',
+    'hyperlinkgrades',
     'lpp',
     'supervisors',
 ]
 
 APPS_SHORT = {
     'leave': 'Leave',
+    'hyperlinkgrades': 'Hyperlink Grades',
     'lpp': 'LPP',
     'supervisors': 'Supervisors',
 }
 
 APPS_LONG = {
     'leave': 'Annual Leave',
+    'hyperlinkgrades': 'Hyperlink Grades',
     'lpp': 'Low performing pass-rates',
     'supervisors': 'Supervisor Register',
 }
@@ -200,6 +204,9 @@ REPORTING_OPTIONS = {
     'supervisor.only_phd': True,
 }
 
+# using local users by default
+LOCAL_USERS = True
+
 # LDAP settings
 try:
     import reporting.settings_ldap
@@ -213,7 +220,6 @@ try:
     LOGGING = reporting.settings_ldap.LOGGING
     LOCAL_USERS = False
 except ImportError:
-    LOCAL_USERS = True
     print("""
         No LDAP settings defined!
         Create 'settings_ldap.py' for custom settings, see details:"
@@ -247,18 +253,54 @@ except ImportError:
         }
         """)
 
+# Java settings
+try:
+    import reporting.settings_java
+    print("Using settings from 'settings_java.py'")
+    JAVA = reporting.settings_java.JAVA
+except ImportError:
+    print("""
+        Using default Java settings
+        Create 'settings_java.py' for custom settings, e.g.:"
+        JAVA = "/usr/bin/java"
+        """)
+    JAVA = "/usr/bin/java"
+
+# Perl settings
+try:
+    import reporting.settings_perl
+    print("Using settings from 'settings_perl.py'")
+    PERL = reporting.settings_perl.PERL
+except ImportError:
+    print("""
+        Using default Perl settings
+        Create 'settings_perl.py' for custom settings, e.g.:"
+        PERL = "/usr/bin/perl"
+        """)
+    PERL = "/usr/bin/perl"
+
 # LPP settings
 try:
     import reporting.settings_lpp
     print("Using settings from 'settings_lpp.py'")
-    PERL = reporting.settings_lpp.PERL
     LPP_SCRIPT = reporting.settings_lpp.LPP_SCRIPT
 except ImportError:
     print("""
         Using default LPP settings
         Create 'settings_lpp.py' for custom settings, e.g.:"
-        PERL = "/usr/bin/perl"
         LPP_SCRIPT = "/usr/local/bin/LPP/pass-rates"
         """)
-    PERL = "/usr/bin/perl"
     LPP_SCRIPT = "/usr/local/bin/LPP/pass-rates"
+
+# FCMS doc modifier settings
+try:
+    import reporting.settings_docmod
+    print("Using settings from 'settings_docmod.py'")
+    DOC_MOD_LIB = reporting.settings_docmod.DOC_MOD_LIB
+except ImportError:
+    print("""
+        Using default FCMS doc modifier settings
+        Create 'settings_docmod.py' for custom settings, e.g.:"
+        DOC_MOD_LIB = "/usr/local/bin/fcms-doc-modifier/lib"
+        """)
+    DOC_MOD_LIB = "/usr/local/bin/fcms-doc-modifier/lib"

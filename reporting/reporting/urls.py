@@ -22,6 +22,7 @@ urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^database/', include('database.urls')),
     url(r'^leave/', include('leave.urls')),
+    url(r'^hyperlinkgrades/', include('hyperlinkgrades.urls')),
     url(r'^lpp/', include('lpp.urls')),
     url(r'^supervisors/', include('supervisors.urls')),
     url(r'^admin/', admin.site.urls),

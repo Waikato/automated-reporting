@@ -1,0 +1,56 @@
+{% extends "base_navbar.html" %}
+
+{% block main %}
+
+<h3>{{ title }}</h3>
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Upload</h3>
+  </div>
+  <div class="panel-body">
+    <form action="/hyperlinkgrades/upload" enctype="multipart/form-data" method="POST">
+      {% csrf_token %}
+      <table class="table_params">
+        <tr>
+          <td>PDF file</td>
+          <td>
+            <input type="file" name="datafile"/>
+          </td>
+        </tr>
+        <tr>
+          <td>Expression</td>
+          <td>
+            <input type="text" name="expression" value="{{ last_expression }}"/>
+          </td>
+        </tr>
+        <tr>
+          <td>Case-sensitive matching</td>
+          <td>
+            {% if last_casesensitive_matching %}
+            <input type="checkbox" name="casesensitive_matching" checked/>
+            {% else %}
+            <input type="checkbox" name="casesensitive_matching"/>
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <td>Exclude completions</td>
+          <td>
+            {% if last_exclude_completions %}
+            <input type="checkbox" name="exclude_completions" checked/>
+            {% else %}
+            <input type="checkbox" name="exclude_completions"/>
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <td><input type="submit" value="Upload"/></td>
+          <td></td>
+        </tr>
+      </table>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
