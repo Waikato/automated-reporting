@@ -720,6 +720,23 @@ def list_by_student(request):
         data["year"] = sc.year
         scholarships.append(data)
 
+    # papers
+    papers = []
+    for gr in GradeResults.objects.all().filter(student_id=studentid).order_by('-occurrence_startdate'):
+        data = dict()
+        data["studentid"] = studentid
+        data["studentname"] = sname
+        data["program"] = gr.prog_abbr
+        data["school"] = gr.school_of_study_clevel
+        data["paper"] = gr.paper_master_code
+        data["start_date"] = gr.occurrence_startdate
+        data["classification"] = gr.classification
+        data["credits"] = gr.credits
+        data["student_credit_points"] = gr.student_credit_points
+        data["grade"] = gr.grade
+        data["grade_status"] = gr.grade_status
+        papers.append(data)
+
     # CSV or HTML?
     if formattype in ['csv', 'xls']:
         content = OrderedDict()
@@ -762,6 +779,37 @@ def list_by_student(request):
             ])
         content['Scholarships'] = data
 
+        # papers
+        data = list()
+        data.append([
+            'ID',
+            'Name',
+            'Program',
+            'Faculty/School',
+            'Paper code',
+            'Start date',
+            'Classification',
+            'Credits',
+            'Student credit points',
+            'Grade',
+            'Grade status',
+        ])
+        for row in papers:
+            data.append([
+                row["studentid"],
+                row["studentname"],
+                row["program"],
+                row["school"],
+                row["paper"],
+                row["start_date"],
+                row["classification"],
+                row["credits"],
+                row["student_credit_points"],
+                row["grade"],
+                row["grade_status"],
+            ])
+        content['Academic history'] = data
+
         book = excel.pe.Book(content)
         response = excel.make_response(book, formattype, file_name="student-{0}.{1}".format(studentid, formattype))
         return response
@@ -770,5 +818,6 @@ def list_by_student(request):
         context = applist.template_context('supervisors')
         context['supervisors'] = supervisors
         context['scholarships'] = scholarships
+        context['papers'] = papers
         form_utils.add_export_urls(request, context, "/supervisors/list-by-student", ['csv', 'xls'])
         return HttpResponse(template.render(context, request))
