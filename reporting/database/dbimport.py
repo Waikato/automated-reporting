@@ -476,7 +476,6 @@ def populate_student_dates():
                 where student_id = '%s'
                 and active = 'true'
                 and program = 'DP'
-                and completion_date > '1900-01-01'
                 """ % (table_super, id)
             cursor2.execute(sql)
             for row2 in cursor2.fetchall():
