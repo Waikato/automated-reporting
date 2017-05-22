@@ -27,4 +27,5 @@ urlpatterns = [
     url(r'^supervisors/', include('supervisors.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^accounts/', include('django.contrib.auth.urls')),
+    url(r'^maintenance-mode/', include('maintenance_mode.urls')),
 ]

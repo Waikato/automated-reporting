@@ -16,6 +16,7 @@ setup(
         "psycopg2",
         "django_excel",
         "jsonfield",
+        "django-maintenance-mode",
     ],
     classifiers=[
         "Development Status :: 4 - Beta",

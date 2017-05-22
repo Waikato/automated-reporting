@@ -8,6 +8,7 @@ import sys
 import re
 from datetime import datetime
 from django.db import connection
+from maintenance_mode.core import set_maintenance_mode
 
 FULL_TIME_CREDITS = 120
 """ the minimum number of credits in order to be considered full time student """
@@ -89,6 +90,9 @@ def import_grade_results(year, csv, isgzip, encoding):
     :return: None if successful, otherwise error message
     :rtype: str
     """
+
+    set_maintenance_mode(True)
+
     # delete previous rows for year
     GradeResults.objects.all().filter(year=year).delete()
     # import
@@ -280,6 +284,7 @@ def import_bulk(csv):
     :rtype: str
     """
     result = []
+    set_maintenance_mode(True)
     try:
         csvfile = open(csv)
         reader = DictReader(csvfile)
@@ -331,6 +336,9 @@ def populate_student_dates():
     :return: None if successful, otherwise error message
     :rtype: str
     """
+
+    set_maintenance_mode(True)
+
     # delete old rows
     StudentDates.objects.all().delete()
 
@@ -578,6 +586,8 @@ def populate_student_dates():
             print("Master: id=%s, start=%s, end=%s, months=%s" % (id, master_start, master_end, master_months))
             traceback.print_exc(file=sys.stdout)
 
+    set_maintenance_mode(False)
+
     return None
 
 
@@ -614,6 +624,9 @@ def import_supervisors(csv, encoding):
     :return: None if successful, otherwise error message
     :rtype: str
     """
+
+    set_maintenance_mode(True)
+
     # empty table
     Supervisors.objects.all().delete()
     # import
@@ -678,6 +691,9 @@ def import_scholarships(csv, encoding):
     :return: None if successful, otherwise error message
     :rtype: str
     """
+
+    set_maintenance_mode(True)
+
     # empty table
     Scholarship.objects.all().delete()
     # import

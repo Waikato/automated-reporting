@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'maintenance_mode',
 ]
 
 APPS_LIST = [
@@ -95,6 +96,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'maintenance_mode.middleware.MaintenanceModeMiddleware',
 ]
 
 ROOT_URLCONF = 'reporting.urls'
@@ -112,11 +114,20 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'maintenance_mode.context_processors.maintenance_mode',
             ],
             'debug': True,
         },
     },
 ]
+
+
+MAINTENANCE_MODE_IGNORE_URLS = [
+    "/$",
+    "/database/*",
+    "/hyperlinkgrades/*",
+]
+
 
 # only use TemporaryFileUploadHandler for file uploads
 FILE_UPLOAD_HANDLERS = (
