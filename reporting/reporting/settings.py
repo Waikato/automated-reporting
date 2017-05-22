@@ -22,21 +22,21 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '5)!dc%xc6622p!!wa54qaf+$_8v5a29ax04+$b)nc8x@-jtu$_'
 
-# custom debug settings?
-try:
-    import reporting.settings_debug
-    DEBUG = reporting.settings_debug.DEBUG
-    print("Using debug settings from 'settings_debug.py'")
-except ImportError:
-    DEBUG = False
-    print("""
-        Using default debug settings (ie debugging turned off)
-
-        Create 'settings_debug.py' for custom settings, e.g. for turning debugging on:
-        DEBUG = True
-
-        SECURITY WARNING: don't run with debug turned on in production!
-        """)
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "loggers": {
+        "django_python3_ldap": {
+            "handlers": ["console"],
+            "level": "INFO",
+        },
+    },
+}
 
 ALLOWED_HOSTS = [
     '*'
@@ -139,34 +139,6 @@ WSGI_APPLICATION = 'reporting.wsgi.application'
 # Redirect to home URL after login (Default redirects to /accounts/profile/)
 LOGIN_REDIRECT_URL = '/'
 
-# Database
-# https://docs.djangoproject.com/en/1.10/ref/settings/#databases
-try:
-    import reporting.settings_db
-    DATABASES = reporting.settings_db.DATABASES
-    print("Using database settings from 'settings_db.py'")
-except ImportError:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        }
-    }
-    print("""
-        Using default database settings
-        Create 'settings_db.py' for custom settings, e.g.:
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.postgresql_psycopg2',
-                'NAME': 'db_name',
-                'USER': 'db_user',
-                'PASSWORD': 'db_user_password',
-                'HOST': '',
-                'PORT': 'db_port_number',
-            }
-        }
-        """)
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
@@ -209,109 +181,45 @@ STATICFILES_DIRS = [
     'reporting/static/',
 ]
 
-# general options
-# NB: this gets added to the context of templates
-REPORTING_OPTIONS = {
-    'supervisor.only_phd': True,
-}
-
-# using local users by default
-LOCAL_USERS = True
-
-# LDAP settings
+# custom settings?
 try:
-    import reporting.settings_ldap
-    print("Using settings from 'settings_ldap.py'")
-    AUTHENTICATION_BACKENDS = reporting.settings_ldap.AUTHENTICATION_BACKENDS
-    LDAP_AUTH_URL = reporting.settings_ldap.LDAP_AUTH_URL
-    LDAP_AUTH_USE_TLS = reporting.settings_ldap.LDAP_AUTH_USE_TLS
-    LDAP_AUTH_CONNECTION_USERNAME = reporting.settings_ldap.LDAP_AUTH_CONNECTION_USERNAME
-    LDAP_AUTH_CONNECTION_PASSWORD = reporting.settings_ldap.LDAP_AUTH_CONNECTION_PASSWORD
-    LDAP_AUTH_SEARCH_BASE = reporting.settings_ldap.LDAP_AUTH_SEARCH_BASE
-    LOGGING = reporting.settings_ldap.LOGGING
-    LOCAL_USERS = False
+    import reporting.settings_custom
+
+    print("Using custom settings from 'settings_custom.py'")
+
+    DEBUG = reporting.settings_custom.DEBUG
+    SECRET_KEY = reporting.settings_custom.SECRET_KEY
+    DATABASES = reporting.settings_custom.DATABASES
+    REPORTING_OPTIONS = reporting.settings_custom.REPORTING_OPTIONS
+    DOC_MOD_LIB = reporting.settings_custom.DOC_MOD_LIB
+    JAVA = reporting.settings_custom.JAVA
+    PERL = reporting.settings_custom.PERL
+    AUTHENTICATION_BACKENDS = reporting.settings_custom.AUTHENTICATION_BACKENDS
+    LPP_SCRIPT = reporting.settings_custom.LPP_SCRIPT
+    LOCAL_USERS = True
+    if reporting.settings_custom.USE_LDAP:
+        LDAP_AUTH_URL = reporting.settings_custom.LDAP_AUTH_URL
+        LDAP_AUTH_USE_TLS = reporting.settings_custom.LDAP_AUTH_USE_TLS
+        LDAP_AUTH_CONNECTION_USERNAME = reporting.settings_custom.LDAP_AUTH_CONNECTION_USERNAME
+        LDAP_AUTH_CONNECTION_PASSWORD = reporting.settings_custom.LDAP_AUTH_CONNECTION_PASSWORD
+        LDAP_AUTH_SEARCH_BASE = reporting.settings_custom.LDAP_AUTH_SEARCH_BASE
+        LOCAL_USERS = False
+
 except ImportError:
-    print("""
-        No LDAP settings defined!
-        Create 'settings_ldap.py' for custom settings, see details:"
-        https://github.com/etianen/django-python3-ldap
+    print("'settings_custom.py' not found, using default values!")
 
-        For example:
-
-        AUTHENTICATION_BACKENDS = [
-            'django_python3_ldap.auth.LDAPBackend',
-        ]
-
-        LDAP_AUTH_URL = "ldaps://server.example.com:636"
-        LDAP_AUTH_USE_TLS = False
-        LDAP_AUTH_CONNECTION_USERNAME = None
-        LDAP_AUTH_CONNECTION_PASSWORD = None
-        LDAP_AUTH_SEARCH_BASE = "ou=Active,ou=People,dc=example,dc=com"
-        LOGGING = {
-            "version": 1,
-            "disable_existing_loggers": False,
-            "handlers": {
-                "console": {
-                    "class": "logging.StreamHandler",
-                },
-            },
-            "loggers": {
-                "django_python3_ldap": {
-                    "handlers": ["console"],
-                    "level": "INFO",
-                },
-            },
+    DEBUG = False
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         }
-        """)
-
-# Java settings
-try:
-    import reporting.settings_java
-    print("Using settings from 'settings_java.py'")
-    JAVA = reporting.settings_java.JAVA
-except ImportError:
-    print("""
-        Using default Java settings
-        Create 'settings_java.py' for custom settings, e.g.:"
-        JAVA = "/usr/bin/java"
-        """)
-    JAVA = "/usr/bin/java"
-
-# Perl settings
-try:
-    import reporting.settings_perl
-    print("Using settings from 'settings_perl.py'")
-    PERL = reporting.settings_perl.PERL
-except ImportError:
-    print("""
-        Using default Perl settings
-        Create 'settings_perl.py' for custom settings, e.g.:"
-        PERL = "/usr/bin/perl"
-        """)
-    PERL = "/usr/bin/perl"
-
-# LPP settings
-try:
-    import reporting.settings_lpp
-    print("Using settings from 'settings_lpp.py'")
-    LPP_SCRIPT = reporting.settings_lpp.LPP_SCRIPT
-except ImportError:
-    print("""
-        Using default LPP settings
-        Create 'settings_lpp.py' for custom settings, e.g.:"
-        LPP_SCRIPT = "/usr/local/bin/LPP/pass-rates"
-        """)
-    LPP_SCRIPT = "/usr/local/bin/LPP/pass-rates"
-
-# FCMS doc modifier settings
-try:
-    import reporting.settings_docmod
-    print("Using settings from 'settings_docmod.py'")
-    DOC_MOD_LIB = reporting.settings_docmod.DOC_MOD_LIB
-except ImportError:
-    print("""
-        Using default FCMS doc modifier settings
-        Create 'settings_docmod.py' for custom settings, e.g.:"
-        DOC_MOD_LIB = "/usr/local/bin/fcms-doc-modifier/lib"
-        """)
+    }
+    REPORTING_OPTIONS = {
+        'supervisor.only_phd': True,
+    }
+    LOCAL_USERS = True
     DOC_MOD_LIB = "/usr/local/bin/fcms-doc-modifier/lib"
+    JAVA = "/usr/bin/java"
+    PERL = "/usr/bin/perl"
+    LPP_SCRIPT = "/usr/local/bin/LPP/pass-rates"
