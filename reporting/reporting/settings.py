@@ -42,12 +42,6 @@ ALLOWED_HOSTS = [
     '*'
 ]
 
-# authentication
-
-AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-]
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -87,17 +81,6 @@ APPS_LONG = {
     'lpp': 'Low performing pass-rates',
     'supervisors': 'Supervisor Register',
 }
-
-MIDDLEWARE_CLASSES = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'maintenance_mode.middleware.MaintenanceModeMiddleware',
-]
 
 ROOT_URLCONF = 'reporting.urls'
 
@@ -194,16 +177,20 @@ try:
     DOC_MOD_LIB = reporting.settings_custom.DOC_MOD_LIB
     JAVA = reporting.settings_custom.JAVA
     PERL = reporting.settings_custom.PERL
-    AUTHENTICATION_BACKENDS = reporting.settings_custom.AUTHENTICATION_BACKENDS
     LPP_SCRIPT = reporting.settings_custom.LPP_SCRIPT
     LOCAL_USERS = True
+    MIDDLEWARE_CLASSES = reporting.settings_custom.MIDDLEWARE_CLASSES
     if reporting.settings_custom.USE_LDAP:
+        LOCAL_USERS = False
+        AUTHENTICATION_BACKENDS = reporting.settings_custom.AUTHENTICATION_BACKENDS
         LDAP_AUTH_URL = reporting.settings_custom.LDAP_AUTH_URL
         LDAP_AUTH_USE_TLS = reporting.settings_custom.LDAP_AUTH_USE_TLS
         LDAP_AUTH_CONNECTION_USERNAME = reporting.settings_custom.LDAP_AUTH_CONNECTION_USERNAME
         LDAP_AUTH_CONNECTION_PASSWORD = reporting.settings_custom.LDAP_AUTH_CONNECTION_PASSWORD
         LDAP_AUTH_SEARCH_BASE = reporting.settings_custom.LDAP_AUTH_SEARCH_BASE
+    if reporting.settings_custom.USE_SHIBBOLETH:
         LOCAL_USERS = False
+        AUTHENTICATION_BACKENDS = reporting.settings_custom.AUTHENTICATION_BACKENDS
 
 except ImportError:
     print("'settings_custom.py' not found, using default values!")
@@ -218,8 +205,23 @@ except ImportError:
     REPORTING_OPTIONS = {
         'supervisor.only_phd': True,
     }
-    LOCAL_USERS = True
     DOC_MOD_LIB = "/usr/local/bin/fcms-doc-modifier/lib"
     JAVA = "/usr/bin/java"
     PERL = "/usr/bin/perl"
     LPP_SCRIPT = "/usr/local/bin/LPP/pass-rates"
+
+    LOCAL_USERS = True
+    AUTHENTICATION_BACKENDS = [
+        'django.contrib.auth.backends.ModelBackend',
+    ]
+
+    MIDDLEWARE_CLASSES = [
+        'django.middleware.security.SecurityMiddleware',
+        'django.contrib.sessions.middleware.SessionMiddleware',
+        'django.middleware.common.CommonMiddleware',
+        'django.middleware.csrf.CsrfViewMiddleware',
+        'django.contrib.auth.middleware.AuthenticationMiddleware',
+        'django.contrib.messages.middleware.MessageMiddleware',
+        'django.middleware.clickjacking.XFrameOptionsMiddleware',
+        'maintenance_mode.middleware.MaintenanceModeMiddleware',
+    ]
