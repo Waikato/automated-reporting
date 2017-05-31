@@ -4,7 +4,7 @@ import reporting.applist as applist
 import reporting.form_utils as form_utils
 from reporting.form_utils import get_variable_with_error, get_variable
 from reporting.error import create_error_response
-from database.models import GradeResults
+from dbbackend.models import GradeResults
 from django.db import connection
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required, permission_required

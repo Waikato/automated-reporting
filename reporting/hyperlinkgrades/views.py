@@ -2,7 +2,7 @@ from django.template import loader
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required, permission_required
 import reporting.applist as applist
-from database.models import read_last_parameter, write_last_parameter
+from dbbackend.models import read_last_parameter, write_last_parameter
 from reporting.form_utils import get_variable, create_error_response
 import reporting.settings
 import subprocess

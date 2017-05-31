@@ -45,7 +45,7 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
-    'database',
+    'dbbackend',
     'leave',
     'lpp',
     'reporting',

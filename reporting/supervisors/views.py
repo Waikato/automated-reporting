@@ -4,9 +4,9 @@ from django.template.defaulttags import register
 from django.http import HttpResponse
 from django.db import connection
 from django.contrib.auth.decorators import login_required, permission_required
-from database.models import read_last_parameter, write_last_parameter
+from dbbackend.models import read_last_parameter, write_last_parameter
 from supervisors.models import StudentDates, Supervisors, Scholarship
-from database.models import GradeResults
+from dbbackend.models import GradeResults
 from reporting.error import create_error_response
 from reporting.settings import REPORTING_OPTIONS
 import reporting.applist as applist

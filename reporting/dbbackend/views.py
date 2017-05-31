@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required, permission_required, 
 from . import dbimport
 from datetime import date
 
-from database.models import TableStatus, GradeResults
+from dbbackend.models import TableStatus, GradeResults
 from supervisors.models import Supervisors, StudentDates, Scholarship
 from reporting.form_utils import get_variable
 

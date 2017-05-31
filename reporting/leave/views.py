@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 import reporting.applist as applist
 from reporting.error import create_error_response
 from reporting.form_utils import get_variable_with_error
-from database.models import GradeResults
+from dbbackend.models import GradeResults
 from csv import DictReader
 import traceback
 import sys
