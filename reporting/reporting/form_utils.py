@@ -39,7 +39,7 @@ def get_variable(request, var, as_list=False, def_value=None, blank=True):
     :param request: the request to use
     :type request: HttpRequest
     :param var: the variable name to look for
-    :type app: str
+    :type var: str
     :param as_list: whether to retriev a list
     :type as_list: bool
     :param def_value: the default value to use if not present

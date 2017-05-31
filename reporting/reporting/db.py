@@ -8,7 +8,7 @@ def null_empty_cells(row):
         if row[k] == "":
             row[k] = None
 
-def truncate_strings(row, max, enc='utf-8'):
+def truncate_strings(row, max):
     """
     Truncates strings to the maximum length.
 

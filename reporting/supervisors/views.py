@@ -694,8 +694,8 @@ def list_by_student(request):
 
     # supervisors
     supervisors = list()
+    sname = None
     for sv in Supervisors.objects.all().filter(student_id=studentid):
-        sname = None
         for g in GradeResults.objects.all().filter(student_id=studentid):
             sname = g.name
             break
