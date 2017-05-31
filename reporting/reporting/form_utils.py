@@ -1,9 +1,10 @@
 import reporting.applist as applist
-from django.http import HttpResponse, HttpRequest
+from django.http import HttpRequest
 from .error import create_error_response
 import urllib.parse
 
 apps = applist.get_apps()
+
 
 def get_variable_with_error(request, app, var, as_list=False, def_value=None, blank=True):
     """
@@ -31,6 +32,7 @@ def get_variable_with_error(request, app, var, as_list=False, def_value=None, bl
         return create_error_response(request, app, 'Missing: ' + var), None
     else:
         return None, get_variable(request, var, as_list=as_list, def_value=def_value, blank=blank)
+
 
 def get_variable(request, var, as_list=False, def_value=None, blank=True):
     """
@@ -68,6 +70,7 @@ def get_variable(request, var, as_list=False, def_value=None, blank=True):
         result = def_value
 
     return result
+
 
 def request_to_url(request, url_prefix, override=None):
     """
@@ -122,6 +125,7 @@ def request_to_url(request, url_prefix, override=None):
 
     return result
 
+
 def add_export_urls(request, context, url, formats):
     """
     Adds export urls to the template context. Uses the parameter 'format'
@@ -140,4 +144,3 @@ def add_export_urls(request, context, url, formats):
 
     for f in formats:
         context[f + '_url'] = request_to_url(request, url, {'format': f})
-

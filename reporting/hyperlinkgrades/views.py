@@ -11,6 +11,7 @@ import os.path
 DEFAULT_EXPRESSION = '.*(possible b sem 15 completer|possible b sem 15 completion|potential sem b 2015 completion|potential b sem 2015 completion).*'
 """ The default expression for matching the links. """
 
+
 @login_required
 @permission_required("hyperlinkgrades.can_use_hyperlinkgrades")
 def index(request):

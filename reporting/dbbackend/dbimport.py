@@ -62,7 +62,7 @@ def parse_grade_results_date(name, value):
         dformat = "%m/%d/%y"
     elif name == "query_date":
         dformat = "%d %B %Y"
-    elif name in ["dateofbirth","dateofdeath","occurrence_startdate","occurrence_enddate","award_completion_date","award_completion_confirmed_date"]:
+    elif name in ["dateofbirth", "dateofdeath", "occurrence_startdate", "occurrence_enddate", "award_completion_date", "award_completion_confirmed_date"]:
         dformat = "%d-%b-%Y"
     else:
         dformat = "%d/%m/%y"
@@ -353,7 +353,7 @@ def populate_student_dates():
     table = GradeResults._meta.db_table
     cursor2 = connection.cursor()
     for row in cursor.fetchall():
-        id = str(row[0]).strip()
+        sid = str(row[0]).strip()
 
         master_months = None
         master_start = None
@@ -378,7 +378,7 @@ def populate_student_dates():
                 and programme_type_code = 'MD'
                 and paper_occurrence ~ '([A-Z]+)59([3456789])-(.*)'
                 group by student_id
-                """ % (table, id)
+                """ % (table, sid)
             cursor2.execute(sql)
             for row2 in cursor2.fetchall():
                 master_months = row2[0]
@@ -392,7 +392,7 @@ def populate_student_dates():
                 and programme_type_code = 'MD'
                 and paper_occurrence ~ '([A-Z]+)59([3456789])-(.*)'
                 group by student_id, owning_school_clevel, owning_department_clevel
-                """ % (table, id)
+                """ % (table, sid)
             cursor2.execute(sql)
             for row2 in cursor2.fetchall():
                 master_start = row2[0]
@@ -409,7 +409,7 @@ def populate_student_dates():
                 and paper_occurrence ~ '([A-Z]+)59([3456789])-(.*)'
                 and final_grade is not null
                 group by student_id
-                """ % (table, id)
+                """ % (table, sid)
             cursor2.execute(sql)
             for row2 in cursor2.fetchall():
                 master_end = row2[0]
@@ -421,7 +421,7 @@ def populate_student_dates():
                 from %s
                 where student_id = '%s'
                 and programme_type_code = 'MD'
-                """ % (FULL_TIME_CREDITS, table, id)
+                """ % (FULL_TIME_CREDITS, table, sid)
             cursor2.execute(sql)
             for row2 in cursor2.fetchall():
                 master_fulltime = row2[0]
@@ -435,7 +435,7 @@ def populate_student_dates():
                 and programme_type_code = 'MD'
                 and paper_occurrence ~ '([A-Z]+)59([3456789])-(.*)'
                 order by year desc
-                """ % (table, id)
+                """ % (table, sid)
             cursor2.execute(sql)
             for row2 in cursor2.fetchall():
                 master_status = row2[3]
@@ -456,7 +456,7 @@ def populate_student_dates():
                 where student_id = '%s'
                 and programme_type_code = 'DP'
                 group by student_id
-                """ % (table, id)
+                """ % (table, sid)
             cursor2.execute(sql)
             for row2 in cursor2.fetchall():
                 phd_months = row2[0]
@@ -469,7 +469,7 @@ def populate_student_dates():
                 where student_id = '%s'
                 and programme_type_code = 'DP'
                 group by student_id, owning_school_clevel, owning_department_clevel
-                """ % (table, id)
+                """ % (table, sid)
             cursor2.execute(sql)
             for row2 in cursor2.fetchall():
                 phd_start = row2[0]
@@ -484,7 +484,7 @@ def populate_student_dates():
                 where student_id = '%s'
                 and active = 'true'
                 and program = 'DP'
-                """ % (table_super, id)
+                """ % (table_super, sid)
             cursor2.execute(sql)
             for row2 in cursor2.fetchall():
                 if (phd_start is None) or (row2[0] > phd_start):
@@ -499,7 +499,7 @@ def populate_student_dates():
                 and active = 'true'
                 and program = 'DP'
                 and completion_date > '1900-01-01'
-                """ % (table_super, id)
+                """ % (table_super, sid)
             cursor2.execute(sql)
             for row2 in cursor2.fetchall():
                 phd_end = row2[0]
@@ -513,7 +513,7 @@ def populate_student_dates():
                     where student_id = '%s'
                     and programme_type_code = 'DP'
                     order by occurrence_enddate desc
-                    """ % (table, id)
+                    """ % (table, sid)
                 cursor2.execute(sql)
                 for row2 in cursor2.fetchall():
                     phd_end = row2[0]
@@ -525,7 +525,7 @@ def populate_student_dates():
                 from %s
                 where student_id = '%s'
                 and programme_type_code = 'DP'
-                """ % (FULL_TIME_CREDITS, table, id)
+                """ % (FULL_TIME_CREDITS, table, sid)
             cursor2.execute(sql)
             for row2 in cursor2.fetchall():
                 phd_fulltime = row2[0]
@@ -541,7 +541,7 @@ def populate_student_dates():
                 and final_grade != '...'
                 and final_grade != ''
                 order by year desc
-                """ % (table, id)
+                """ % (table, sid)
             cursor2.execute(sql)
             for row2 in cursor2.fetchall():
                 phd_status = row2[3]
@@ -558,7 +558,7 @@ def populate_student_dates():
             # save
             if phd_start is not None:
                 r = StudentDates()
-                r.student_id = id
+                r.student_id = sid
                 r.program = "DP"
                 r.start_date = phd_start
                 r.end_date = phd_end if phd_end is not None else '9999-12-31'
@@ -570,7 +570,7 @@ def populate_student_dates():
                 r.save()
             if master_start is not None:
                 r = StudentDates()
-                r.student_id = id
+                r.student_id = sid
                 r.program = "MD"
                 r.start_date = master_start
                 r.end_date = master_end if master_end is not None else '9999-12-31'
@@ -582,8 +582,8 @@ def populate_student_dates():
                 r.save()
 
         except Exception as ex:
-            print("PhD: id=%s, start=%s, end=%s, months=%s" % (id, phd_start, phd_end, phd_months))
-            print("Master: id=%s, start=%s, end=%s, months=%s" % (id, master_start, master_end, master_months))
+            print("PhD: id=%s, start=%s, end=%s, months=%s" % (sid, phd_start, phd_end, phd_months))
+            print("Master: id=%s, start=%s, end=%s, months=%s" % (sid, master_start, master_end, master_months))
             traceback.print_exc(file=sys.stdout)
 
     set_maintenance_mode(False)
