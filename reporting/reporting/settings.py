@@ -107,7 +107,7 @@ TEMPLATES = [
 
 MAINTENANCE_MODE_IGNORE_URLS = [
     "/$",
-    "/database/*",
+    "/dbbackend/*",
     "/hyperlinkgrades/*",
 ]
 

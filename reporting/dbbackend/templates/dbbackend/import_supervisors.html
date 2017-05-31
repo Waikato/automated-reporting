@@ -13,7 +13,7 @@
       <li>ensure that columns <em>Completion Date</em> and <em>Proposed Enrolment Date</em> are present, otherwise modify the result to include <em>all</em> columns (right-click on column header and add all additional columns)</li>
       <li>export the result as CSV (Extract -&gt; Standard extract)</li>
     </ul>
-    <form action="/database/import/supervisors" enctype="multipart/form-data" method="POST">
+    <form action="/dbbackend/import/supervisors" enctype="multipart/form-data" method="POST">
       {% csrf_token %}
       <table class="table_params">
         <tr>

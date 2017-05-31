@@ -13,7 +13,7 @@
       <li>on the <em>Status</em> tab, select <em>Active</em> and <em>Completed</em> for <em>Decision</em></li>
       <li>export the result as CSV (Extract -&gt; Standard extract)</li>
     </ul>
-    <form action="/database/import/scholarships" enctype="multipart/form-data" method="POST">
+    <form action="/dbbackend/import/scholarships" enctype="multipart/form-data" method="POST">
       {% csrf_token %}
       <table class="table_params">
         <tr>
