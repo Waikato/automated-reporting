@@ -4,6 +4,7 @@ from django.http import HttpResponse, HttpRequest
 
 apps = applist.get_apps()
 
+
 def create_error_response(request, app, error):
     """
     Generates an HttpResponse object with the specified title/error.

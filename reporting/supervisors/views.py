@@ -4,9 +4,9 @@ from django.template.defaulttags import register
 from django.http import HttpResponse
 from django.db import connection
 from django.contrib.auth.decorators import login_required, permission_required
-from database.models import read_last_parameter, write_last_parameter
+from dbbackend.models import read_last_parameter, write_last_parameter
 from supervisors.models import StudentDates, Supervisors, Scholarship
-from database.models import GradeResults
+from dbbackend.models import GradeResults
 from reporting.error import create_error_response
 from reporting.settings import REPORTING_OPTIONS
 import reporting.applist as applist
@@ -694,8 +694,8 @@ def list_by_student(request):
 
     # supervisors
     supervisors = list()
+    sname = None
     for sv in Supervisors.objects.all().filter(student_id=studentid):
-        sname = None
         for g in GradeResults.objects.all().filter(student_id=studentid):
             sname = g.name
             break

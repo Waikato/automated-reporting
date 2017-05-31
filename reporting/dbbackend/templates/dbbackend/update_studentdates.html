@@ -6,7 +6,7 @@
 
 <div class="panel panel-default">
   <div class="panel-body">
-    <form action="/database/update/studentdates" method="POST">
+    <form action="/dbbackend/update/studentdates" method="POST">
       {% csrf_token %}
       <p>After uploading a new supervisor or grade results file, the start/end dates for students need to get recalculated.</p>
       <input type="submit" value="Recalculate"/>

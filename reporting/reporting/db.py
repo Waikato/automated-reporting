@@ -8,20 +8,20 @@ def null_empty_cells(row):
         if row[k] == "":
             row[k] = None
 
-def truncate_strings(row, max, enc='utf-8'):
+
+def truncate_strings(row, max_len):
     """
     Truncates strings to the maximum length.
 
     :param row: the dictionary to process
     :type row: dict
-    :param max: the maximum length
-    :type max: int
-    :param enc: the encoding to use
-    :type enc: str
+    :param max_len: the maximum length
+    :type max_len: int
     """
     for k in row.keys():
-        if len(row[k]) > max:
-            row[k] = row[k][:max]
+        if len(row[k]) > max_len:
+            row[k] = row[k][:max_len]
+
 
 def encode_strings(row, enc='utf-8'):
     """
@@ -36,6 +36,7 @@ def encode_strings(row, enc='utf-8'):
         if len(row[k]) > 0:
             if not isinstance(row[k], str):
                 row[k] = row[k].decode(enc)
+
 
 def string_cell(row, names, defvalue=None):
     """
@@ -59,6 +60,7 @@ def string_cell(row, names, defvalue=None):
                 return row[name]
     return result
 
+
 def int_cell(row, names, defvalue=None):
     """
     Returns an int value from the row dictionary, using a list of aliases for the value.
@@ -78,6 +80,7 @@ def int_cell(row, names, defvalue=None):
             if row[name] != '':
                 return int(row[name])
     return result
+
 
 def float_cell(row, names, defvalue=None):
     """

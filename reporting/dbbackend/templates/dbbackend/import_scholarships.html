@@ -9,11 +9,11 @@
     <p>Export CSV from Jade</p>
     <ul>
       <li>open Jade</li>
-      <li>run <em>Research Supervisor Search Form</em></li>
-      <li>ensure that columns <em>Completion Date</em> and <em>Proposed Enrolment Date</em> are present, otherwise modify the result to include <em>all</em> columns (right-click on column header and add all additional columns)</li>
+      <li>run <em>Scholarship Event Search</em></li>
+      <li>on the <em>Status</em> tab, select <em>Active</em> and <em>Completed</em> for <em>Decision</em></li>
       <li>export the result as CSV (Extract -&gt; Standard extract)</li>
     </ul>
-    <form action="/database/import/supervisors" enctype="multipart/form-data" method="POST">
+    <form action="/dbbackend/import/scholarships" enctype="multipart/form-data" method="POST">
       {% csrf_token %}
       <table class="table_params">
         <tr>

@@ -4,6 +4,7 @@ from reporting.settings import APPS_LONG
 from reporting.settings import REPORTING_OPTIONS
 from reporting.settings import LOCAL_USERS
 
+
 def get_apps():
     """
     Returns a list of all apps in the project.
@@ -13,6 +14,7 @@ def get_apps():
     """
 
     return APPS_LIST
+
 
 def get_appname_short(name):
     """
@@ -38,6 +40,7 @@ def get_appname_long(name):
     """
 
     return APPS_LONG[name]
+
 
 def template_context(app=None):
     """

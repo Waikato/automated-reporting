@@ -6,7 +6,7 @@
 
 <div class="panel panel-default">
   <div class="panel-body">
-    <form action="/database/import/bulk" enctype="multipart/form-data" method="POST">
+    <form action="/dbbackend/import/bulk" enctype="multipart/form-data" method="POST">
       {% csrf_token %}
       <p>Bulk import using a CSV file with the following structure (header row is case-sensitive):</p>
       <pre>

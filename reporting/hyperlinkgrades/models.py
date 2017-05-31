@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 
+
 class HyperlinkGrades(models.Model):
     """
     Fake model to get permissions.

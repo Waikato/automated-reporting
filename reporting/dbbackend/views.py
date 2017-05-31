@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required, permission_required, 
 from . import dbimport
 from datetime import date
 
-from database.models import TableStatus, GradeResults
+from dbbackend.models import TableStatus, GradeResults
 from supervisors.models import Supervisors, StudentDates, Scholarship
 from reporting.form_utils import get_variable
 
@@ -14,20 +14,20 @@ from reporting.form_utils import get_variable
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def database_bulk(request):
-    template = loader.get_template('database/import_bulk.html')
+    template = loader.get_template('dbbackend/import_bulk.html')
     context = applist.template_context()
     context['title'] = 'Bulk import'
     return HttpResponse(template.render(context, request))
 
 
 @login_required
-@permission_required("database.can_manage_grade_results")
+@permission_required("dbbackend.can_manage_grade_results")
 def database_graderesults(request):
     years = []
     for year in range(2003, date.today().year + 1):
         years.append(year)
     years.reverse()
-    template = loader.get_template('database/import_graderesults.html')
+    template = loader.get_template('dbbackend/import_graderesults.html')
     context = applist.template_context()
     context['title'] = 'Import grade results'
     context['years'] = years
@@ -37,7 +37,7 @@ def database_graderesults(request):
 @login_required
 @permission_required("supervisors.can_manage_supervisors")
 def database_supervisors(request):
-    template = loader.get_template('database/import_supervisors.html')
+    template = loader.get_template('dbbackend/import_supervisors.html')
     context = applist.template_context()
     context['title'] = 'Import supervisors'
     return HttpResponse(template.render(context, request))
@@ -46,7 +46,7 @@ def database_supervisors(request):
 @login_required
 @permission_required("supervisors.can_manage_scholarships")
 def database_scholarships(request):
-    template = loader.get_template('database/import_scholarships.html')
+    template = loader.get_template('dbbackend/import_scholarships.html')
     context = applist.template_context()
     context['title'] = 'Import scholarships'
     return HttpResponse(template.render(context, request))
@@ -55,16 +55,16 @@ def database_scholarships(request):
 @login_required
 @permission_required("supervisors.can_manage_student_dates")
 def database_studentdates(request):
-    template = loader.get_template('database/update_studentdates.html')
+    template = loader.get_template('dbbackend/update_studentdates.html')
     context = applist.template_context()
     context['title'] = 'Update student dates'
     return HttpResponse(template.render(context, request))
 
 
 @login_required
-@permission_required("database.can_manage_table_status")
+@permission_required("dbbackend.can_manage_table_status")
 def database_tablestatus(request):
-    template = loader.get_template('database/table_status.html')
+    template = loader.get_template('dbbackend/table_status.html')
     tables = {}
     for t in TableStatus.objects.all():
         tables[t.table] = {}
@@ -110,7 +110,7 @@ def import_scholarships(request):
 
 
 @login_required
-@permission_required("database.can_manage_grade_results")
+@permission_required("dbbackend.can_manage_grade_results")
 def import_graderesults(request):
     # configure template
     csv = request.FILES['datafile']

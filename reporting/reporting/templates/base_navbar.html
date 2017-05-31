@@ -39,22 +39,22 @@
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Database <span class="caret"></span></a>
           <ul class="dropdown-menu">
             {% if user.is_superuser %}
-            <li><a href="/database/bulk">Bulk import</a></li>
+            <li><a href="/dbbackend/bulk">Bulk import</a></li>
             {% endif %}
             {% if perms.database.can_update_grade_results %}
-            <li><a href="/database/graderesults">Import grade results</a></li>
+            <li><a href="/dbbackend/graderesults">Import grade results</a></li>
             {% endif %}
             {% if perms.supervisors.can_update_supervisors %}
-            <li><a href="/database/supervisors">Import supervisors</a></li>
+            <li><a href="/dbbackend/supervisors">Import supervisors</a></li>
             {% endif %}
             {% if perms.supervisors.can_update_scholarships %}
-            <li><a href="/database/scholarships">Import scholarships</a></li>
+            <li><a href="/dbbackend/scholarships">Import scholarships</a></li>
             {% endif %}
             {% if perms.supervisors.can_update_student_dates %}
-            <li><a href="/database/studentdates">Update student dates</a></li>
+            <li><a href="/dbbackend/studentdates">Update student dates</a></li>
             {% endif %}
             {% if perms.database.can_use_table_status %}
-            <li><a href="/database/tablestatus">Table status</a></li>
+            <li><a href="/dbbackend/tablestatus">Table status</a></li>
             {% endif %}
           </ul>
         </li>

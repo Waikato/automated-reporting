@@ -4,7 +4,7 @@ import reporting.applist as applist
 import reporting.form_utils as form_utils
 from reporting.form_utils import get_variable_with_error, get_variable
 from reporting.error import create_error_response
-from database.models import GradeResults
+from dbbackend.models import GradeResults
 from django.db import connection
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required, permission_required
@@ -60,11 +60,11 @@ def output(request):
     if response is not None:
         return response
 
-    response, type = get_variable_with_error(request, 'lpp', 'type')
+    response, ptype = get_variable_with_error(request, 'lpp', 'type')
     if response is not None:
         return response
-    if type not in ["master", "occurrence"]:
-        return create_error_response(request, 'lpp', 'Unsupported type: {0}'.format(type))
+    if ptype not in ["master", "occurrence"]:
+        return create_error_response(request, 'lpp', 'Unsupported type: {0}'.format(ptype))
 
     formattype = get_variable(request, 'format')
 
@@ -105,7 +105,7 @@ def output(request):
         outname,
         genname,
     ]
-    if type == "occurrence":
+    if ptype == "occurrence":
         params.append("-o")
     retval = subprocess.call(
         params,

@@ -45,7 +45,7 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
-    'database',
+    'dbbackend',
     'leave',
     'lpp',
     'reporting',
@@ -107,7 +107,7 @@ TEMPLATES = [
 
 MAINTENANCE_MODE_IGNORE_URLS = [
     "/$",
-    "/database/*",
+    "/dbbackend/*",
     "/hyperlinkgrades/*",
 ]
 
