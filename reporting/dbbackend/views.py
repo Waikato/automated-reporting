@@ -21,7 +21,7 @@ def database_bulk(request):
 
 
 @login_required
-@permission_required("database.can_manage_grade_results")
+@permission_required("dbbackend.can_manage_grade_results")
 def database_graderesults(request):
     years = []
     for year in range(2003, date.today().year + 1):
@@ -62,7 +62,7 @@ def database_studentdates(request):
 
 
 @login_required
-@permission_required("database.can_manage_table_status")
+@permission_required("dbbackend.can_manage_table_status")
 def database_tablestatus(request):
     template = loader.get_template('dbbackend/table_status.html')
     tables = {}
@@ -110,7 +110,7 @@ def import_scholarships(request):
 
 
 @login_required
-@permission_required("database.can_manage_grade_results")
+@permission_required("dbbackend.can_manage_grade_results")
 def import_graderesults(request):
     # configure template
     csv = request.FILES['datafile']
