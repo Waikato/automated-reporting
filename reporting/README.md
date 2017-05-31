@@ -8,12 +8,28 @@ Requirements
 * Excel: [django-excel](http://django-excel.readthedocs.io/en/latest/)
 * Dictionaries in models: [django-jsonfield](https://github.com/bradjasper/django-jsonfield)
 
+Dropping Postgresql tables
+--------------------------
+
+Connect to database using `psql` command-line tool and run the following command:
+
+```
+drop table auth_group, auth_group_permissions, auth_permission, auth_user, auth_user_groups, auth_user_user_permissions, dbbackend_graderesults, dbbackend_lastparameters, dbbackend_tablestatus, django_admin_log, django_content_type, django_migrations, django_session, supervisors_scholarship, supervisors_studentdates, supervisors_supervisors cascade;
+```
+
+You can use the following command to list all available tables in a database:
+
+```
+\dt *.*
+```
+
 Changing models
 ---------------
 
 Run the following commands after changing any data models:
 
 * `python3 manage.py makemigrations`
+* `python3 manage.py makemigrations dbbackend`
 * `python3 manage.py migrate`
 
 
