@@ -279,8 +279,9 @@ def import_grade_results(year, csv, isgzip, encoding):
         # close file
         csvfile.close()
     except Exception as ex:
-        traceback.print_exc(file=sys.stdout)
-        return str(ex)
+        msg = traceback.format_exc()
+        print(msg, file=sys.stdout)
+        return msg
 
     return None
 
@@ -718,8 +719,9 @@ def import_supervisors(csv, encoding):
                     r.program = "Other"
                 r.save()
     except Exception as ex:
-        traceback.print_exc(file=sys.stdout)
-        return str(ex)
+        msg = traceback.format_exc()
+        print(msg, file=sys.stdout)
+        return msg
 
     return None
 
@@ -771,8 +773,9 @@ def import_scholarships(csv, encoding):
                 r.year = int(row['year'])
                 r.save()
     except Exception as ex:
-        traceback.print_exc(file=sys.stdout)
-        return str(ex)
+        msg = traceback.format_exc()
+        print(msg, file=sys.stdout)
+        return msg
 
     return None
 
