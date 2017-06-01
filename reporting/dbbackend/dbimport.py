@@ -75,6 +75,25 @@ def parse_grade_results_date(name, value):
         return None
 
 
+def queue_import_grade_results(year, csv, isgzip, encoding):
+    """
+    Queues the import of the grade results for a specific year (Brio/Hyperion export).
+
+    :param year: the year to import the results for (eg 2015)
+    :type year: int
+    :param csv: the CSV file to import, can be gzip compressed
+    :type csv: str
+    :param isgzip: true if GZIP compressed
+    :type isgzip: bool
+    :param encoding: the file encoding (eg utf-8)
+    :type encoding: str
+    """
+
+    update_tablestatus(GradeResults._meta.db_table, "Importing...")
+    msg = import_grade_results(year, csv, isgzip, encoding)
+    update_tablestatus(GradeResults._meta.db_table, msg=msg)
+
+
 def import_grade_results(year, csv, isgzip, encoding):
     """
     Imports the grade results for a specific year (Brio/Hyperion export).
@@ -327,6 +346,16 @@ def import_bulk(csv):
         return None
     else:
         return '\n'.join(result)
+
+
+def queue_populate_student_dates():
+    """
+    Queues the population of the student dates.
+    """
+
+    update_tablestatus(StudentDates._meta.db_table, "Populating...")
+    populate_student_dates()
+    update_tablestatus(StudentDates._meta.db_table)
 
 
 def populate_student_dates():
@@ -613,6 +642,21 @@ def parse_supervisors_date(name, value):
         return None
 
 
+def queue_import_supervisors(csv, encoding):
+    """
+    Queues the import of supervisors.
+
+    :param csv: the CSV file to import
+    :type csv: str
+    :param encoding: the file encoding (eg utf-8)
+    :type encoding: str
+    """
+
+    update_tablestatus(Supervisors._meta.db_table, "Importing...")
+    msg = import_supervisors(csv, encoding)
+    update_tablestatus(Supervisors._meta.db_table, msg=msg)
+
+
 def import_supervisors(csv, encoding):
     """
     Imports the supervisors (Jade Export).
@@ -680,6 +724,21 @@ def import_supervisors(csv, encoding):
     return None
 
 
+def queue_import_scholarships(csv, encoding):
+    """
+    Queues the import of scholarships.
+
+    :param csv: the CSV file to import
+    :type csv: str
+    :param encoding: the file encoding (eg utf-8)
+    :type encoding: str
+    """
+
+    update_tablestatus(Scholarship._meta.db_table, "Importing...")
+    msg = import_scholarships(csv, encoding)
+    update_tablestatus(Scholarship._meta.db_table, msg=msg)
+
+
 def import_scholarships(csv, encoding):
     """
     Imports the scholarships (Jade Export).
@@ -718,15 +777,18 @@ def import_scholarships(csv, encoding):
     return None
 
 
-def update_tablestatus(table):
+def update_tablestatus(table, msg=None):
     """
     Updates the table status of the specified table.
 
     :param table: the table to update the status for
     :type table: str
+    :param msg: the optional message
+    :type msg: str
     """
     TableStatus.objects.all().filter(table=table).delete()
     r = TableStatus()
     r.table = table
     r.timestamp = datetime.now()
+    r.message = msg
     r.save()

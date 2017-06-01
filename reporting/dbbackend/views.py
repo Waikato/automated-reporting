@@ -5,6 +5,7 @@ from django.template.defaulttags import register
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from . import dbimport
 from datetime import date
+import threading
 
 from dbbackend.models import TableStatus, GradeResults
 from supervisors.models import Supervisors, StudentDates, Scholarship
@@ -81,14 +82,12 @@ def import_supervisors(request):
     # configure template
     csv = request.FILES['datafile']
     enc = get_variable(request, 'encoding')
-    msg = dbimport.import_supervisors(csv.temporary_file_path(), enc)
+    t = threading.Thread(target=dbimport.queue_import_supervisors, args=(csv.temporary_file_path(), enc), kwargs={})
+    t.setDaemon(True)
+    t.start()
     template = loader.get_template('message.html')
     context = applist.template_context()
-    if msg is None:
-        context['message'] = "Successful upload of supervisors!"
-        dbimport.update_tablestatus(Supervisors._meta.db_table)
-    else:
-        context['message'] = "Failed to upload supervisors: " + msg
+    context['message'] = "Started import of supervisors... Check table status to see when finished!"
     return HttpResponse(template.render(context, request))
 
 
@@ -98,14 +97,12 @@ def import_scholarships(request):
     # configure template
     csv = request.FILES['datafile']
     enc = get_variable(request, 'encoding')
-    msg = dbimport.import_scholarships(csv.temporary_file_path(), enc)
+    t = threading.Thread(target=dbimport.queue_import_scholarships, args=(csv.temporary_file_path(), enc), kwargs={})
+    t.setDaemon(True)
+    t.start()
     template = loader.get_template('message.html')
     context = applist.template_context()
-    if msg is None:
-        context['message'] = "Successful upload of scholarships!"
-        dbimport.update_tablestatus(Scholarship._meta.db_table)
-    else:
-        context['message'] = "Failed to upload scholarships: " + msg
+    context['message'] = "Started import of scholarships... Check table status to see when finished!"
     return HttpResponse(template.render(context, request))
 
 
@@ -117,14 +114,12 @@ def import_graderesults(request):
     year = int(get_variable(request, 'year', def_value='1900'))
     isgzip = (get_variable(request, 'gzip', def_value='off') == 'on')
     enc = get_variable(request, 'encoding')
-    msg = dbimport.import_grade_results(year, csv.temporary_file_path(), isgzip, enc)
+    t = threading.Thread(target=dbimport.queue_import_grade_results, args=(year, csv.temporary_file_path(), isgzip, enc), kwargs={})
+    t.setDaemon(True)
+    t.start()
     template = loader.get_template('message.html')
     context = applist.template_context()
-    if msg is None:
-        context['message'] = "Successful upload of grade results!"
-        dbimport.update_tablestatus(GradeResults._meta.db_table)
-    else:
-        context['message'] = "Failed to upload grade results: " + msg
+    context['message'] = "Started import of grade results... Check table status to see when finished!"
     return HttpResponse(template.render(context, request))
 
 
