@@ -6,6 +6,7 @@ import gzip
 import traceback
 import sys
 import re
+import os
 from datetime import datetime
 from django.db import connection
 from maintenance_mode.core import set_maintenance_mode
@@ -94,7 +95,7 @@ def queue_import_grade_results(year, csv, isgzip, encoding):
     update_tablestatus(GradeResults._meta.db_table, msg=msg)
 
 
-def import_grade_results(year, csv, isgzip, encoding):
+def import_grade_results(year, csv, isgzip, encoding, delete=True):
     """
     Imports the grade results for a specific year (Brio/Hyperion export).
 
@@ -106,6 +107,8 @@ def import_grade_results(year, csv, isgzip, encoding):
     :type isgzip: bool
     :param encoding: the file encoding (eg utf-8)
     :type encoding: str
+    :param delete: whether to delete the data file
+    :type delete: bool
     :return: None if successful, otherwise error message
     :rtype: str
     """
@@ -282,6 +285,14 @@ def import_grade_results(year, csv, isgzip, encoding):
         msg = traceback.format_exc()
         print(msg, file=sys.stdout)
         return msg
+    finally:
+        if delete:
+            try:
+                os.remove(csv)
+            except Exception as ex:
+                msg = traceback.format_exc()
+                print(msg, file=sys.stdout)
+                return msg
 
     return None
 
@@ -314,19 +325,19 @@ def import_bulk(csv):
             try:
                 print("Importing: " + str(row))
                 if row['type'] == 'graderesults':
-                    msg = import_grade_results(int(row['year']), row['file'], bool(row['isgzip']), row['encoding'])
+                    msg = import_grade_results(int(row['year']), row['file'], bool(row['isgzip']), row['encoding'], delete=False)
                     if msg is None:
                         update_tablestatus(GradeResults._meta.db_table)
                     else:
                         result.append(msg)
                 elif row['type'] == 'supervisors':
-                    msg = import_supervisors(row['file'], row['encoding'])
+                    msg = import_supervisors(row['file'], row['encoding'], delete=False)
                     if msg is None:
                         update_tablestatus(Supervisors._meta.db_table)
                     else:
                         result.append(msg)
                 elif row['type'] == 'scholarships':
-                    msg = import_scholarships(row['file'], row['encoding'])
+                    msg = import_scholarships(row['file'], row['encoding'], delete=False)
                     if msg is None:
                         update_tablestatus(Scholarship._meta.db_table)
                     else:
@@ -658,7 +669,7 @@ def queue_import_supervisors(csv, encoding):
     update_tablestatus(Supervisors._meta.db_table, msg=msg)
 
 
-def import_supervisors(csv, encoding):
+def import_supervisors(csv, encoding, delete=True):
     """
     Imports the supervisors (Jade Export).
 
@@ -666,6 +677,8 @@ def import_supervisors(csv, encoding):
     :type csv: str
     :param encoding: the file encoding (eg utf-8)
     :type encoding: str
+    :param delete: whether to delete the data file
+    :type delete: bool
     :return: None if successful, otherwise error message
     :rtype: str
     """
@@ -722,6 +735,14 @@ def import_supervisors(csv, encoding):
         msg = traceback.format_exc()
         print(msg, file=sys.stdout)
         return msg
+    finally:
+        if delete:
+            try:
+                os.remove(csv)
+            except Exception as ex:
+                msg = traceback.format_exc()
+                print(msg, file=sys.stdout)
+                return msg
 
     return None
 
@@ -741,7 +762,7 @@ def queue_import_scholarships(csv, encoding):
     update_tablestatus(Scholarship._meta.db_table, msg=msg)
 
 
-def import_scholarships(csv, encoding):
+def import_scholarships(csv, encoding, delete=True):
     """
     Imports the scholarships (Jade Export).
 
@@ -749,6 +770,8 @@ def import_scholarships(csv, encoding):
     :type csv: str
     :param encoding: the file encoding (eg utf-8)
     :type encoding: str
+    :param delete: whether to delete the data file
+    :type delete: bool
     :return: None if successful, otherwise error message
     :rtype: str
     """
@@ -776,6 +799,14 @@ def import_scholarships(csv, encoding):
         msg = traceback.format_exc()
         print(msg, file=sys.stdout)
         return msg
+    finally:
+        if delete:
+            try:
+                os.remove(csv)
+            except Exception as ex:
+                msg = traceback.format_exc()
+                print(msg, file=sys.stdout)
+                return msg
 
     return None
 

@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required, permission_required, 
 from . import dbimport
 from datetime import date
 import threading
+from reporting.tempfile_utils import create_temp_copy
 
 from dbbackend.models import TableStatus, GradeResults
 from supervisors.models import Supervisors, StudentDates, Scholarship
@@ -81,9 +82,9 @@ def database_tablestatus(request):
 @permission_required("supervisors.can_manage_supervisors")
 def import_supervisors(request):
     # configure template
-    csv = request.FILES['datafile']
+    csv = create_temp_copy(request.FILES['datafile'].temporary_file_path())
     enc = get_variable(request, 'encoding')
-    t = threading.Thread(target=dbimport.queue_import_supervisors, args=(csv.temporary_file_path(), enc), kwargs={})
+    t = threading.Thread(target=dbimport.queue_import_supervisors, args=(csv, enc), kwargs={})
     t.setDaemon(True)
     t.start()
     template = loader.get_template('message.html')
@@ -96,9 +97,9 @@ def import_supervisors(request):
 @permission_required("supervisors.can_manage_scholarships")
 def import_scholarships(request):
     # configure template
-    csv = request.FILES['datafile']
+    csv = create_temp_copy(request.FILES['datafile'].temporary_file_path())
     enc = get_variable(request, 'encoding')
-    t = threading.Thread(target=dbimport.queue_import_scholarships, args=(csv.temporary_file_path(), enc), kwargs={})
+    t = threading.Thread(target=dbimport.queue_import_scholarships, args=(csv, enc), kwargs={})
     t.setDaemon(True)
     t.start()
     template = loader.get_template('message.html')
@@ -111,11 +112,11 @@ def import_scholarships(request):
 @permission_required("dbbackend.can_manage_grade_results")
 def import_graderesults(request):
     # configure template
-    csv = request.FILES['datafile']
+    csv = create_temp_copy(request.FILES['datafile'].temporary_file_path())
     year = int(get_variable(request, 'year', def_value='1900'))
     isgzip = (get_variable(request, 'gzip', def_value='off') == 'on')
     enc = get_variable(request, 'encoding')
-    t = threading.Thread(target=dbimport.queue_import_grade_results, args=(year, csv.temporary_file_path(), isgzip, enc), kwargs={})
+    t = threading.Thread(target=dbimport.queue_import_grade_results, args=(year, csv, isgzip, enc), kwargs={})
     t.setDaemon(True)
     t.start()
     template = loader.get_template('message.html')
@@ -128,8 +129,8 @@ def import_graderesults(request):
 @user_passes_test(lambda u: u.is_superuser)
 def import_bulk(request):
     # configure template
-    csv = request.FILES['datafile']
-    msg = dbimport.import_bulk(csv.temporary_file_path())
+    csv = request.FILES['datafile'].temporary_file_path()
+    msg = dbimport.import_bulk(csv)
     template = loader.get_template('message.html')
     context = applist.template_context()
     if msg is None:
