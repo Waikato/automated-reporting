@@ -125,7 +125,9 @@ def import_grade_results(year, csv, isgzip, encoding, delete=True):
             csvfile = open(csv, encoding=encoding)
         reader = DictReader(csvfile)
         reader.fieldnames = [name.lower().replace(" ", "_") for name in reader.fieldnames]
+        count = 0
         for row in reader:
+            count += 1
             truncate_strings(row, 250)
             encode_strings(row, 'utf-8')
             r = GradeResults()
@@ -278,6 +280,10 @@ def import_grade_results(year, csv, isgzip, encoding, delete=True):
             r.achievement_date = parse_grade_results_date('achievement_date', string_cell(row, ['achievement_date']))
             r.te_reo = int_cell(row, ['te_reo'])
             r.save()
+            # progress
+            if (count % 1000) == 0:
+                update_tablestatus(GradeResults._meta.db_table, "Imported " + str(count) + " rows...")
+
 
         # close file
         csvfile.close()
@@ -694,7 +700,9 @@ def import_supervisors(csv, encoding, delete=True):
         with open(csv, encoding=encoding) as csvfile:
             reader = DictReader(csvfile)
             reader.fieldnames = [name.lower().replace(" ", "_") for name in reader.fieldnames]
+            count = 0
             for row in reader:
+                count += 1
                 truncate_strings(row, 250)
                 encode_strings(row, 'utf-8')
                 r = Supervisors()
@@ -731,6 +739,9 @@ def import_supervisors(csv, encoding, delete=True):
                 else:
                     r.program = "Other"
                 r.save()
+                # progress
+                if (count % 1000) == 0:
+                    update_tablestatus(Supervisors._meta.db_table, "Imported " + str(count) + " rows...")
     except Exception as ex:
         msg = traceback.format_exc()
         print(msg, file=sys.stdout)
@@ -785,7 +796,9 @@ def import_scholarships(csv, encoding, delete=True):
         with open(csv, encoding=encoding) as csvfile:
             reader = DictReader(csvfile)
             reader.fieldnames = [name.lower().replace(" ", "_") for name in reader.fieldnames]
+            count = 0
             for row in reader:
+                count += 1
                 truncate_strings(row, 250)
                 encode_strings(row, 'utf-8')
                 r = Scholarship()
@@ -795,6 +808,10 @@ def import_scholarships(csv, encoding, delete=True):
                 r.decision = row['decision']
                 r.year = int(row['year'])
                 r.save()
+                # progress
+                if (count % 1000) == 0:
+                    update_tablestatus(Scholarship._meta.db_table, "Imported " + str(count) + " rows...")
+
     except Exception as ex:
         msg = traceback.format_exc()
         print(msg, file=sys.stdout)
