@@ -33,10 +33,14 @@ def custom_login(request):
     :type request: HttpRequest
     """
     if request.user.is_authenticated():
-        return HttpResponseRedirect("/")
-    elif not reporting.settings.LOCAL_USERS:
-        template = loader.get_template('no_permission.html')
-        context = applist.template_context()
-        return HttpResponse(template.render(context, request))
+        if reporting.settings.LOCAL_USERS:
+            return login(request)
+        else:
+            template = loader.get_template('no_permission.html')
+            context = applist.template_context()
+            return HttpResponse(template.render(context, request))
     else:
-        return login(request)
+        if reporting.settings.AUTHENTICATION_TYPE == "shibboleth":
+            return HttpResponseRedirect("/Shibboleth.sso/Login")
+        else:
+            return login(request)

@@ -184,6 +184,7 @@ try:
     MIDDLEWARE_CLASSES = reporting.settings_custom.MIDDLEWARE_CLASSES
     if reporting.settings_custom.USE_LDAP:
         LOCAL_USERS = False
+        AUTHENTICATION_TYPE = "ldap"
         AUTHENTICATION_BACKENDS = reporting.settings_custom.AUTHENTICATION_BACKENDS
         LDAP_AUTH_URL = reporting.settings_custom.LDAP_AUTH_URL
         LDAP_AUTH_USE_TLS = reporting.settings_custom.LDAP_AUTH_USE_TLS
@@ -192,6 +193,7 @@ try:
         LDAP_AUTH_SEARCH_BASE = reporting.settings_custom.LDAP_AUTH_SEARCH_BASE
     if reporting.settings_custom.USE_SHIBBOLETH:
         LOCAL_USERS = False
+        AUTHENTICATION_TYPE = "shibboleth"
         AUTHENTICATION_BACKENDS = reporting.settings_custom.AUTHENTICATION_BACKENDS
 
 except ImportError:
@@ -214,6 +216,7 @@ except ImportError:
     LPP_SCRIPT = "/usr/local/bin/LPP/pass-rates"
 
     LOCAL_USERS = True
+    AUTHENTICATION_TYPE = "local"
     AUTHENTICATION_BACKENDS = [
         'django.contrib.auth.backends.ModelBackend',
     ]
