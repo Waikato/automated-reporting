@@ -16,11 +16,7 @@
         <tr>
           <td>{{ table }}</td>
           <td>{{ table_data|get_item:'timestamp' }}</td>
-          {% if table_data|get_item:'message' is None %}
-          <td></td>
-          {% else %}
           <td>{{ table_data|get_item:'message' }}</td>
-          {% endif %}
         </tr>
         {% endfor %}
       </table>
