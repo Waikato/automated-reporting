@@ -1,0 +1,13 @@
+{% extends "base_navbar.html" %}
+
+{% block main %}
+
+<h3>No permission</h3>
+
+{% if user.is_authenticated %}
+<p>User {{ user.get_username }} has no permission to access this resource!</p>
+{% else %}
+<p>You need to be logged in!</p>
+{% endif %}
+
+{% endblock %}
