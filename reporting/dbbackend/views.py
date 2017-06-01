@@ -67,11 +67,13 @@ def database_studentdates(request):
 @permission_required("dbbackend.can_manage_table_status")
 def database_tablestatus(request):
     template = loader.get_template('dbbackend/table_status.html')
-    tables = {}
+    tables = []
     for t in TableStatus.objects.all().order_by('table'):
-        tables[t.table] = {}
-        tables[t.table]['timestamp'] = t.timestamp
-        tables[t.table]['message'] = t.message
+        row = dict()
+        row['table'] = t.table
+        row['timestamp'] = t.timestamp
+        row['message'] = t.message
+        tables.append(row)
     context = applist.template_context()
     context['title'] = 'Table status'
     context['tables'] = tables
