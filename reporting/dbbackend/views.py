@@ -68,7 +68,7 @@ def database_studentdates(request):
 def database_tablestatus(request):
     template = loader.get_template('dbbackend/table_status.html')
     tables = {}
-    for t in TableStatus.objects.all():
+    for t in TableStatus.objects.all().order_by('table'):
         tables[t.table] = {}
         tables[t.table]['timestamp'] = t.timestamp
         tables[t.table]['message'] = t.message
