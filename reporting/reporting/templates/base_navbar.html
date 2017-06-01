@@ -67,7 +67,11 @@
             {% if local_users %}
             <li><a href="/accounts/password_change">Change password</a></li>
             {% endif %}
+            {% if auth_type == "shibboleth" %}
+            <li><a href="/Shibboleth.sso/Logout">Logout</a></li>
+            {% else %}
             <li><a href="{% url 'logout'%}?next={{request.path}}">Logout</a></li>
+            {% endif %}
           </ul>
         </li>
         {% else %}

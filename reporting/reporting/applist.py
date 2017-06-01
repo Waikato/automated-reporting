@@ -3,6 +3,7 @@ from reporting.settings import APPS_SHORT
 from reporting.settings import APPS_LONG
 from reporting.settings import REPORTING_OPTIONS
 from reporting.settings import LOCAL_USERS
+from reporting.settings import AUTHENTICATION_TYPE
 
 
 def get_apps():
@@ -57,6 +58,7 @@ def template_context(app=None):
         'apps_short': APPS_SHORT,
         'apps_long': APPS_LONG,
         'local_users': LOCAL_USERS,
+        'auth_type': AUTHENTICATION_TYPE,
     }
 
     if app is not None:
