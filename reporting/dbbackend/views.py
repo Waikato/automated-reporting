@@ -70,6 +70,7 @@ def database_tablestatus(request):
     for t in TableStatus.objects.all():
         tables[t.table] = {}
         tables[t.table]['timestamp'] = t.timestamp
+        tables[t.table]['message'] = t.message
     context = applist.template_context()
     context['title'] = 'Table status'
     context['tables'] = tables
