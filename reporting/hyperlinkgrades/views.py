@@ -13,7 +13,7 @@ DEFAULT_EXPRESSION = '.*(possible b sem 15 completer|possible b sem 15 completio
 
 
 @login_required
-@permission_required("hyperlinkgrades.can_use_hyperlinkgrades")
+@permission_required("hyperlinkgrades.can_access_hyperlinkgrades")
 def index(request):
     # configure template
     template = loader.get_template('hyperlinkgrades/index.html')
@@ -25,7 +25,7 @@ def index(request):
 
 
 @login_required
-@permission_required("hyperlinkgrades.can_use_hyperlinkgrades")
+@permission_required("hyperlinkgrades.can_access_hyperlinkgrades")
 def upload(request):
     # get parameters
     print(request.POST)

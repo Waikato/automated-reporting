@@ -16,7 +16,7 @@ import django_excel as excel
 
 
 @login_required
-@permission_required("lpp.can_use_lpp")
+@permission_required("lpp.can_access_lpp")
 def index(request):
     # get all years
     cursor = connection.cursor()
@@ -49,7 +49,7 @@ def index(request):
 
 
 @login_required
-@permission_required("lpp.can_use_lpp")
+@permission_required("lpp.can_access_lpp")
 def output(request):
     # get parameters
     response, year = get_variable_with_error(request, 'lpp', 'year')

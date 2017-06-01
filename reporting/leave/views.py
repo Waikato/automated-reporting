@@ -27,7 +27,7 @@ def actual_balance_key(a):
 
 
 @login_required
-@permission_required("leave.can_use_leave")
+@permission_required("leave.can_access_leave")
 def index(request):
     # get all schools
     cursor = connection.cursor()
@@ -48,7 +48,7 @@ def index(request):
 
 
 @login_required
-@permission_required("leave.can_use_leave")
+@permission_required("leave.can_access_leave")
 def upload(request):
     # get parameters
     response, schools = get_variable_with_error(request, 'leave', 'school', as_list=True)
