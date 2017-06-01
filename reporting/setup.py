@@ -15,6 +15,7 @@ setup(
         "django-python3-ldap>=0.9.14",
         "psycopg2",
         "django_excel",
+        "pyexcel-xls",
         "jsonfield",
         "django-maintenance-mode",
     ],
