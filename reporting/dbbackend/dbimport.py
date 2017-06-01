@@ -399,8 +399,10 @@ def populate_student_dates():
 
     table = GradeResults._meta.db_table
     cursor2 = connection.cursor()
+    count = 0
     for row in cursor.fetchall():
         sid = str(row[0]).strip()
+        count += 1
 
         master_months = None
         master_start = None
@@ -632,6 +634,10 @@ def populate_student_dates():
             print("PhD: id=%s, start=%s, end=%s, months=%s" % (sid, phd_start, phd_end, phd_months))
             print("Master: id=%s, start=%s, end=%s, months=%s" % (sid, master_start, master_end, master_months))
             traceback.print_exc(file=sys.stdout)
+
+        # progress
+        if (count % 1000) == 0:
+            update_tablestatus(StudentDates._meta.db_table, "Processed " + str(count) + " students...")
 
     set_maintenance_mode(False)
 
