@@ -7,9 +7,9 @@ from . import dbimport
 from datetime import date
 import threading
 from reporting.tempfile_utils import create_temp_copy
+import reporting.settings
 
 from dbbackend.models import TableStatus, GradeResults
-from supervisors.models import Supervisors, StudentDates, Scholarship
 from reporting.form_utils import get_variable
 
 
@@ -77,6 +77,7 @@ def database_tablestatus(request):
     context = applist.template_context()
     context['title'] = 'Table status'
     context['tables'] = tables
+    context['refresh_interval'] = reporting.settings.TABLE_STATUS_REFRESH_INTERVAL
     return HttpResponse(template.render(context, request))
 
 
@@ -153,7 +154,6 @@ def update_studentdates(request):
     template = loader.get_template('message.html')
     context = applist.template_context()
     context['message'] = "Started student dates recalculation... Check 'Table status' page for progress."
-    dbimport.update_tablestatus(StudentDates._meta.db_table)
     return HttpResponse(template.render(context, request))
 
 

@@ -172,6 +172,7 @@ try:
     print("Using custom settings from 'settings_custom.py'")
 
     DEBUG = reporting.settings_custom.DEBUG
+    TABLE_STATUS_REFRESH_INTERVAL = reporting.settings_custom.TABLE_STATUS_REFRESH_INTERVAL
     SECRET_KEY = reporting.settings_custom.SECRET_KEY
     DATABASES = reporting.settings_custom.DATABASES
     REPORTING_OPTIONS = reporting.settings_custom.REPORTING_OPTIONS
@@ -197,6 +198,7 @@ except ImportError:
     print("'settings_custom.py' not found, using default values!")
 
     DEBUG = False
+    TABLE_STATUS_REFRESH_INTERVAL = 10
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
