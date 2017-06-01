@@ -371,7 +371,7 @@ def queue_populate_student_dates():
     Queues the population of the student dates.
     """
 
-    update_tablestatus(StudentDates._meta.db_table, "Populating...")
+    update_tablestatus(StudentDates._meta.db_table, "Processing...")
     populate_student_dates()
     update_tablestatus(StudentDates._meta.db_table)
 
