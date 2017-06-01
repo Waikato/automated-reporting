@@ -90,10 +90,7 @@ def queue_import_grade_results(year, csv, isgzip, encoding):
     """
 
     update_tablestatus(GradeResults._meta.db_table, "Importing...")
-    try:
-        msg = import_grade_results(year, csv, isgzip, encoding)
-    except Exception as ex:
-        msg = str(ex)
+    msg = import_grade_results(year, csv, isgzip, encoding)
     update_tablestatus(GradeResults._meta.db_table, msg=msg)
 
 
@@ -656,10 +653,7 @@ def queue_import_supervisors(csv, encoding):
     """
 
     update_tablestatus(Supervisors._meta.db_table, "Importing...")
-    try:
-        msg = import_supervisors(csv, encoding)
-    except Exception as ex:
-        msg = str(ex)
+    msg = import_supervisors(csv, encoding)
     update_tablestatus(Supervisors._meta.db_table, msg=msg)
 
 
@@ -741,10 +735,7 @@ def queue_import_scholarships(csv, encoding):
     """
 
     update_tablestatus(Scholarship._meta.db_table, "Importing...")
-    try:
-        msg = import_scholarships(csv, encoding)
-    except Exception as ex:
-        msg = str(ex)
+    msg = import_scholarships(csv, encoding)
     update_tablestatus(Scholarship._meta.db_table, msg=msg)
 
 
