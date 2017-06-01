@@ -89,7 +89,7 @@ def import_supervisors(request):
     t.start()
     template = loader.get_template('message.html')
     context = applist.template_context()
-    context['message'] = "Started import of supervisors... Check table status to see when finished!"
+    context['message'] = "Started import of supervisors... Check 'Table status' page for progress."
     return HttpResponse(template.render(context, request))
 
 
@@ -104,7 +104,7 @@ def import_scholarships(request):
     t.start()
     template = loader.get_template('message.html')
     context = applist.template_context()
-    context['message'] = "Started import of scholarships... Check table status to see when finished!"
+    context['message'] = "Started import of scholarships... Check 'Table status' page for progress."
     return HttpResponse(template.render(context, request))
 
 
@@ -121,7 +121,7 @@ def import_graderesults(request):
     t.start()
     template = loader.get_template('message.html')
     context = applist.template_context()
-    context['message'] = "Started import of grade results... Check table status to see when finished!"
+    context['message'] = "Started import of grade results... Check 'Table status' page for progress."
     return HttpResponse(template.render(context, request))
 
 
@@ -145,14 +145,13 @@ def import_bulk(request):
 @permission_required("supervisors.can_manage_student_dates")
 def update_studentdates(request):
     # configure template
-    msg = dbimport.populate_student_dates()
+    t = threading.Thread(target=dbimport.queue_populate_student_dates, args=(), kwargs={})
+    t.setDaemon(True)
+    t.start()
     template = loader.get_template('message.html')
     context = applist.template_context()
-    if msg is None:
-        context['message'] = "Successful student dates recalculation!"
-        dbimport.update_tablestatus(StudentDates._meta.db_table)
-    else:
-        context['message'] = "Failed to recalculate student dates: " + msg
+    context['message'] = "Started student dates recalculation... Check 'Table status' page for progress."
+    dbimport.update_tablestatus(StudentDates._meta.db_table)
     return HttpResponse(template.render(context, request))
 
 
