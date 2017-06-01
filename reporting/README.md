@@ -13,7 +13,7 @@ See also the `setup.py` file for complete list of required modules.
 
 * give permissions to user `reporting` on current database's schema `public`:
 
-  ```
+  ```sql
   GRANT USAGE ON SCHEMA public TO reporting;
   GRANT CREATE ON SCHEMA public TO reporting;
   ```
@@ -32,7 +32,7 @@ See also the `setup.py` file for complete list of required modules.
 
   empty the relevant tables first:
 
-  ```
+  ```sql
   truncate database_graderesults;
   truncate database_lastparameters;
   truncate database_tablestatus;
@@ -44,7 +44,7 @@ See also the `setup.py` file for complete list of required modules.
 
   * Connect to database using `psql` command-line tool and run the following command:
 
-    ```
+    ```sql
     drop table auth_group, auth_group_permissions, auth_permission, auth_user, auth_user_groups, auth_user_user_permissions, dbbackend_graderesults, dbbackend_lastparameters, dbbackend_tablestatus, django_admin_log, django_content_type, django_migrations, django_session, supervisors_scholarship, supervisors_studentdates, supervisors_supervisors cascade;
     ```
 
@@ -83,7 +83,7 @@ at any given time):
 
 * add the following to `custom_settings.py`
 
-  ```
+  ```python
   AUTHENTICATION_BACKENDS = [
       'django.contrib.auth.backends.ModelBackend',
   ]
@@ -102,11 +102,12 @@ at any given time):
 
 * run the following command to create superuser
 
-  ```
+  ```bash
   python3 manage.py createsuperuser --username=<name> --email=<email>
   ```
 
 * log into admin interface
+
   ```
   http://127.0.0.1:8000/admin/
   ```
@@ -116,7 +117,7 @@ at any given time):
 
 * add the following to `settings_custom.py`:
 
-  ```
+  ```python
   USE_LDAP = True
   if USE_LDAP:
       AUTHENTICATION_BACKENDS = [
@@ -143,20 +144,20 @@ at any given time):
   After the initial `python3 manage.py migrate` call, alter the `auth_user` table
   as follows:
 
-  ```
+  ```sql
   ALTER TABLE public.auth_user ALTER COLUMN first_name TYPE varchar(75);
   ALTER TABLE public.auth_user ALTER COLUMN last_name TYPE varchar(75);
   ```
 
 * syncing the users with the LDAP server:
 
-  ```
+  ```bash
   python3 manage.py ldap_sync_users
   ```
 
 * Turning a user into a superuser:
 
-  ```
+  ```bash
   python3 manage.py ldap_promote <username>
   ```
 
@@ -165,7 +166,7 @@ at any given time):
 
 * add the following to `settings_custom.py`:
 
-  ```
+  ```python
   USE_SHIBBOLETH = True
   if USE_SHIBBOLETH:
       AUTHENTICATION_BACKENDS = [
