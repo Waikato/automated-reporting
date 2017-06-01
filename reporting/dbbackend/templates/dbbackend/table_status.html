@@ -10,11 +10,17 @@
         <tr>
           <th>Table</th>
           <th>Timestamp</th>
+          <th>Message</th>
         </tr>
         {% for table, table_data in tables.items %}
         <tr>
           <td>{{ table }}</td>
           <td>{{ table_data|get_item:'timestamp' }}</td>
+          {% if table_data|get_item:'message' is None %}
+          <td></td>
+          {% else %}
+          <td>{{ table_data|get_item:'message' }}</td>
+          {% endif %}
         </tr>
         {% endfor %}
       </table>
