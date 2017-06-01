@@ -68,7 +68,7 @@ class TableStatus(models.Model):
     """
     table = models.CharField(max_length=250, db_index=True)
     timestamp = models.DateTimeField()
-    message = models.CharField(max_length=250, null=True)
+    message = models.TextField(null=True)
 
     class Meta:
         permissions = (
