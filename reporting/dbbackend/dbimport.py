@@ -849,3 +849,19 @@ def update_tablestatus(table, msg=None):
     r.timestamp = datetime.now()
     r.message = msg
     r.save()
+
+
+def get_tablestatus(table):
+    """
+    Retrieves the table status for the specified table.
+
+    :param table: the table to update the status for
+    :type table: str
+    :return: the table status message, None if nothing set
+    :rtype: str
+    """
+    result = None
+    for t in TableStatus.objects.all().filter(table=table):
+        result = t.message
+        break
+    return result

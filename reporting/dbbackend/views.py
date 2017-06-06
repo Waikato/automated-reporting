@@ -10,6 +10,7 @@ from reporting.tempfile_utils import create_temp_copy
 import reporting.settings
 
 from dbbackend.models import TableStatus, GradeResults
+from supervisors.models import Supervisors, Scholarship, StudentDates
 from reporting.form_utils import get_variable
 
 
@@ -29,10 +30,12 @@ def database_graderesults(request):
     for year in range(2003, date.today().year + 1):
         years.append(year)
     years.reverse()
+    tablestatus = dbimport.get_tablestatus(GradeResults._meta.db_table)
     template = loader.get_template('dbbackend/import_graderesults.html')
     context = applist.template_context()
     context['title'] = 'Import grade results'
     context['years'] = years
+    context['active_import'] = tablestatus is not None
     return HttpResponse(template.render(context, request))
 
 
@@ -40,8 +43,10 @@ def database_graderesults(request):
 @permission_required("supervisors.can_manage_supervisors")
 def database_supervisors(request):
     template = loader.get_template('dbbackend/import_supervisors.html')
+    tablestatus = dbimport.get_tablestatus(Supervisors._meta.db_table)
     context = applist.template_context()
     context['title'] = 'Import supervisors'
+    context['active_import'] = tablestatus is not None
     return HttpResponse(template.render(context, request))
 
 
@@ -49,8 +54,10 @@ def database_supervisors(request):
 @permission_required("supervisors.can_manage_scholarships")
 def database_scholarships(request):
     template = loader.get_template('dbbackend/import_scholarships.html')
+    tablestatus = dbimport.get_tablestatus(Scholarship._meta.db_table)
     context = applist.template_context()
     context['title'] = 'Import scholarships'
+    context['active_import'] = tablestatus is not None
     return HttpResponse(template.render(context, request))
 
 
@@ -58,8 +65,10 @@ def database_scholarships(request):
 @permission_required("supervisors.can_manage_student_dates")
 def database_studentdates(request):
     template = loader.get_template('dbbackend/update_studentdates.html')
+    tablestatus = dbimport.get_tablestatus(StudentDates._meta.db_table)
     context = applist.template_context()
     context['title'] = 'Update student dates'
+    context['active_import'] = tablestatus is not None
     return HttpResponse(template.render(context, request))
 
 
