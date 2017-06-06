@@ -104,6 +104,8 @@ def import_supervisors(request):
     enc = get_variable(request, 'encoding')
     email = get_variable(request, 'email_notification')
     write_last_parameter(request.user, 'dbbackend.database_supervisors.email', email)
+    if len(email) == 0:
+        email = None
     t = threading.Thread(target=dbimport.queue_import_supervisors, args=(csv, enc), kwargs={'email': email})
     t.setDaemon(True)
     t.start()
@@ -121,6 +123,8 @@ def import_scholarships(request):
     enc = get_variable(request, 'encoding')
     email = get_variable(request, 'email_notification')
     write_last_parameter(request.user, 'dbbackend.database_scholarships.email', email)
+    if len(email) == 0:
+        email = None
     t = threading.Thread(target=dbimport.queue_import_scholarships, args=(csv, enc), kwargs={'email': email})
     t.setDaemon(True)
     t.start()
@@ -140,6 +144,8 @@ def import_graderesults(request):
     enc = get_variable(request, 'encoding')
     email = get_variable(request, 'email_notification')
     write_last_parameter(request.user, 'dbbackend.database_graderesults.email', email)
+    if len(email) == 0:
+        email = None
     t = threading.Thread(target=dbimport.queue_import_grade_results, args=(year, csv, isgzip, enc), kwargs={'email': email})
     t.setDaemon(True)
     t.start()
@@ -156,6 +162,8 @@ def import_bulk(request):
     csv = request.FILES['datafile'].temporary_file_path()
     email = get_variable(request, 'email_notification')
     write_last_parameter(request.user, 'dbbackend.database_bulk.email', email)
+    if len(email) == 0:
+        email = None
     msg = dbimport.import_bulk(csv, email)
     template = loader.get_template('message.html')
     context = applist.template_context()
@@ -173,7 +181,9 @@ def update_studentdates(request):
     # configure template
     email = get_variable(request, 'email_notification')
     write_last_parameter(request.user, 'dbbackend.database_studentdates.email', email)
-    t = threading.Thread(target=dbimport.queue_populate_student_dates, args=(), kwargs={})
+    if len(email) == 0:
+        email = None
+    t = threading.Thread(target=dbimport.queue_populate_student_dates, args=(), kwargs={'email': email})
     t.setDaemon(True)
     t.start()
     template = loader.get_template('message.html')
