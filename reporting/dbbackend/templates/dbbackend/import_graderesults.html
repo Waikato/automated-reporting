@@ -4,6 +4,16 @@
 
 <h3>{{ title }}</h3>
 
+{% if active_import %}
+<div class="panel panel-default">
+  <div class="panel-heading"><h4>WARNING</h4></div>
+  <div class="panel-body">
+    <p>An import is currently running!</p>
+    <p>Check <a href="/dbbackend/tablestatus">Table status</a> page for more information.</p>
+  </div>
+</div>
+{% endif %}
+
 <div class="panel panel-default">
   <div class="panel-body">
     <form action="/dbbackend/import/graderesults" enctype="multipart/form-data" method="POST">
