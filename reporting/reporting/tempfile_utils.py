@@ -1,4 +1,5 @@
 import tempfile
+import time
 import shutil
 import os
 
@@ -17,6 +18,6 @@ def create_temp_copy(infile):
     """
 
     temp_dir = tempfile.gettempdir()
-    result = os.path.join(temp_dir, 'temp_file_name')
+    result = os.path.join(temp_dir, str(time.time()))
     shutil.copy2(infile, result)
     return result
