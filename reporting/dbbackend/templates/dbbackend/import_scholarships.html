@@ -40,6 +40,16 @@
             </select>
           </td>
         </tr>
+        {% if email_enabled %}
+        <tr>
+          <td>Email notification</td>
+          <td>
+            <input type="text" name="email_notification" value="{{ email_notification }}"/>
+          </td>
+        </tr>
+        {% else %}
+        <input type="text" name="email_notification" hidden/>
+        {% endif %}
         <tr>
           <td colspan="2"><input type="submit" value="Upload"/></td>
         </tr>

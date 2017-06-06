@@ -19,6 +19,11 @@
     <form action="/dbbackend/update/studentdates" method="POST">
       {% csrf_token %}
       <p>After uploading a new supervisor or grade results file, the start/end dates for students need to get recalculated.</p>
+      {% if email_enabled %}
+      <p>Email notification <input type="text" name="email_notification" value="{{ email_notification }}"/></p>
+      {% else %}
+      <input type="text" name="email_notification" hidden/>
+      {% endif %}
       <input type="submit" value="Recalculate"/>
     </form>
   </div>

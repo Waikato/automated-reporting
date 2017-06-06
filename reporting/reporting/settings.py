@@ -165,6 +165,11 @@ STATICFILES_DIRS = [
     'reporting/static/',
 ]
 
+# whether email support is enabled
+EMAIL_ENABLED = False
+EMAIL_BACKEND = None
+ADMIN_EMAIL = 'admin@example.com'
+
 # custom settings?
 try:
     import reporting.settings_custom
@@ -196,6 +201,18 @@ try:
         LOCAL_USERS = False
         AUTHENTICATION_TYPE = "shibboleth"
         AUTHENTICATION_BACKENDS = reporting.settings_custom.AUTHENTICATION_BACKENDS
+    EMAIL_ENABLED = reporting.settings_custom.EMAIL_ENABLED
+    if EMAIL_ENABLED:
+        EMAIL_BACKEND = reporting.settings_custom.EMAIL_BACKEND
+        EMAIL_HOST = reporting.settings_custom.EMAIL_HOST
+        EMAIL_PORT = reporting.settings_custom.EMAIL_PORT
+        EMAIL_HOST_USER = reporting.settings_custom.EMAIL_HOST_USER
+        EMAIL_HOST_PASSWORD = reporting.settings_custom.EMAIL_HOST_PASSWORD
+        EMAIL_USE_TLS = reporting.settings_custom.EMAIL_USE_TLS
+        EMAIL_USE_SSL = reporting.settings_custom.EMAIL_USE_SSL
+        EMAIL_SSL_KEYFILE = reporting.settings_custom.EMAIL_SSL_KEYFILE
+        EMAIL_SSL_CERTFILE = reporting.settings_custom.EMAIL_SSL_CERTFILE
+        ADMIN_EMAIL = reporting.settings_custom.ADMIN_EMAIL
 
 except ImportError:
     print("'settings_custom.py' not found, using default values!")

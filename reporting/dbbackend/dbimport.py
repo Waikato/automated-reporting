@@ -10,6 +10,7 @@ import os
 from datetime import datetime
 from django.db import connection
 from maintenance_mode.core import set_maintenance_mode
+from reporting.email_utils import send_email
 
 FULL_TIME_CREDITS = 120
 """ the minimum number of credits in order to be considered full time student """
@@ -76,7 +77,7 @@ def parse_grade_results_date(name, value):
         return None
 
 
-def queue_import_grade_results(year, csv, isgzip, encoding):
+def queue_import_grade_results(year, csv, isgzip, encoding, email=None):
     """
     Queues the import of the grade results for a specific year (Brio/Hyperion export).
 
@@ -88,14 +89,16 @@ def queue_import_grade_results(year, csv, isgzip, encoding):
     :type isgzip: bool
     :param encoding: the file encoding (eg utf-8)
     :type encoding: str
+    :param email: the (optional) email address to send a notification to
+    :type email: str
     """
 
     update_tablestatus(GradeResults._meta.db_table, "Importing...")
-    msg = import_grade_results(year, csv, isgzip, encoding)
+    msg = import_grade_results(year, csv, isgzip, encoding, email=email)
     update_tablestatus(GradeResults._meta.db_table, msg=msg)
 
 
-def import_grade_results(year, csv, isgzip, encoding, delete=True):
+def import_grade_results(year, csv, isgzip, encoding, email=None, delete=True):
     """
     Imports the grade results for a specific year (Brio/Hyperion export).
 
@@ -107,11 +110,15 @@ def import_grade_results(year, csv, isgzip, encoding, delete=True):
     :type isgzip: bool
     :param encoding: the file encoding (eg utf-8)
     :type encoding: str
+    :param email: the (optional) email address to send a notification to
+    :type email: str
     :param delete: whether to delete the data file
     :type delete: bool
     :return: None if successful, otherwise error message
     :rtype: str
     """
+
+    result = None
 
     set_maintenance_mode(True)
 
@@ -284,7 +291,6 @@ def import_grade_results(year, csv, isgzip, encoding, delete=True):
             if (count % 1000) == 0:
                 update_tablestatus(GradeResults._meta.db_table, "Imported " + str(count) + " rows...")
 
-
         # close file
         csvfile.close()
     except Exception as ex:
@@ -298,12 +304,15 @@ def import_grade_results(year, csv, isgzip, encoding, delete=True):
             except Exception as ex:
                 msg = traceback.format_exc()
                 print(msg, file=sys.stdout)
-                return msg
+                result = msg
 
-    return None
+    if email is not None:
+        send_email(email, 'Import: grade results', 'Import succeeded' if (result is None) else 'Import failed: ' + result)
+
+    return result
 
 
-def import_bulk(csv):
+def import_bulk(csv, email=None):
     """
     Performs a bulk import. The CSV file has to have the following layout
     (headers must match!):
@@ -317,6 +326,8 @@ def import_bulk(csv):
 
     :param csv: the CSV file with the files to bulk import
     :type csv: str
+    :param email: the (optional) email address to send a notification to
+    :type email: str
     :return: None if successful, otherwise error message
     :rtype: str
     """
@@ -361,25 +372,35 @@ def import_bulk(csv):
         print("Populating student dates")
         populate_student_dates()
         update_tablestatus(StudentDates._meta.db_table)
-        return None
+        result_msg = None
     else:
-        return '\n'.join(result)
+        result_msg = '\n'.join(result)
+
+    if email is not None:
+        send_email(email, 'Import: bulk', 'Import succeeded' if (result_msg is None) else 'Import failed: ' + result_msg)
+
+    return result_msg
 
 
-def queue_populate_student_dates():
+def queue_populate_student_dates(email=None):
     """
     Queues the population of the student dates.
+
+    :param email: the (optional) email address to send a notification to
+    :type email: str
     """
 
     update_tablestatus(StudentDates._meta.db_table, "Processing...")
-    populate_student_dates()
+    populate_student_dates(email=email)
     update_tablestatus(StudentDates._meta.db_table)
 
 
-def populate_student_dates():
+def populate_student_dates(email=None):
     """
     Populates the studentdates table. Truncates the table first.
 
+    :param email: the (optional) email address to send a notification to
+    :type email: str
     :return: None if successful, otherwise error message
     :rtype: str
     """
@@ -641,6 +662,9 @@ def populate_student_dates():
 
     set_maintenance_mode(False)
 
+    if email is not None:
+        send_email(email, 'Student dates', 'Finished calculating dates')
+
     return None
 
 
@@ -666,7 +690,7 @@ def parse_supervisors_date(name, value):
         return None
 
 
-def queue_import_supervisors(csv, encoding):
+def queue_import_supervisors(csv, encoding, email=None):
     """
     Queues the import of supervisors.
 
@@ -674,14 +698,16 @@ def queue_import_supervisors(csv, encoding):
     :type csv: str
     :param encoding: the file encoding (eg utf-8)
     :type encoding: str
+    :param email: the (optional) email address to send a notification to
+    :type email: str
     """
 
     update_tablestatus(Supervisors._meta.db_table, "Importing...")
-    msg = import_supervisors(csv, encoding)
+    msg = import_supervisors(csv, encoding, email=email)
     update_tablestatus(Supervisors._meta.db_table, msg=msg)
 
 
-def import_supervisors(csv, encoding, delete=True):
+def import_supervisors(csv, encoding, email=None, delete=True):
     """
     Imports the supervisors (Jade Export).
 
@@ -689,11 +715,15 @@ def import_supervisors(csv, encoding, delete=True):
     :type csv: str
     :param encoding: the file encoding (eg utf-8)
     :type encoding: str
+    :param email: the (optional) email address to send a notification to
+    :type email: str
     :param delete: whether to delete the data file
     :type delete: bool
     :return: None if successful, otherwise error message
     :rtype: str
     """
+
+    result = None
 
     set_maintenance_mode(True)
 
@@ -751,7 +781,7 @@ def import_supervisors(csv, encoding, delete=True):
     except Exception as ex:
         msg = traceback.format_exc()
         print(msg, file=sys.stdout)
-        return msg
+        result = msg
     finally:
         if delete:
             try:
@@ -759,12 +789,15 @@ def import_supervisors(csv, encoding, delete=True):
             except Exception as ex:
                 msg = traceback.format_exc()
                 print(msg, file=sys.stdout)
-                return msg
+                result = msg
 
-    return None
+    if email is not None:
+        send_email(email, 'Import: supervisors', 'Import succeeded' if (result is None) else 'Import failed: ' + result)
+
+    return result
 
 
-def queue_import_scholarships(csv, encoding):
+def queue_import_scholarships(csv, encoding, email=None):
     """
     Queues the import of scholarships.
 
@@ -772,14 +805,16 @@ def queue_import_scholarships(csv, encoding):
     :type csv: str
     :param encoding: the file encoding (eg utf-8)
     :type encoding: str
+    :param email: the (optional) email address to send a notification to
+    :type email: str
     """
 
     update_tablestatus(Scholarship._meta.db_table, "Importing...")
-    msg = import_scholarships(csv, encoding)
+    msg = import_scholarships(csv, encoding, email=email)
     update_tablestatus(Scholarship._meta.db_table, msg=msg)
 
 
-def import_scholarships(csv, encoding, delete=True):
+def import_scholarships(csv, encoding, email=None, delete=True):
     """
     Imports the scholarships (Jade Export).
 
@@ -787,11 +822,15 @@ def import_scholarships(csv, encoding, delete=True):
     :type csv: str
     :param encoding: the file encoding (eg utf-8)
     :type encoding: str
+    :param email: the (optional) email address to send a notification to
+    :type email: str
     :param delete: whether to delete the data file
     :type delete: bool
     :return: None if successful, otherwise error message
     :rtype: str
     """
+
+    result = None
 
     set_maintenance_mode(True)
 
@@ -821,7 +860,7 @@ def import_scholarships(csv, encoding, delete=True):
     except Exception as ex:
         msg = traceback.format_exc()
         print(msg, file=sys.stdout)
-        return msg
+        result = msg
     finally:
         if delete:
             try:
@@ -829,9 +868,12 @@ def import_scholarships(csv, encoding, delete=True):
             except Exception as ex:
                 msg = traceback.format_exc()
                 print(msg, file=sys.stdout)
-                return msg
+                result = msg
 
-    return None
+    if email is not None:
+        send_email(email, 'Import: scholarships', 'Import succeeded' if (result is None) else 'Import failed: ' + result)
+
+    return result
 
 
 def update_tablestatus(table, msg=None):

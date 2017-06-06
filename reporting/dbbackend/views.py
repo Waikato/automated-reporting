@@ -8,6 +8,7 @@ from datetime import date
 import threading
 from reporting.tempfile_utils import create_temp_copy
 import reporting.settings
+from dbbackend.models import read_last_parameter, write_last_parameter
 
 from dbbackend.models import TableStatus, GradeResults
 from supervisors.models import Supervisors, Scholarship, StudentDates
@@ -20,6 +21,7 @@ def database_bulk(request):
     template = loader.get_template('dbbackend/import_bulk.html')
     context = applist.template_context()
     context['title'] = 'Bulk import'
+    context['email_notification'] = read_last_parameter(request.user, 'dbbackend.database_bulk.email', '')
     return HttpResponse(template.render(context, request))
 
 
@@ -36,6 +38,7 @@ def database_graderesults(request):
     context['title'] = 'Import grade results'
     context['years'] = years
     context['active_import'] = tablestatus is not None
+    context['email_notification'] = read_last_parameter(request.user, 'dbbackend.database_graderesults.email', '')
     return HttpResponse(template.render(context, request))
 
 
@@ -47,6 +50,7 @@ def database_supervisors(request):
     context = applist.template_context()
     context['title'] = 'Import supervisors'
     context['active_import'] = tablestatus is not None
+    context['email_notification'] = read_last_parameter(request.user, 'dbbackend.database_supervisors.email', '')
     return HttpResponse(template.render(context, request))
 
 
@@ -58,6 +62,7 @@ def database_scholarships(request):
     context = applist.template_context()
     context['title'] = 'Import scholarships'
     context['active_import'] = tablestatus is not None
+    context['email_notification'] = read_last_parameter(request.user, 'dbbackend.database_scholarships.email', '')
     return HttpResponse(template.render(context, request))
 
 
@@ -69,6 +74,7 @@ def database_studentdates(request):
     context = applist.template_context()
     context['title'] = 'Update student dates'
     context['active_import'] = tablestatus is not None
+    context['email_notification'] = read_last_parameter(request.user, 'dbbackend.database_studentdates.email', '')
     return HttpResponse(template.render(context, request))
 
 
@@ -96,7 +102,9 @@ def import_supervisors(request):
     # configure template
     csv = create_temp_copy(request.FILES['datafile'].temporary_file_path())
     enc = get_variable(request, 'encoding')
-    t = threading.Thread(target=dbimport.queue_import_supervisors, args=(csv, enc), kwargs={})
+    email = get_variable(request, 'email_notification')
+    write_last_parameter(request.user, 'dbbackend.database_supervisors.email', email)
+    t = threading.Thread(target=dbimport.queue_import_supervisors, args=(csv, enc), kwargs={'email': email})
     t.setDaemon(True)
     t.start()
     template = loader.get_template('message.html')
@@ -111,7 +119,9 @@ def import_scholarships(request):
     # configure template
     csv = create_temp_copy(request.FILES['datafile'].temporary_file_path())
     enc = get_variable(request, 'encoding')
-    t = threading.Thread(target=dbimport.queue_import_scholarships, args=(csv, enc), kwargs={})
+    email = get_variable(request, 'email_notification')
+    write_last_parameter(request.user, 'dbbackend.database_scholarships.email', email)
+    t = threading.Thread(target=dbimport.queue_import_scholarships, args=(csv, enc), kwargs={'email': email})
     t.setDaemon(True)
     t.start()
     template = loader.get_template('message.html')
@@ -128,7 +138,9 @@ def import_graderesults(request):
     year = int(get_variable(request, 'year', def_value='1900'))
     isgzip = (get_variable(request, 'gzip', def_value='off') == 'on')
     enc = get_variable(request, 'encoding')
-    t = threading.Thread(target=dbimport.queue_import_grade_results, args=(year, csv, isgzip, enc), kwargs={})
+    email = get_variable(request, 'email_notification')
+    write_last_parameter(request.user, 'dbbackend.database_graderesults.email', email)
+    t = threading.Thread(target=dbimport.queue_import_grade_results, args=(year, csv, isgzip, enc), kwargs={'email': email})
     t.setDaemon(True)
     t.start()
     template = loader.get_template('message.html')
@@ -142,7 +154,9 @@ def import_graderesults(request):
 def import_bulk(request):
     # configure template
     csv = request.FILES['datafile'].temporary_file_path()
-    msg = dbimport.import_bulk(csv)
+    email = get_variable(request, 'email_notification')
+    write_last_parameter(request.user, 'dbbackend.database_bulk.email', email)
+    msg = dbimport.import_bulk(csv, email)
     template = loader.get_template('message.html')
     context = applist.template_context()
     if msg is None:
@@ -157,6 +171,8 @@ def import_bulk(request):
 @permission_required("supervisors.can_manage_student_dates")
 def update_studentdates(request):
     # configure template
+    email = get_variable(request, 'email_notification')
+    write_last_parameter(request.user, 'dbbackend.database_studentdates.email', email)
     t = threading.Thread(target=dbimport.queue_populate_student_dates, args=(), kwargs={})
     t.setDaemon(True)
     t.start()
