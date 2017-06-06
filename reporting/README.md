@@ -69,6 +69,26 @@ All custom settings are to go into `settings_custom.py`, which resides next to
 `settings.py`.
 
 
+## Email
+
+* add the following to `custom_settings.py` if you want to enable email 
+  notifications, e.g., when imports have finished. The following just uses
+  port 25 on the localhost for sending out emails: 
+
+  ```
+  EMAIL_ENABLED = True
+  EMAIL_HOST = 127.0.0.1
+  EMAIL_PORT = 25
+  EMAIL_HOST_USER = None
+  EMAIL_HOST_PASSWORD = None
+  EMAIL_USE_TLS = None
+  EMAIL_USE_SSL = None
+  EMAIL_SSL_KEYFILE = None
+  EMAIL_SSL_CERTFILE = None
+  EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+  ADMIN_EMAIL = 'admin@somewhere.com'
+  ```
+
 ## Authentication
 
 There are three different ways of using authentication (only one can be used 
@@ -186,3 +206,35 @@ at any given time):
       ]
 
   ```
+
+## Permissions
+
+Below are the application-specific permissions:
+
+* Leave
+
+  * `leave.can_access_leave` - is allowed to use the application
+  * `leave.can_manage_leave` - *reserved*
+
+* Hyperlink Grades
+
+  * `hyperlinkgrades.can_access_hyperlinkgrades` - is allowed to use the application
+  * `hyperlinkgrades.can_manage_hyperlinkgrades` - *reserved*
+
+* Low performing pass-rates
+
+  * `lpp.can_access_lpp` - is allowed to use the application 
+  * `lpp.can_manage_lpp` - *reserved*
+
+* Supervisor Register
+
+  * `supervisors.can_access_student_dates` - *reserved*
+  * `supervisors.can_manage_student_dates` - for recalculating the student dates
+  * `supervisors.can_access_supervisors` - is allowed to use the application
+  * `supervisors.can_manage_supervisors` - for importing supervisor data
+  * `supervisors.can_access_scholarship` - *reserved*
+  * `supervisors.can_manage_scholarship` - for importing scholarship data
+  * `dbbackend.can_access_table_status` - for checking the table status
+  * `dbbackend.can_manage_table_status` - *reserved*
+  * `dbbackend.can_access_grade_results` - *reserved*
+  * `dbbackend.can_manage_grade_results` - for importing grade results data
