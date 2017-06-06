@@ -181,6 +181,7 @@ try:
     PERL = reporting.settings_custom.PERL
     LPP_SCRIPT = reporting.settings_custom.LPP_SCRIPT
     LOCAL_USERS = True
+    AUTHENTICATION_TYPE = "local"
     MIDDLEWARE_CLASSES = reporting.settings_custom.MIDDLEWARE_CLASSES
     if reporting.settings_custom.USE_LDAP:
         LOCAL_USERS = False
