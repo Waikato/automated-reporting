@@ -5,6 +5,7 @@ from reporting.settings import REPORTING_OPTIONS
 from reporting.settings import LOCAL_USERS
 from reporting.settings import AUTHENTICATION_TYPE
 from reporting.settings import EMAIL_ENABLED
+from maintenance_mode.core import get_maintenance_mode
 
 
 def get_apps():
@@ -69,5 +70,6 @@ def template_context(app=None):
     else:
         result['title'] = 'Automated Reporting'
     result['options'] = REPORTING_OPTIONS
+    result['maintenance'] = get_maintenance_mode()
 
     return result
