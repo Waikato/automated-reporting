@@ -78,7 +78,11 @@
         <li><a href="{% url 'login'%}?next={{request.path}}">Login</a></li>
         {% endif %}
         {% if maintenance %}
-        <li><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span></li>
+        <li>
+          <button type="button" class="btn btn-default" aria-label="Left Align">
+            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+          </button>
+        </li>
         {% endif %}
       </ul>
     </div><!-- /.navbar-collapse -->
