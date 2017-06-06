@@ -112,6 +112,8 @@ def import_supervisors(request):
     template = loader.get_template('message.html')
     context = applist.template_context()
     context['message'] = "Started import of supervisors... Check 'Table status' page for progress."
+    context['back_link'] = "/dbbackend/tablestatus"
+    context['back_text'] = "Table status"
     return HttpResponse(template.render(context, request))
 
 
@@ -131,6 +133,8 @@ def import_scholarships(request):
     template = loader.get_template('message.html')
     context = applist.template_context()
     context['message'] = "Started import of scholarships... Check 'Table status' page for progress."
+    context['back_link'] = "/dbbackend/tablestatus"
+    context['back_text'] = "Table status"
     return HttpResponse(template.render(context, request))
 
 
@@ -152,6 +156,8 @@ def import_graderesults(request):
     template = loader.get_template('message.html')
     context = applist.template_context()
     context['message'] = "Started import of grade results... Check 'Table status' page for progress."
+    context['back_link'] = "/dbbackend/tablestatus"
+    context['back_text'] = "Table status"
     return HttpResponse(template.render(context, request))
 
 
@@ -169,9 +175,10 @@ def import_bulk(request):
     context = applist.template_context()
     if msg is None:
         context['message'] = "Successful bulk import!"
-        dbimport.update_tablestatus(GradeResults._meta.db_table)
     else:
         context['message'] = "Failed to bulk import: " + msg
+    context['back_link'] = "/"
+    context['back_text'] = "Start"
     return HttpResponse(template.render(context, request))
 
 
@@ -189,6 +196,8 @@ def update_studentdates(request):
     template = loader.get_template('message.html')
     context = applist.template_context()
     context['message'] = "Started student dates recalculation... Check 'Table status' page for progress."
+    context['back_link'] = "/dbbackend/tablestatus"
+    context['back_text'] = "Table status"
     return HttpResponse(template.render(context, request))
 
 
