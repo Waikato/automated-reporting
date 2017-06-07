@@ -126,6 +126,16 @@
           <td>Sort column</td>
           <td>
             <select name="sort_column" required>
+              {% if last_sort_column == "supervisor" %}
+              <option value="supervisor" selected>Supervisor</option>
+              {% else %}
+              <option value="supervisor">Supervisor</option>
+              {% endif %}
+              {% if last_sort_column == "name" %}
+              <option value="name" selected>Student name</option>
+              {% else %}
+              <option value="name">Student name</option>
+              {% endif %}
               {% if not options|get_item:'supervisor.only_phd' %}
               {% if last_sort_column == "program" %}
               <option value="program" selected>Program</option>
