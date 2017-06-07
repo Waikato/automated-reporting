@@ -22,6 +22,7 @@ urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^dbbackend/', include('dbbackend.urls')),
     url(r'^leave/', include('leave.urls')),
+    url(r'^hr_forms/', include('hr_forms.urls')),
     url(r'^hyperlinkgrades/', include('hyperlinkgrades.urls')),
     url(r'^lpp/', include('lpp.urls')),
     url(r'^supervisors/', include('supervisors.urls')),

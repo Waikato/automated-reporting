@@ -1,0 +1,13 @@
+{% extends "base_navbar.html" %}
+
+{% block main %}
+
+<h3>{{ title }}</h3>
+<p>Please choose from one of the following agreements:</p>
+
+<div class="btn-group-vertical btn-group-vertical-separated" role="group" aria-label="...">
+  <a type="button" class="btn btn-default applist-button" href="/hr_forms/casual">Casual</a>
+  <a type="button" class="btn btn-default applist-button" href="/hr_forms/sessional">Sessional Assistant</a>
+</div>
+
+{% endblock %}

@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'reporting',
     'supervisors',
     'hyperlinkgrades',
+    'hr_forms',
     'django_python3_ldap',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -63,6 +64,7 @@ INSTALLED_APPS = [
 
 APPS_LIST = [
     'leave',
+    'hr_forms',
     'hyperlinkgrades',
     'lpp',
     'supervisors',
@@ -70,6 +72,7 @@ APPS_LIST = [
 
 APPS_SHORT = {
     'leave': 'Leave',
+    'hr_forms': 'HR Forms',
     'hyperlinkgrades': 'Hyperlink Grades',
     'lpp': 'LPP',
     'supervisors': 'Supervisors',
@@ -77,6 +80,7 @@ APPS_SHORT = {
 
 APPS_LONG = {
     'leave': 'Annual Leave',
+    'hr_forms': 'HR Forms',
     'hyperlinkgrades': 'Hyperlink Grades',
     'lpp': 'Low performing pass-rates',
     'supervisors': 'Supervisor Register',
@@ -84,6 +88,7 @@ APPS_LONG = {
 
 APPS_PRODUCTION = {
     'leave': False,
+    'hr_forms': False,
     'hyperlinkgrades': True,
     'lpp': True,
     'supervisors': True,
