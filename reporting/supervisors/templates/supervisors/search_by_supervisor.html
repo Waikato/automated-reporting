@@ -17,7 +17,7 @@
           <td>
             <select name="name" size="5" required>
               {% for supervisor_data in results %}
-              <option value="{{ supervisor_data|get_item:'supervisor' }}">{{ supervisor_data|get_item:'supervisor' }}</option>
+              <option value="{{ supervisor_data|get_item:'supervisor' }}" {% if results|length == 1 %}selected{% endif %}>{{ supervisor_data|get_item:'supervisor' }}</option>
               {% endfor %}
             </select>
           </td>

@@ -17,7 +17,7 @@
           <td>
             <select name="student" size="5">
               {% for student_data in results %}
-              <option value="{{ student_data|get_item:'student_id' }}">{{ student_data|get_item:'student' }} - {{ student_data|get_item:'program' }}</option>
+              <option value="{{ student_data|get_item:'student_id' }}" {% if results|length == 1 %}selected{% endif %}>{{ student_data|get_item:'student' }} - {{ student_data|get_item:'program' }}</option>
               {% endfor %}
             </select>
           </td>
