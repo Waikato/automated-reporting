@@ -126,10 +126,12 @@
           <td>Sort column</td>
           <td>
             <select name="sort_column" required>
+              {% if not options|get_item:'supervisor.only_phd' %}
               {% if last_sort_column == "program" %}
               <option value="program" selected>Program</option>
               {% else %}
               <option value="program">Program</option>
+              {% endif %}
               {% endif %}
               {% if last_sort_column == "start_date" %}
               <option value="start_date" selected>Start date</option>
