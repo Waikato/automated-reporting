@@ -1,6 +1,8 @@
 from reporting.settings import APPS_LIST
 from reporting.settings import APPS_SHORT
 from reporting.settings import APPS_LONG
+from reporting.settings import APPS_PRODUCTION
+from reporting.settings import PRODUCTION
 from reporting.settings import REPORTING_OPTIONS
 from reporting.settings import LOCAL_USERS
 from reporting.settings import AUTHENTICATION_TYPE
@@ -16,7 +18,14 @@ def get_apps():
     :rtype: list
     """
 
-    return APPS_LIST
+    if not PRODUCTION:
+        return APPS_LIST
+
+    result = []
+    for app in APPS_LIST:
+        if APPS_PRODUCTION[app]:
+            result.append(app)
+    return result
 
 
 def get_appname_short(name):
@@ -56,7 +65,7 @@ def template_context(app=None):
     """
 
     result = {
-        'apps': APPS_LIST,
+        'apps': get_apps(),
         'apps_short': APPS_SHORT,
         'apps_long': APPS_LONG,
         'local_users': LOCAL_USERS,

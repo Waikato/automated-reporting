@@ -82,6 +82,13 @@ APPS_LONG = {
     'supervisors': 'Supervisor Register',
 }
 
+APPS_PRODUCTION = {
+    'leave': False,
+    'hyperlinkgrades': True,
+    'lpp': True,
+    'supervisors': True,
+}
+
 ROOT_URLCONF = 'reporting.urls'
 
 TEMPLATES = [
@@ -170,6 +177,9 @@ EMAIL_ENABLED = False
 EMAIL_BACKEND = None
 ADMIN_EMAIL = 'admin@example.com'
 
+# only show production-ready apps?
+PRODUCTION = True
+
 # custom settings?
 try:
     import reporting.settings_custom
@@ -177,6 +187,7 @@ try:
     print("Using custom settings from 'settings_custom.py'")
 
     DEBUG = reporting.settings_custom.DEBUG
+    PRODUCTION = reporting.settings_custom.PRODUCTION
     TABLE_STATUS_REFRESH_INTERVAL = reporting.settings_custom.TABLE_STATUS_REFRESH_INTERVAL
     SECRET_KEY = reporting.settings_custom.SECRET_KEY
     DATABASES = reporting.settings_custom.DATABASES
@@ -218,6 +229,7 @@ except ImportError:
     print("'settings_custom.py' not found, using default values!")
 
     DEBUG = False
+    PRODUCTION = True
     TABLE_STATUS_REFRESH_INTERVAL = 10
     DATABASES = {
         'default': {
