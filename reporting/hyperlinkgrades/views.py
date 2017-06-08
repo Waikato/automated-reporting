@@ -28,15 +28,11 @@ def index(request):
 @permission_required("hyperlinkgrades.can_access_hyperlinkgrades")
 def upload(request):
     # get parameters
-    print(request.POST)
     expression = get_variable(request, 'expression', def_value=DEFAULT_EXPRESSION)
     casesensitive_matching = (get_variable(request, 'casesensitive_matching', def_value='off') == 'on')
     exclude_completions = (get_variable(request, 'exclude_completions', def_value='off') == 'on')
 
-    print(expression, casesensitive_matching, exclude_completions)
-
     pdf = request.FILES['datafile']
-
     newpdf = pdf.temporary_file_path() + "-linked.pdf"
     csv = pdf.temporary_file_path() + "-linked.csv"
     params = [
