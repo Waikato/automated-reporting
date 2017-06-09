@@ -34,26 +34,29 @@
         </li>
         {% endif %}
         {% if user.is_authenticated %}
-          {% if perms.database.can_manage_grade_results or perms.supervisors.can_manage_supervisors or perms.supervisors.can_manage_scholarships or perms.supervisors.can_manage_student_dates or perms.database.can_use_table_status %}
+          {% if perms.database.can_manage_grade_results or perms.supervisors.can_manage_supervisors or perms.supervisors.can_manage_scholarships or perms.supervisors.can_manage_student_dates or perms.database.can_access_table_status %}
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Database <span class="caret"></span></a>
           <ul class="dropdown-menu">
             {% if user.is_superuser %}
             <li><a href="/dbbackend/bulk">Bulk import</a></li>
             {% endif %}
-            {% if perms.database.can_update_grade_results %}
+            {% if perms.dbbackend.can_manage_coursedefs %}
+            <li><a href="/dbbackend/coursedefs">Import course definitions</a></li>
+            {% endif %}
+            {% if perms.dbbackend.can_manage_grade_results %}
             <li><a href="/dbbackend/graderesults">Import grade results</a></li>
             {% endif %}
-            {% if perms.supervisors.can_update_supervisors %}
+            {% if perms.supervisors.can_manage_supervisors %}
             <li><a href="/dbbackend/supervisors">Import supervisors</a></li>
             {% endif %}
-            {% if perms.supervisors.can_update_scholarships %}
+            {% if perms.supervisors.can_manage_scholarships %}
             <li><a href="/dbbackend/scholarships">Import scholarships</a></li>
             {% endif %}
-            {% if perms.supervisors.can_update_student_dates %}
+            {% if perms.supervisors.can_manage_student_dates %}
             <li><a href="/dbbackend/studentdates">Update student dates</a></li>
             {% endif %}
-            {% if perms.database.can_use_table_status %}
+            {% if perms.dbbackend.can_access_table_status %}
             <li><a href="/dbbackend/tablestatus">Table status</a></li>
             {% endif %}
           </ul>
