@@ -18,6 +18,7 @@ setup(
         "pyexcel-xls",
         "jsonfield",
         "django-maintenance-mode",
+        "jinja2",
     ],
     classifiers=[
         "Development Status :: 4 - Beta",
