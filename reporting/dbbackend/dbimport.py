@@ -1,6 +1,6 @@
-from dbbackend.models import GradeResults, TableStatus
+from dbbackend.models import GradeResults, TableStatus, CourseDefs
 from supervisors.models import Supervisors, StudentDates, Scholarship
-from reporting.db import truncate_strings, encode_strings, string_cell, int_cell, float_cell
+from reporting.db import truncate_strings, encode_strings, string_cell, int_cell, float_cell, bool_cell
 from csv import DictReader
 import gzip
 import traceback
@@ -312,6 +312,131 @@ def import_grade_results(year, csv, isgzip, encoding, email=None, delete=True):
     return result
 
 
+def queue_import_coursedefs(year, csv, encoding, email=None):
+    """
+    Queues the import of the course definitions for a specific year (Brio/Hyperion export).
+
+    :param year: the year to import the results for (eg 2015)
+    :type year: int
+    :param csv: the CSV file to import, can be gzip compressed
+    :type csv: str
+    :param encoding: the file encoding (eg utf-8)
+    :type encoding: str
+    :param email: the (optional) email address to send a notification to
+    :type email: str
+    """
+
+    update_tablestatus(CourseDefs._meta.db_table, "Importing...")
+    msg = import_coursedefs(year, csv, encoding, email=email)
+    update_tablestatus(CourseDefs._meta.db_table, msg=msg)
+
+
+def import_coursedefs(year, csv, encoding, email=None, delete=True):
+    """
+    Imports the course definitions for a specific year (Brio/Hyperion export).
+
+    :param year: the year to import the results for (eg 2015)
+    :type year: int
+    :param csv: the CSV file to import, can be gzip compressed
+    :type csv: str
+    :param encoding: the file encoding (eg utf-8)
+    :type encoding: str
+    :param email: the (optional) email address to send a notification to
+    :type email: str
+    :param delete: whether to delete the data file
+    :type delete: bool
+    :return: None if successful, otherwise error message
+    :rtype: str
+    """
+
+    result = None
+
+    set_maintenance_mode(True)
+
+    # delete previous rows for year
+    CourseDefs.objects.all().filter(year=year).delete()
+    # import
+    try:
+        csvfile = open(csv, encoding=encoding)
+        reader = DictReader(csvfile)
+        reader.fieldnames = [name.lower().replace(" ", "_") for name in reader.fieldnames]
+        count = 0
+        for row in reader:
+            count += 1
+            truncate_strings(row, 250)
+            encode_strings(row, 'utf-8')
+            r = CourseDefs()
+            r.year = year
+            r.code = string_cell(row, ['papercode'])
+            r.title = string_cell(row, ['papertitle'])
+            r.description = string_cell(row, ['paperdescription'])
+            r.type = string_cell(row, ['papertype'])
+            r.stage = int_cell(row, ['paperstage'])
+            r.points = float_cell(row, ['paperpoints'])
+            r.delivery_mode = string_cell(row, ['paperdeliverymode'])
+            r.owning_programme = string_cell(row, ['paperowningprogramme'])
+            r.owning_programme_title = string_cell(row, ['paperowningprogrammetitle'])
+            r.fw_level = int_cell(row, ['paperfwlevel'])
+            r.hours_contact = int_cell(row, ['paperhourscontact'])
+            r.hours_self_directed = int_cell(row, ['paperhoursselfdirected'])
+            r.hours_other_directed = int_cell(row, ['paperhoursotherdirected'])
+            r.funding_source = string_cell(row, ['paperfundingsource'])
+            r.course_factor = float_cell(row, ['papercoursefactor'])
+            r.cost_category_code = string_cell(row, ['papercostcategorycode'])
+            r.cost_category = string_cell(row, ['papercostcategory'])
+            r.funding_class_code = string_cell(row, ['paperfundingclasscode'])
+            r.funding_class = string_cell(row, ['paperfundingclass'])
+            r.individual_efts = int_cell(row, ['paperindividualefts'])
+            r.nzsced_code = string_cell(row, ['nzscedcode'])
+            r.nzsced_category = string_cell(row, ['nzscedcategory'])
+            r.delivering_school_code = string_cell(row, ['paperdeliveringschoolcode'])
+            r.delivering_school = string_cell(row, ['paperdeliveringschool'])
+            r.delivering_dept_code = string_cell(row, ['paperdeliveringdeptcode'])
+            r.delivering_dept = string_cell(row, ['paperdeliveringdept'])
+            r.delivering_unit_code = string_cell(row, ['paperdeliveringunitcode'])
+            r.delivering_unit = string_cell(row, ['paperdeliveringunit'])
+            r.owning_school_code = string_cell(row, ['paperowningschoolcode'])
+            r.owning_school = string_cell(row, ['paperowningschool'])
+            r.owning_dept_code = string_cell(row, ['paperowningdeptcode'])
+            r.owning_dept = string_cell(row, ['paperowningdept'])
+            r.owning_unit_code = string_cell(row, ['paperowningunitcode'])
+            r.owning_unit = string_cell(row, ['paperowningunit'])
+            r.self_paced = bool_cell(row, ['papertitle'])
+            r.online = bool_cell(row, ['paperonline'])
+            r.active = bool_cell(row, ['paperactive'])
+            r.pending = bool_cell(row, ['paperpending'])
+            r.sub_status = string_cell(row, ['papersubstatus'])
+            r.grade_method_code = string_cell(row, ['grademethodcode'])
+            r.pbrf_eligibility = string_cell(row, ['pbrfeligibility'])
+            r.coe_policy = string_cell(row, ['coepolicy'])
+            r.report_academic_result = bool_cell(row, ['reportacademicresult'])
+            r.internet_based = string_cell(row, ['paperinternetbased'])
+            r.save()
+            # progress
+            if (count % 1000) == 0:
+                update_tablestatus(CourseDefs._meta.db_table, "Imported " + str(count) + " rows...")
+
+        # close file
+        csvfile.close()
+    except Exception as ex:
+        msg = traceback.format_exc()
+        print(msg, file=sys.stdout)
+        return msg
+    finally:
+        if delete:
+            try:
+                os.remove(csv)
+            except Exception as ex:
+                msg = traceback.format_exc()
+                print(msg, file=sys.stdout)
+                result = msg
+
+    if email is not None:
+        send_email(email, 'Import: course definitions', 'Import succeeded' if (result is None) else 'Import failed: ' + result)
+
+    return result
+
+
 def import_bulk(csv, email=None):
     """
     Performs a bulk import. The CSV file has to have the following layout
@@ -345,6 +470,12 @@ def import_bulk(csv, email=None):
                     msg = import_grade_results(int(row['year']), row['file'], bool(row['isgzip']), row['encoding'], delete=False)
                     if msg is None:
                         update_tablestatus(GradeResults._meta.db_table)
+                    else:
+                        result.append(msg)
+                elif row['type'] == 'coursdefs':
+                    msg = import_grade_results(int(row['year']), row['file'], row['encoding'], delete=False)
+                    if msg is None:
+                        update_tablestatus(CourseDefs._meta.db_table)
                     else:
                         result.append(msg)
                 elif row['type'] == 'supervisors':

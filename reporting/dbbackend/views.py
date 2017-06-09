@@ -10,7 +10,7 @@ from reporting.tempfile_utils import create_temp_copy
 import reporting.settings
 from dbbackend.models import read_last_parameter, write_last_parameter
 
-from dbbackend.models import TableStatus, GradeResults
+from dbbackend.models import TableStatus, GradeResults, CourseDefs
 from supervisors.models import Supervisors, Scholarship, StudentDates
 from reporting.form_utils import get_variable
 
@@ -39,6 +39,23 @@ def database_graderesults(request):
     context['years'] = years
     context['active_import'] = tablestatus is not None
     context['email_notification'] = read_last_parameter(request.user, 'dbbackend.database_graderesults.email', '')
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+@permission_required("dbbackend.can_manage_coursedefs")
+def database_coursedefs(request):
+    years = []
+    for year in range(2003, date.today().year + 1):
+        years.append(year)
+    years.reverse()
+    tablestatus = dbimport.get_tablestatus(CourseDefs._meta.db_table)
+    template = loader.get_template('dbbackend/import_coursedefs.html')
+    context = applist.template_context()
+    context['title'] = 'Import course definitions'
+    context['years'] = years
+    context['active_import'] = tablestatus is not None
+    context['email_notification'] = read_last_parameter(request.user, 'dbbackend.database_coursedefs.email', '')
     return HttpResponse(template.render(context, request))
 
 
@@ -156,6 +173,28 @@ def import_graderesults(request):
     template = loader.get_template('message.html')
     context = applist.template_context()
     context['message'] = "Started import of grade results... Check 'Table status' page for progress."
+    context['back_link'] = "/dbbackend/tablestatus"
+    context['back_text'] = "Table status"
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+@permission_required("dbbackend.can_manage_coursedefs")
+def import_coursedefs(request):
+    # configure template
+    csv = create_temp_copy(request.FILES['datafile'].temporary_file_path())
+    year = int(get_variable(request, 'year', def_value='1900'))
+    enc = get_variable(request, 'encoding')
+    email = get_variable(request, 'email_notification')
+    write_last_parameter(request.user, 'dbbackend.database_coursedefs.email', email)
+    if len(email) == 0:
+        email = None
+    t = threading.Thread(target=dbimport.queue_import_coursedefs, args=(year, csv, enc), kwargs={'email': email})
+    t.setDaemon(True)
+    t.start()
+    template = loader.get_template('message.html')
+    context = applist.template_context()
+    context['message'] = "Started import of course definitions... Check 'Table status' page for progress."
     context['back_link'] = "/dbbackend/tablestatus"
     context['back_text'] = "Table status"
     return HttpResponse(template.render(context, request))

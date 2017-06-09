@@ -85,7 +85,7 @@ class GradeResults(models.Model):
     - award_completion_year needs to be set to allow NULL values manually
     - NULL dates aren't possible, using "0001-01-01" instead
     """
-    year = models.IntegerField(null=True)
+    year = models.IntegerField(db_index=True, default=0)
     student_id = models.CharField(max_length=250, db_index=True, null=True, blank=True)
     name = models.CharField(max_length=250, null=True, blank=True)
     title = models.CharField(max_length=250, null=True, blank=True)
@@ -238,4 +238,61 @@ class GradeResults(models.Model):
         permissions = (
             ("can_access_grade_results", "Can access Grade Results"),
             ("can_manage_grade_results", "Can manage Grade Results"),
+        )
+
+
+class CourseDefs(models.Model):
+    """
+    Course definitions.
+    """
+    year = models.IntegerField(db_index=True, default=0)
+    code = models.CharField(db_index=True, max_length=20, default='')
+    title = models.CharField(max_length=250, null=True)
+    description = models.TextField(null=True)
+    type = models.CharField(db_index=True, max_length=50, default='')
+    stage = models.IntegerField(null=True)
+    points = models.IntegerField(null=True)
+    delivery_mode = models.CharField(max_length=250, null=True)
+    owning_programme = models.CharField(max_length=50, null=True)
+    owning_programme_title = models.CharField(max_length=250, null=True)
+    fw_level = models.IntegerField(null=True)
+    hours_contact = models.IntegerField(null=True)
+    hours_self_directed = models.IntegerField(null=True)
+    hours_other_directed = models.IntegerField(null=True)
+    funding_source = models.CharField(max_length=250, null=True)
+    course_factor = models.FloatField(null=True)
+    cost_category_code = models.CharField(max_length=20, null=True)
+    cost_category = models.CharField(max_length=250, null=True)
+    funding_class_code = models.CharField(max_length=20, null=True)
+    funding_class = models.CharField(max_length=250, null=True)
+    individual_efts = models.IntegerField(null=True)
+    nzsced_code = models.CharField(max_length=20, null=True)
+    nzsced_category = models.CharField(max_length=250, null=True)
+    delivering_school_code = models.CharField(max_length=20, null=True)
+    delivering_school = models.CharField(max_length=250, null=True)
+    delivering_dept_code = models.CharField(max_length=20, null=True)
+    delivering_dept = models.CharField(max_length=250, null=True)
+    delivering_unit_code = models.CharField(max_length=20, null=True)
+    delivering_unit = models.CharField(max_length=250, null=True)
+    owning_school_code = models.CharField(max_length=20, null=True)
+    owning_school = models.CharField(max_length=250, null=True)
+    owning_dept_code = models.CharField(max_length=20, null=True)
+    owning_dept = models.CharField(max_length=250, null=True)
+    owning_unit_code = models.CharField(max_length=20, null=True)
+    owning_unit = models.CharField(max_length=250, null=True)
+    self_paced = models.NullBooleanField(null=True)
+    online = models.NullBooleanField(null=True)
+    active = models.NullBooleanField(null=True)
+    pending = models.NullBooleanField(null=True)
+    sub_status = models.CharField(max_length=20, null=True)
+    grade_method_code = models.CharField(max_length=20, null=True)
+    pbrf_eligibility = models.CharField(max_length=20, null=True)
+    coe_policy = models.CharField(max_length=250, null=True)
+    report_academic_result = models.NullBooleanField(null=True)
+    internet_based = models.NullBooleanField(null=True)
+
+    class Meta:
+        permissions = (
+            ("can_access_coursedefs", "Can access Course definitions"),
+            ("can_manage_coursedefs", "Can manage Course definitions"),
         )

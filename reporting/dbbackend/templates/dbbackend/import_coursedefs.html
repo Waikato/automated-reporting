@@ -1,0 +1,82 @@
+{% extends "base_navbar.html" %}
+
+{% block main %}
+
+<h3>{{ title }}</h3>
+
+{% if active_import %}
+<div class="panel panel-default">
+  <div class="panel-heading"><h4>WARNING</h4></div>
+  <div class="panel-body">
+    <p>An import is currently running!</p>
+    <p>Check <a href="/dbbackend/tablestatus">Table status</a> page for more information.</p>
+  </div>
+</div>
+{% endif %}
+
+<div class="panel panel-default">
+  <div class="panel-body">
+    <form action="/dbbackend/import/coursedefs" enctype="multipart/form-data" method="POST">
+      {% csrf_token %}
+      <p>Export CSV from Brio/Hyperion</p>
+      <ul>
+        <li>open Internet Explorer</li>
+        <li>log into <a href="https://i.waikato.ac.nz/" target="_blank">iWaikato</a></li>
+        <li>from <em>Common Tasks</em> select <em>Analyse Reports</em></li>
+        <li>from <em>Key links</em> on the right hand side, select <em>Academic reports</em></li>
+        <li>select <em>Course code directory</em></li>
+        <li>select the query for the appropriate year <em>(XXXX_Jasper_Course_Code_Directory.bqy)</em></li>
+        <li>change to <em>CourseDefResults</em> view, which shows the full spreadsheet</li>
+        <li>to export the spreadsheet as CSV, select <em>File -&gt; Export -&gt; Section</em>, select type <em>Text (comma-delimited) (*.csv) and a file name</em></li>
+      </ul>
+      <table class="table_params">
+        <tr>
+          <td>Year</td>
+          <td>
+            <select name="year">
+              {% if years %}
+              {% for year in years %}
+              <option value="{{ year }}">{{ year }}</option>
+              {% endfor %}
+              {% else %}
+              <option value="9999">Not available</option>
+              {% endif %}
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>CSV file</td>
+          <td>
+            <input type="file" name="datafile"/>
+          </td>
+        </tr>
+        <tr>
+          <td>Encoding</td>
+          <td>
+            <select name="encoding">
+              <option value="ascii">ASCII</option>
+              <option value="iso-8859-1" selected>ISO-8859-1</option>
+              <option value="utf-8">UTF-8</option>
+            </select>
+          </td>
+        </tr>
+        {% if email_enabled %}
+        <tr>
+          <td>Email notification</td>
+          <td>
+            <input type="text" name="email_notification" value="{{ email_notification }}"/>
+          </td>
+        </tr>
+        {% else %}
+        <input type="text" name="email_notification" hidden/>
+        {% endif %}
+        <tr>
+          <td><input type="submit" value="Upload"/></td>
+          <td></td>
+        </tr>
+      </table>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
