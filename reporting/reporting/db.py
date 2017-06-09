@@ -78,7 +78,7 @@ def int_cell(row, names, defvalue=None):
     for name in names:
         if name in row:
             if row[name] != '':
-                return int(row[name])
+                return int(float(row[name].replace(",", "")))
     return result
 
 
@@ -100,4 +100,30 @@ def float_cell(row, names, defvalue=None):
         if name in row:
             if row[name] != '':
                 return float(row[name].replace(",", ""))
+    return result
+
+
+def bool_cell(row, names, defvalue=None):
+    """
+    Returns a boolean value from the row dictionary, using a list of aliases for the value.
+
+    :param row: the (eg CSV) row dictionary
+    :type row: dict
+    :param names: the list of alias names
+    :type names: list of str
+    :param defvalue: the default value
+    :type defvalue: bool
+    :return: the value if any of the aliases was found, otherwise the default value
+    :rtype: bool
+    """
+    result = defvalue
+    for name in names:
+        if name in row:
+            if row[name] != '':
+                if row[name] == '0':
+                    return False
+                elif row[name] == '1':
+                    return True
+                else:
+                    return bool(row[name])
     return result
