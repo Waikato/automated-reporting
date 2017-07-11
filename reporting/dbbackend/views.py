@@ -72,7 +72,7 @@ def database_supervisors(request):
 
 
 @login_required
-@permission_required("supervisors.can_manage_scholarships")
+@permission_required("supervisors.can_manage_scholarship")
 def database_scholarships(request):
     template = loader.get_template('dbbackend/import_scholarships.html')
     tablestatus = dbimport.get_tablestatus(Scholarship._meta.db_table)
@@ -135,7 +135,7 @@ def import_supervisors(request):
 
 
 @login_required
-@permission_required("supervisors.can_manage_scholarships")
+@permission_required("supervisors.can_manage_scholarship")
 def import_scholarships(request):
     # configure template
     csv = create_temp_copy(request.FILES['datafile'].temporary_file_path())
