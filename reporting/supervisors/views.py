@@ -706,6 +706,7 @@ def list_by_student(request):
         data["role"] = sv.active_roles
         if (data["role"] is None) or (len(data["role"]) == 0):
             data["role"] = "N/A"
+        data["active"] = sv.active
         supervisors.append(data)
 
     # scholarships
@@ -748,6 +749,7 @@ def list_by_student(request):
             'Name',
             'Supervisor',
             'Role',
+            'Current',
         ])
         for row in supervisors:
             data.append([
@@ -755,6 +757,7 @@ def list_by_student(request):
                 row["studentname"],
                 row["supervisor"],
                 row["role"],
+                "Yes" if row["active"] else "No",
             ])
         content['Supervisors'] = data
 

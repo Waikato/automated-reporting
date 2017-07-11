@@ -6,7 +6,7 @@
 
 <div class="panel panel-default">
   <div class="panel-heading">
-    <h3 class="panel-title">Supervisors for student
+    <h3 class="panel-title">Supervisors for student (current)
       <span style="float: right;">
         <a class="btn btn-default btn-export" href="{{ csv_url }}" role="button">csv</a>
         <a class="btn btn-default btn-export" href="{{ xls_url }}" role="button">xls</a></span></h3>
@@ -21,12 +21,45 @@
           <th>Role</th>
         </tr>
         {% for row in supervisors %}
+        {% if row|get_item:'active' %}
         <tr>
           <td>{{ row|get_item:'studentid' }}</td>
           <td>{{ row|get_item:'studentname' }}</td>
           <td><a href="/supervisors/search-by-supervisor?name={{ row|get_item:'supervisor' }}">{{ row|get_item:'supervisor' }}</a></td>
           <td>{{ row|get_item:'role' }}</td>
         </tr>
+        {% endif %}
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Supervisors for student (past)
+      <span style="float: right;">
+        <a class="btn btn-default btn-export" href="{{ csv_url }}" role="button">csv</a>
+        <a class="btn btn-default btn-export" href="{{ xls_url }}" role="button">xls</a></span></h3>
+  </div>
+  <div class="panel-body">
+    <div class="table-responsive">
+      <table class="table">
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Supervisor</th>
+          <th>Role</th>
+        </tr>
+        {% for row in supervisors %}
+        {% if not row|get_item:'active' %}
+        <tr>
+          <td>{{ row|get_item:'studentid' }}</td>
+          <td>{{ row|get_item:'studentname' }}</td>
+          <td><a href="/supervisors/search-by-supervisor?name={{ row|get_item:'supervisor' }}">{{ row|get_item:'supervisor' }}</a></td>
+          <td>{{ row|get_item:'role' }}</td>
+        </tr>
+        {% endif %}
         {% endfor %}
       </table>
     </div>
