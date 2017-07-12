@@ -18,6 +18,7 @@
         <tr>
           <th>F/S</th>
           <th>Dept.</th>
+          <th>Paper</th>
           <th>Supervisor</th>
           <th>Prog.</th>
           <th>Student</th>
@@ -35,6 +36,7 @@
         <tr>
           <td><a href="/supervisors/search-by-faculty?school={{ school }}">{{ school }}</a></td>
           <td>{{ row|get_item:'department' }}</td>
+          <td>{{ row|get_item:'paper' }}</td>
           <td><a href="/supervisors/search-by-supervisor?name={{ row|get_item:'supervisor' }}">{{ row|get_item:'supervisor' }}</a></td>
           <td>{{ row|get_item:'program' }}</td>
           <td><a href="/supervisors/list-by-student?student={{ row|get_item:'id' }}">{{ row|get_item:'name' }} - {{ row|get_item:'id' }}</a></td>

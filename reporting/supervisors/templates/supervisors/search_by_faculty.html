@@ -156,6 +156,11 @@
               <option value="program">Program</option>
               {% endif %}
               {% endif %}
+              {% if last_sort_column == "paper" %}
+              <option value="paper" selected>Paper</option>
+              {% else %}
+              <option value="paper">Paper</option>
+              {% endif %}
               {% if last_sort_column == "start_date" %}
               <option value="start_date" selected>Start date</option>
               {% else %}

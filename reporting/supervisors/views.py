@@ -12,6 +12,7 @@ from reporting.settings import REPORTING_OPTIONS
 import reporting.applist as applist
 from reporting.form_utils import get_variable_with_error, get_variable
 import traceback
+import re
 import sys
 from datetime import date
 import reporting.form_utils as form_utils
@@ -226,12 +227,19 @@ def add_student(data, school, department, supervisor, studentid, program, superv
         program_display = program
 
     # load student data
+    paper_pattern_phd = re.compile(".*9..$")
     today = date.today().strftime("%Y-%m-%d")
     for s in StudentDates.objects.all().filter(school=school, department=department, student_id=studentid, program=program):
         sname = None
-        for g in GradeResults.objects.all().filter(student_id=studentid):
+        paper = None
+        for g in GradeResults.objects.all().filter(student_id=studentid).order_by('-year'):
             sname = g.name
-            break
+            if (program == "DP") and paper_pattern_phd.match(g.paper_master_code):
+                paper = g.paper_master_code
+            if paper is not None:
+                break
+        if paper is None:
+            paper = ''
 
         # chief?
         chief = None
@@ -294,6 +302,7 @@ def add_student(data, school, department, supervisor, studentid, program, superv
 
         sdata = dict()
         sdata['department'] = department
+        sdata['paper'] = paper
         sdata['supervisor'] = supervisor
         sdata['program'] = program_display
         sdata['id'] = studentid
