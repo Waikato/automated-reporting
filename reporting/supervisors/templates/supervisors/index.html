@@ -58,6 +58,27 @@
 
 <div class="panel panel-default">
   <div class="panel-heading">
+    <h3 class="panel-title">By Paper</h3>
+  </div>
+  <div class="panel-body">
+    <form action="/supervisors/search-by-paper" method="POST">
+      {% csrf_token %}
+      <table class="table_params">
+        <tr>
+          <td>Code (COMP900 or PSY9%)</td>
+          <td><input type="text" name="paper" required/></td>
+        </tr>
+        <tr>
+          <td><input type="submit" value="Search"/></td>
+          <td></td>
+        </tr>
+      </table>
+    </form>
+  </div>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading">
     <h3 class="panel-title">By Student</h3>
   </div>
   <div class="panel-body">

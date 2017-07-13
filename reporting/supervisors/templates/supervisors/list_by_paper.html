@@ -1,0 +1,74 @@
+{% extends "base_navbar.html" %}
+
+{% block main %}
+
+<h3>{{ title }}</h3>
+
+{% for school, school_data in results.items %}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">List By Paper - {{ school }}
+      <span style="float: right;">
+        <a class="btn btn-default btn-export" href="{{ csv_url }}" role="button">csv</a>
+        <a class="btn btn-default btn-export" href="{{ xls_url }}" role="button">xls</a></span></h3>
+  </div>
+  <div class="panel-body">
+    <div class="table-responsive">
+      <table class="table">
+        <tr>
+          <th>F/S</th>
+          <th>Dept.</th>
+          <th>Paper</th>
+          <th>Supervisor</th>
+          <th>Prog.</th>
+          <th>Student</th>
+          <th>Start</th>
+          <th>End</th>
+          <th>Months</th>
+          <th>FT<sup>1</sup></th>
+          <th>Chief</th>
+          <th>Status</th>
+          {% if show_scholarship %}
+          <th>Scholarship<sup>2</sup></th>
+          {% endif %}
+        </tr>
+        {% for row in school_data %}
+        <tr>
+          <td><a href="/supervisors/search-by-faculty?school={{ school }}">{{ school }}</a></td>
+          <td>{{ row|get_item:'department' }}</td>
+          <td>{{ row|get_item:'paper' }}</td>
+          <td><a href="/supervisors/search-by-supervisor?name={{ row|get_item:'supervisor' }}">{{ row|get_item:'supervisor' }}</a></td>
+          <td>{{ row|get_item:'program' }}</td>
+          <td><a href="/supervisors/list-by-student?student={{ row|get_item:'id' }}">{{ row|get_item:'name' }} - {{ row|get_item:'id' }}</a></td>
+          <td>{{ row|get_item:'start_date' }}</td>
+          <td>{{ row|get_item:'end_date' }}</td>
+          <td>{{ row|get_item:'months' }}</td>
+          <td>{{ row|get_item:'full_time' }}</td>
+          <td>{{ row|get_item:'chief_supervisor' }}</td>
+          <td>{{ row|get_item:'status' }}</td>
+          {% if show_scholarship %}
+          <td>{{ row|get_item:'scholarship' }}</td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+
+  <p><sup>1</sup> Full time or part time</p>
+  {% if show_scholarship %}
+  <p><sup>2</sup> Scholarship type: {{ scholarship }}</p>
+  {% endif %}
+</div>
+{% empty %}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">List By Faculty</h3>
+  </div>
+  <div class="panel-body">
+    <p>No results found</p>
+  </div>
+</div>
+{% endfor %}
+
+{% endblock %}

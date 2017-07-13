@@ -119,6 +119,30 @@ def get_departments(schools):
     return result
 
 
+def get_papers(paper):
+    """
+    Retrieves a sorted list of all the papers that match the search (eg COMP900 or PSYC9%).
+
+    :param paper: the paper search string
+    :type paper: str
+    :return: the list of papers
+    :rtype: list
+    """
+
+    sql = """
+        select distinct(paper_master_code)
+        from %s
+        where paper_master_code like '%s'
+        order by paper_master_code
+        """ % (GradeResults._meta.db_table, paper)
+    cursor = connection.cursor()
+    cursor.execute(sql)
+    result = []
+    for row in cursor.fetchall():
+        result.append(row[0])
+    return result
+
+
 def get_scholarships():
     """
     Retrieves a sorted list of all scholarships available.
@@ -165,6 +189,34 @@ def search_by_faculty(request):
     context = applist.template_context('supervisors')
     context['schools'] = schools
     context['departments'] = get_departments(schools)
+    context['max_years'] = int(max_years) if max_years is not None else YEARS_BACK
+    context['scholarships'] = get_scholarships()
+    context['last_programs'] = read_last_parameter(request.user, 'supervisors.search_by_faculty.programs', PROGRAM_TYPES)
+    context['last_supervisor_type'] = read_last_parameter(request.user, 'supervisors.search_by_faculty.supervisor_type', SUPERVISOR_TYPES)
+    context['last_study_type'] = read_last_parameter(request.user, 'supervisors.search_by_faculty.study_type', STUDY_TYPES)
+    context['last_only_current'] = read_last_parameter(request.user, 'supervisors.search_by_faculty.only_current', True)
+    context['last_min_months'] = read_last_parameter(request.user, 'supervisors.search_by_faculty.min_months', -1)
+    context['last_scholarship'] = read_last_parameter(request.user, 'supervisors.search_by_faculty.scholarship', DEFAULT_SCHOLARSHIP)
+    context['last_sort_column'] = read_last_parameter(request.user, 'supervisors.search_by_faculty.sort_column', "supervisor")
+    context['last_sort_order'] = read_last_parameter(request.user, 'supervisors.search_by_faculty.sort_order', "asc")
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+@permission_required("supervisors.can_access_supervisors")
+def search_by_paper(request):
+    # get parameters
+    response, paper = get_variable_with_error(request, 'supervisors', 'paper', as_list=False)
+    if response is not None:
+        return response
+
+    # get year from earliest start date
+    max_years = get_max_years()
+
+    # configure template
+    template = loader.get_template('supervisors/search_by_paper.html')
+    context = applist.template_context('supervisors')
+    context['papers'] = get_papers(paper)
     context['max_years'] = int(max_years) if max_years is not None else YEARS_BACK
     context['scholarships'] = get_scholarships()
     context['last_programs'] = read_last_parameter(request.user, 'supervisors.search_by_faculty.programs', PROGRAM_TYPES)
@@ -398,6 +450,7 @@ def list_by_faculty(request):
             data.append([
                 'Faculty/School',
                 'Department',
+                'Paper',
                 'Supervisor',
                 'Program',
                 'ID',
@@ -414,6 +467,7 @@ def list_by_faculty(request):
                 data.append([
                     school,
                     row['department'],
+                    row['paper'],
                     row['supervisor'],
                     row['program'],
                     row['id'],
@@ -435,6 +489,7 @@ def list_by_faculty(request):
         data.append([
             'Faculty/School',
             'Department',
+            'Paper',
             'Supervisor',
             'Program',
             'ID',
@@ -452,6 +507,7 @@ def list_by_faculty(request):
                 data.append([
                     school,
                     row['department'],
+                    row['paper'],
                     row['supervisor'],
                     row['program'],
                     row['id'],
@@ -474,6 +530,166 @@ def list_by_faculty(request):
         context['scholarship'] = scholarship
         context['show_scholarship'] = scholarship != NO_SCHOLARSHIP
         form_utils.add_export_urls(request, context, "/supervisors/list-by-faculty", ['csv', 'xls'])
+        return HttpResponse(template.render(context, request))
+
+
+@login_required
+@permission_required("supervisors.can_access_supervisors")
+def list_by_paper(request):
+    # get parameters
+    response, papers = get_variable_with_error(request, 'supervisors', 'paper', as_list=True)
+    if response is not None:
+        return response
+
+    response, years_back_str = get_variable_with_error(request, 'supervisors', 'years_back')
+    if response is not None:
+        return response
+    years_back = int(years_back_str)
+    start_year = date.today().year - years_back
+
+    programs = get_variable(request, 'program', as_list=True, def_value=PROGRAM_TYPES)
+    if REPORTING_OPTIONS['supervisor.only_phd']:
+        programs = ['DP']
+    supervisor_type = get_variable(request, 'supervisor_type', as_list=True, def_value=SUPERVISOR_TYPES)
+    study_type = get_variable(request, 'study_type', as_list=True, def_value=STUDY_TYPES)
+    only_current = get_variable(request, 'only_current', def_value="off") == "on"
+    min_months = float(get_variable(request, 'min_months', def_value="-1", blank=False))
+    scholarship = str(get_variable(request, 'scholarship', def_value="NO_SCHOLARSHIP"))
+    sort_column = get_variable(request, 'sort_column', def_value="supervisor")
+    sort_order = get_variable(request, 'sort_order', def_value="asc")
+    formattype = get_variable(request, 'format')
+
+    # save parameters
+    write_last_parameter(request.user, 'supervisors.search_by_faculty.programs', programs)
+    write_last_parameter(request.user, 'supervisors.search_by_faculty.supervisor_type', supervisor_type)
+    write_last_parameter(request.user, 'supervisors.search_by_faculty.study_type', study_type)
+    write_last_parameter(request.user, 'supervisors.search_by_faculty.only_current', only_current)
+    write_last_parameter(request.user, 'supervisors.search_by_faculty.min_months', min_months)
+    write_last_parameter(request.user, 'supervisors.search_by_faculty.scholarship', scholarship)
+    write_last_parameter(request.user, 'supervisors.search_by_faculty.sort_column', sort_column)
+    write_last_parameter(request.user, 'supervisors.search_by_faculty.sort_order', sort_order)
+
+    sql = """
+        select sd.school, sd.department, s.supervisor, s.student_id, sd.program
+        from %s sd, %s s, %s gr
+        where sd.student_id = s.student_id
+        and gr.student_id = s.student_id
+        and sd.program = s.program
+        and gr.paper_master_code in ('%s')
+        and sd.start_date >= '%s-01-01'
+        and s.active = True
+        and sd.months >= %f
+        group by sd.school, sd.department, s.supervisor, s.student_id, sd.program
+        order by sd.school, sd.department, s.supervisor, s.student_id, sd.program
+        """ % (StudentDates._meta.db_table, Supervisors._meta.db_table, GradeResults._meta.db_table, "','".join(papers), str(start_year), min_months)
+    cursor = connection.cursor()
+    cursor.execute(sql)
+    result = {}
+    for row in cursor.fetchall():
+        try:
+            if row[4] not in programs:
+                continue
+            add_student(data=result, school=row[0], department=row[1], supervisor=row[2], studentid=row[3],
+                        program=row[4], supervisor_type=supervisor_type, study_type=study_type,
+                        only_current=only_current, scholarship=scholarship)
+        except Exception as ex:
+            print("row=" + str(row))
+            traceback.print_exc(file=sys.stdout)
+
+    # sort
+    for school in result:
+        school_data = result[school]
+        school_data_sorted = sorted(school_data, key=lambda row: row[sort_column], reverse=(sort_order == "desc"))
+        result[school] = school_data_sorted
+
+    # generate output
+    if formattype == "xls":
+        content = OrderedDict()
+        for school in result:
+            data = list()
+            data.append([
+                'Faculty/School',
+                'Department',
+                'Paper',
+                'Supervisor',
+                'Program',
+                'ID',
+                'Name',
+                'Start date',
+                'End date',
+                'Months',
+                'Full time',
+                'Chief supervisor',
+                'Status',
+                'Scholarship (' + scholarship + ')',
+            ])
+            for row in result[school]:
+                data.append([
+                    school,
+                    row['department'],
+                    row['paper'],
+                    row['supervisor'],
+                    row['program'],
+                    row['id'],
+                    row['name'],
+                    row['start_date'],
+                    row['end_date'],
+                    row['months'],
+                    row['full_time'],
+                    row['chief_supervisor'],
+                    row['status'],
+                    row['scholarship'],
+                ])
+            content[school] = data
+        book = excel.pe.Book(content)
+        response = excel.make_response(book, formattype, file_name="paper-{0}.{1}".format(date.today().strftime("%Y-%m-%d"), formattype))
+        return response
+    elif formattype == "csv":
+        data = list()
+        data.append([
+            'Faculty/School',
+            'Department',
+            'Paper',
+            'Supervisor',
+            'Program',
+            'ID',
+            'Name',
+            'Start date',
+            'End date',
+            'Months',
+            'Full time',
+            'Chief supervisor',
+            'Status',
+            'Scholarship (' + scholarship + ')',
+        ])
+        for school in result:
+            for row in result[school]:
+                data.append([
+                    school,
+                    row['department'],
+                    row['paper'],
+                    row['supervisor'],
+                    row['program'],
+                    row['id'],
+                    row['name'],
+                    row['start_date'],
+                    row['end_date'],
+                    row['months'],
+                    row['full_time'],
+                    row['chief_supervisor'],
+                    row['status'],
+                    row['scholarship'],
+                ])
+        sheet = excel.pe.Sheet(data)
+        response = excel.make_response(sheet, formattype, file_name="paper-{0}.{1}".format(date.today().strftime("%Y-%m-%d"), formattype), sheet_name="Faculty")
+        return response
+    else:
+        template = loader.get_template('supervisors/list_by_paper.html')
+        context = applist.template_context('supervisors')
+        context['results'] = result
+        context['scholarship'] = scholarship
+        context['show_scholarship'] = scholarship != NO_SCHOLARSHIP
+        form_utils.add_export_urls(request, context, "/supervisors/list-by-paper", ['csv', 'xls'])
         return HttpResponse(template.render(context, request))
 
 
@@ -599,6 +815,7 @@ def list_by_supervisor(request):
         data.append([
             'Faculty/School',
             'Department',
+            'Paper',
             'Supervisor',
             'Program',
             'ID',
@@ -616,6 +833,7 @@ def list_by_supervisor(request):
                 data.append([
                     school,
                     row['department'],
+                    row['paper'],
                     row['supervisor'],
                     row['program'],
                     row['id'],

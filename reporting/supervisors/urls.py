@@ -8,6 +8,9 @@ urlpatterns = [
     url(r'^search-by-faculty', views.search_by_faculty, name='search-by-faculty'),
     url(r'^list-by-faculty$', views.list_by_faculty, name='list-by-faculty'),
 
+    url(r'^search-by-paper', views.search_by_paper, name='search-by-paper'),
+    url(r'^list-by-paper$', views.list_by_paper, name='list-by-paper'),
+
     url(r'^search-by-supervisor$', views.search_by_supervisor, name='search-by-supervisor'),
     url(r'^list-by-supervisor$', views.list_by_supervisor, name='list-by-supervisor'),
 
