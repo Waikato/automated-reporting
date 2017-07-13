@@ -191,14 +191,14 @@ def search_by_faculty(request):
     context['departments'] = get_departments(schools)
     context['max_years'] = int(max_years) if max_years is not None else YEARS_BACK
     context['scholarships'] = get_scholarships()
-    context['last_programs'] = read_last_parameter(request.user, 'supervisors.search_by_faculty.programs', PROGRAM_TYPES)
-    context['last_supervisor_type'] = read_last_parameter(request.user, 'supervisors.search_by_faculty.supervisor_type', SUPERVISOR_TYPES)
-    context['last_study_type'] = read_last_parameter(request.user, 'supervisors.search_by_faculty.study_type', STUDY_TYPES)
-    context['last_only_current'] = read_last_parameter(request.user, 'supervisors.search_by_faculty.only_current', True)
-    context['last_min_months'] = read_last_parameter(request.user, 'supervisors.search_by_faculty.min_months', -1)
-    context['last_scholarship'] = read_last_parameter(request.user, 'supervisors.search_by_faculty.scholarship', DEFAULT_SCHOLARSHIP)
-    context['last_sort_column'] = read_last_parameter(request.user, 'supervisors.search_by_faculty.sort_column', "supervisor")
-    context['last_sort_order'] = read_last_parameter(request.user, 'supervisors.search_by_faculty.sort_order', "asc")
+    context['last_programs'] = read_last_parameter(request.user, 'supervisors.search_by_paper.programs', PROGRAM_TYPES)
+    context['last_supervisor_type'] = read_last_parameter(request.user, 'supervisors.search_by_paper.supervisor_type', SUPERVISOR_TYPES)
+    context['last_study_type'] = read_last_parameter(request.user, 'supervisors.search_by_paper.study_type', STUDY_TYPES)
+    context['last_only_current'] = read_last_parameter(request.user, 'supervisors.search_by_paper.only_current', True)
+    context['last_min_months'] = read_last_parameter(request.user, 'supervisors.search_by_paper.min_months', -1)
+    context['last_scholarship'] = read_last_parameter(request.user, 'supervisors.search_by_paper.scholarship', DEFAULT_SCHOLARSHIP)
+    context['last_sort_column'] = read_last_parameter(request.user, 'supervisors.search_by_paper.sort_column', "supervisor")
+    context['last_sort_order'] = read_last_parameter(request.user, 'supervisors.search_by_paper.sort_order', "asc")
     return HttpResponse(template.render(context, request))
 
 
@@ -219,14 +219,14 @@ def search_by_paper(request):
     context['papers'] = get_papers(paper)
     context['max_years'] = int(max_years) if max_years is not None else YEARS_BACK
     context['scholarships'] = get_scholarships()
-    context['last_programs'] = read_last_parameter(request.user, 'supervisors.search_by_faculty.programs', PROGRAM_TYPES)
-    context['last_supervisor_type'] = read_last_parameter(request.user, 'supervisors.search_by_faculty.supervisor_type', SUPERVISOR_TYPES)
-    context['last_study_type'] = read_last_parameter(request.user, 'supervisors.search_by_faculty.study_type', STUDY_TYPES)
-    context['last_only_current'] = read_last_parameter(request.user, 'supervisors.search_by_faculty.only_current', True)
-    context['last_min_months'] = read_last_parameter(request.user, 'supervisors.search_by_faculty.min_months', -1)
-    context['last_scholarship'] = read_last_parameter(request.user, 'supervisors.search_by_faculty.scholarship', DEFAULT_SCHOLARSHIP)
-    context['last_sort_column'] = read_last_parameter(request.user, 'supervisors.search_by_faculty.sort_column', "supervisor")
-    context['last_sort_order'] = read_last_parameter(request.user, 'supervisors.search_by_faculty.sort_order', "asc")
+    context['last_programs'] = read_last_parameter(request.user, 'supervisors.search_by_paper.programs', PROGRAM_TYPES)
+    context['last_supervisor_type'] = read_last_parameter(request.user, 'supervisors.search_by_paper.supervisor_type', SUPERVISOR_TYPES)
+    context['last_study_type'] = read_last_parameter(request.user, 'supervisors.search_by_paper.study_type', STUDY_TYPES)
+    context['last_only_current'] = read_last_parameter(request.user, 'supervisors.search_by_paper.only_current', True)
+    context['last_min_months'] = read_last_parameter(request.user, 'supervisors.search_by_paper.min_months', -1)
+    context['last_scholarship'] = read_last_parameter(request.user, 'supervisors.search_by_paper.scholarship', DEFAULT_SCHOLARSHIP)
+    context['last_sort_column'] = read_last_parameter(request.user, 'supervisors.search_by_paper.sort_column', "supervisor")
+    context['last_sort_order'] = read_last_parameter(request.user, 'supervisors.search_by_paper.sort_order', "asc")
     return HttpResponse(template.render(context, request))
 
 
@@ -560,14 +560,14 @@ def list_by_paper(request):
     formattype = get_variable(request, 'format')
 
     # save parameters
-    write_last_parameter(request.user, 'supervisors.search_by_faculty.programs', programs)
-    write_last_parameter(request.user, 'supervisors.search_by_faculty.supervisor_type', supervisor_type)
-    write_last_parameter(request.user, 'supervisors.search_by_faculty.study_type', study_type)
-    write_last_parameter(request.user, 'supervisors.search_by_faculty.only_current', only_current)
-    write_last_parameter(request.user, 'supervisors.search_by_faculty.min_months', min_months)
-    write_last_parameter(request.user, 'supervisors.search_by_faculty.scholarship', scholarship)
-    write_last_parameter(request.user, 'supervisors.search_by_faculty.sort_column', sort_column)
-    write_last_parameter(request.user, 'supervisors.search_by_faculty.sort_order', sort_order)
+    write_last_parameter(request.user, 'supervisors.search_by_paper.programs', programs)
+    write_last_parameter(request.user, 'supervisors.search_by_paper.supervisor_type', supervisor_type)
+    write_last_parameter(request.user, 'supervisors.search_by_paper.study_type', study_type)
+    write_last_parameter(request.user, 'supervisors.search_by_paper.only_current', only_current)
+    write_last_parameter(request.user, 'supervisors.search_by_paper.min_months', min_months)
+    write_last_parameter(request.user, 'supervisors.search_by_paper.scholarship', scholarship)
+    write_last_parameter(request.user, 'supervisors.search_by_paper.sort_column', sort_column)
+    write_last_parameter(request.user, 'supervisors.search_by_paper.sort_order', sort_order)
 
     sql = """
         select sd.school, sd.department, s.supervisor, s.student_id, sd.program
