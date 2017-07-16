@@ -66,3 +66,21 @@ class Scholarship(models.Model):
             ("can_access_scholarship", "Can access Scholarship"),
             ("can_manage_scholarship", "Can manage Scholarship"),
         )
+
+
+class AssociatedRole(models.Model):
+    """
+    Associated role data.
+    """
+    role = models.CharField(max_length=250, db_index=True)
+    person = models.CharField(max_length=250, db_index=True)
+    entity = models.CharField(max_length=250)
+    valid_from = models.DateField(null=True, default=None)
+    valid_to = models.DateField(null=True, default=None)
+    student_id = models.CharField(max_length=250, db_index=True, null=True, default=None)
+
+    class Meta:
+        permissions = (
+            ("can_access_associatedrole", "Can access Associated Role"),
+            ("can_manage_associatedrole", "Can manage Associated Role"),
+        )

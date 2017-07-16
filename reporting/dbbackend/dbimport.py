@@ -1,5 +1,5 @@
 from dbbackend.models import GradeResults, TableStatus, CourseDefs
-from supervisors.models import Supervisors, StudentDates, Scholarship
+from supervisors.models import Supervisors, StudentDates, Scholarship, AssociatedRole
 from reporting.db import truncate_strings, encode_strings, string_cell, int_cell, float_cell, bool_cell
 from csv import DictReader
 import gzip
@@ -490,6 +490,12 @@ def import_bulk(csv, email=None):
                         update_tablestatus(Scholarship._meta.db_table)
                     else:
                         result.append(msg)
+                elif row['type'] == 'associatedrole':
+                    msg = import_associatedrole(row['file'], row['encoding'], delete=False)
+                    if msg is None:
+                        update_tablestatus(AssociatedRole._meta.db_table)
+                    else:
+                        result.append(msg)
                 else:
                     result.append("Unhandled file type: " + str(row['type']))
             except Exception as ex:
@@ -801,7 +807,7 @@ def populate_student_dates(email=None):
 
 def parse_supervisors_date(name, value):
     """
-    Parses the various date formats of the grade results.
+    Parses the various date formats of the supervisors.
     :param name:
     :param value:
     :return:
@@ -812,6 +818,25 @@ def parse_supervisors_date(name, value):
         dformat = "%d/%m/%Y"
     else:
         dformat = "%d %b %Y"
+    try:
+        d = datetime.strptime(value, dformat)
+        return d.strftime("%Y-%m-%d")
+    except Exception as ex:
+        print("name=" + name + ", value=" + value + ", format=" + dformat)
+        traceback.print_exc(file=sys.stdout)
+        return None
+
+
+def parse_associatedrole_date(name, value):
+    """
+    Parses the various date formats of the associated role.
+    :param name:
+    :param value:
+    :return:
+    """
+    if (value == "") or (value == "*invalid*") or (value is None):
+        return "0001-01-01"
+    dformat = "%d/%m/%Y"
     try:
         d = datetime.strptime(value, dformat)
         return d.strftime("%Y-%m-%d")
@@ -1003,6 +1028,86 @@ def import_scholarships(csv, encoding, email=None, delete=True):
 
     if email is not None:
         send_email(email, 'Import: scholarships', 'Import succeeded' if (result is None) else 'Import failed: ' + result)
+
+    return result
+
+
+def queue_import_associatedrole(csv, encoding, email=None):
+    """
+    Queues the import of associate role.
+
+    :param csv: the CSV file to import
+    :type csv: str
+    :param encoding: the file encoding (eg utf-8)
+    :type encoding: str
+    :param email: the (optional) email address to send a notification to
+    :type email: str
+    """
+
+    update_tablestatus(AssociatedRole._meta.db_table, "Importing...")
+    msg = import_associatedrole(csv, encoding, email=email)
+    update_tablestatus(AssociatedRole._meta.db_table, msg=msg)
+
+
+def import_associatedrole(csv, encoding, email=None, delete=True):
+    """
+    Imports the associated role (Jade Export).
+
+    :param csv: the CSV file to import
+    :type csv: str
+    :param encoding: the file encoding (eg utf-8)
+    :type encoding: str
+    :param email: the (optional) email address to send a notification to
+    :type email: str
+    :param delete: whether to delete the data file
+    :type delete: bool
+    :return: None if successful, otherwise error message
+    :rtype: str
+    """
+
+    result = None
+
+    set_maintenance_mode(True)
+
+    # empty table
+    AssociatedRole.objects.all().delete()
+    # import
+    try:
+        with open(csv, encoding=encoding) as csvfile:
+            reader = DictReader(csvfile)
+            reader.fieldnames = [name.lower().replace(" ", "_") for name in reader.fieldnames]
+            count = 0
+            for row in reader:
+                count += 1
+                truncate_strings(row, 250)
+                encode_strings(row, 'utf-8')
+                r = AssociatedRole()
+                r.role = row['role']
+                r.person = row['person']
+                r.entity = row['entity']
+                r.valid_from = parse_associatedrole_date('valid_from', row['valid_from'])
+                r.valid_to = parse_associatedrole_date('valid_to', row['valid_to'])
+                r.student_id = None if (row['student_id'] == '') else row['student_id']
+                r.save()
+                # progress
+                if (count % 1000) == 0:
+                    update_tablestatus(AssociatedRole._meta.db_table, "Imported " + str(count) + " rows...")
+
+    except Exception as ex:
+        msg = traceback.format_exc()
+        print(msg, file=sys.stdout)
+        result = msg
+    finally:
+        if delete:
+            try:
+                os.remove(csv)
+            except Exception as ex:
+                msg = traceback.format_exc()
+                print(msg, file=sys.stdout)
+                result = msg
+
+    if email is not None:
+        send_email(email, 'Import: associated role', 'Import succeeded' if (result is None) else 'Import failed: ' + result)
 
     return result
 

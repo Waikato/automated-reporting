@@ -11,7 +11,7 @@ import reporting.settings
 from dbbackend.models import read_last_parameter, write_last_parameter
 
 from dbbackend.models import TableStatus, GradeResults, CourseDefs
-from supervisors.models import Supervisors, Scholarship, StudentDates
+from supervisors.models import Supervisors, Scholarship, StudentDates, AssociatedRole
 from reporting.form_utils import get_variable
 
 
@@ -84,6 +84,18 @@ def database_scholarships(request):
 
 
 @login_required
+@permission_required("supervisors.can_manage_associatedrole")
+def database_associatedrole(request):
+    template = loader.get_template('dbbackend/import_associatedrole.html')
+    tablestatus = dbimport.get_tablestatus(AssociatedRole._meta.db_table)
+    context = applist.template_context()
+    context['title'] = 'Import associated role'
+    context['active_import'] = tablestatus is not None
+    context['email_notification'] = read_last_parameter(request.user, 'dbbackend.database_associatedrole.email', '')
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
 @permission_required("supervisors.can_manage_student_dates")
 def database_studentdates(request):
     template = loader.get_template('dbbackend/update_studentdates.html')
@@ -150,6 +162,27 @@ def import_scholarships(request):
     template = loader.get_template('message.html')
     context = applist.template_context()
     context['message'] = "Started import of scholarships... Check 'Table status' page for progress."
+    context['back_link'] = "/dbbackend/tablestatus"
+    context['back_text'] = "Table status"
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+@permission_required("supervisors.can_manage_associatedrole")
+def import_associatedrole(request):
+    # configure template
+    csv = create_temp_copy(request.FILES['datafile'].temporary_file_path())
+    enc = get_variable(request, 'encoding')
+    email = get_variable(request, 'email_notification')
+    write_last_parameter(request.user, 'dbbackend.database_associatedrole.email', email)
+    if len(email) == 0:
+        email = None
+    t = threading.Thread(target=dbimport.queue_import_associatedrole, args=(csv, enc), kwargs={'email': email})
+    t.setDaemon(True)
+    t.start()
+    template = loader.get_template('message.html')
+    context = applist.template_context()
+    context['message'] = "Started import of associate role... Check 'Table status' page for progress."
     context['back_link'] = "/dbbackend/tablestatus"
     context['back_text'] = "Table status"
     return HttpResponse(template.render(context, request))

@@ -1,0 +1,61 @@
+{% extends "base_navbar.html" %}
+
+{% block main %}
+
+<h3>{{ title }}</h3>
+
+{% if active_import %}
+<div class="panel panel-default">
+  <div class="panel-heading"><h4>WARNING</h4></div>
+  <div class="panel-body">
+    <p>An import is currently running!</p>
+    <p>Check <a href="/dbbackend/tablestatus">Table status</a> page for more information.</p>
+  </div>
+</div>
+{% endif %}
+
+<div class="panel panel-default">
+  <div class="panel-body">
+    <p>Export CSV from Jade</p>
+    <ul>
+      <li>open Jade</li>
+      <li>run <em>Associated Role Search</em></li>
+      <li>ensure that columns <em>Student ID</em> is present, otherwise modify the result to include it (right-click on column header and add it)</li>
+      <li>export the result as CSV (Extract -&gt; Standard extract)</li>
+    </ul>
+    <form action="/dbbackend/import/associatedrole" enctype="multipart/form-data" method="POST">
+      {% csrf_token %}
+      <table class="table_params">
+        <tr>
+          <td>CSV file</td>
+          <td><input type="file" name="datafile"/></td>
+        </tr>
+        <tr>
+          <td>Encoding</td>
+          <td>
+            <select name="encoding">
+              <option value="ascii">ASCII</option>
+              <option value="iso-8859-1" selected>ISO-8859-1</option>
+              <option value="utf-8">UTF-8</option>
+            </select>
+          </td>
+        </tr>
+        {% if email_enabled %}
+        <tr>
+          <td>Email notification</td>
+          <td>
+            <input type="text" name="email_notification" value="{{ email_notification }}"/>
+          </td>
+        </tr>
+        {% else %}
+        <input type="text" name="email_notification" hidden/>
+        {% endif %}
+        <tr>
+          <td colspan="2"><input type="submit" value="Upload"/></td>
+        </tr>
+      </table>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

@@ -34,12 +34,15 @@
         </li>
         {% endif %}
         {% if user.is_authenticated %}
-          {% if perms.dbbackend.can_manage_grade_results or perms.supervisors.can_manage_supervisors or perms.supervisors.can_manage_scholarship or perms.supervisors.can_manage_student_dates or perms.dbbackend.can_access_table_status %}
+          {% if perms.dbbackend.can_manage_grade_results or perms.dbbackend.can_manage_associatedrole or perms.supervisors.can_manage_supervisors or perms.supervisors.can_manage_scholarship or perms.supervisors.can_manage_student_dates or perms.dbbackend.can_access_table_status %}
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Database <span class="caret"></span></a>
           <ul class="dropdown-menu">
             {% if user.is_superuser %}
             <li><a href="/dbbackend/bulk">Bulk import</a></li>
+            {% endif %}
+            {% if perms.dbbackend.can_manage_associatedrole %}
+            <li><a href="/dbbackend/associatedrole">Import associated role</a></li>
             {% endif %}
             {% if perms.dbbackend.can_manage_coursedefs %}
             <li><a href="/dbbackend/coursedefs">Import course definitions</a></li>
