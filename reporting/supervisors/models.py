@@ -78,7 +78,9 @@ class AssociatedRole(models.Model):
     valid_from = models.DateField(null=True, default=None)
     valid_to = models.DateField(null=True, default=None)
     student_id = models.CharField(max_length=250, db_index=True, null=True, default=None)
+    student = models.CharField(max_length=250, db_index=True, null=True, default=None)
     active = models.BooleanField(db_index=True)
+    program = models.CharField(max_length=20, db_index=True, blank=True, default='')
 
     class Meta:
         permissions = (

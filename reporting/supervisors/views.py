@@ -295,11 +295,11 @@ def add_student(data, school, department, supervisor, studentid, program, superv
 
         # chief?
         chief = None
-        for sv in Supervisors.objects.all().filter(student_id=studentid, supervisor=supervisor):
-            if sv.active_roles == "":
+        for sv in AssociatedRole.objects.all().filter(student_id=studentid, person=supervisor):
+            if sv.role == "":
                 chief = "N/A"
             else:
-                chief = "Yes" if "Chief" in sv.active_roles else "No"
+                chief = "Yes" if "Chief" in sv.role else "No"
         if s.full_time is None:
             full_time = 'N/A'
         elif s.full_time:
@@ -410,18 +410,18 @@ def list_by_faculty(request):
     write_last_parameter(request.user, 'supervisors.search_by_faculty.sort_order', sort_order)
 
     sql = """
-        select sd.school, sd.department, s.supervisor, s.student_id, sd.program
-        from %s sd, %s s
-        where sd.student_id = s.student_id
-        and sd.program = s.program
+        select sd.school, sd.department, a.person, a.student_id, sd.program
+        from %s sd, %s a
+        where sd.student_id = a.student_id
+        and sd.program = a.program
         and sd.school in ('%s')
         and sd.department in ('%s')
         and sd.start_date >= '%s-01-01'
-        and s.active = True
+        and a.active = True
         and sd.months >= %f
-        group by sd.school, sd.department, s.supervisor, s.student_id, sd.program
-        order by sd.school, sd.department, s.supervisor, s.student_id, sd.program
-        """ % (StudentDates._meta.db_table, Supervisors._meta.db_table, "','".join(schools), "','".join(departments), str(start_year), min_months)
+        group by sd.school, sd.department, a.person, a.student_id, sd.program
+        order by sd.school, sd.department, a.person, a.student_id, sd.program
+        """ % (StudentDates._meta.db_table, AssociatedRole._meta.db_table, "','".join(schools), "','".join(departments), str(start_year), min_months)
     cursor = connection.cursor()
     cursor.execute(sql)
     result = {}
@@ -570,18 +570,18 @@ def list_by_paper(request):
     write_last_parameter(request.user, 'supervisors.search_by_paper.sort_order', sort_order)
 
     sql = """
-        select sd.school, sd.department, s.supervisor, s.student_id, sd.program
-        from %s sd, %s s, %s gr
-        where sd.student_id = s.student_id
-        and gr.student_id = s.student_id
-        and sd.program = s.program
+        select sd.school, sd.department, a.person, a.student_id, sd.program
+        from %s sd, %s a, %s gr
+        where sd.student_id = a.student_id
+        and gr.student_id = a.student_id
+        and sd.program = a.program
         and gr.paper_master_code in ('%s')
         and sd.start_date >= '%s-01-01'
-        and s.active = True
+        and a.active = True
         and sd.months >= %f
-        group by sd.school, sd.department, s.supervisor, s.student_id, sd.program
-        order by sd.school, sd.department, s.supervisor, s.student_id, sd.program
-        """ % (StudentDates._meta.db_table, Supervisors._meta.db_table, GradeResults._meta.db_table, "','".join(papers), str(start_year), min_months)
+        group by sd.school, sd.department, a.person, a.student_id, sd.program
+        order by sd.school, sd.department, a.person, a.student_id, sd.program
+        """ % (StudentDates._meta.db_table, AssociatedRole._meta.db_table, GradeResults._meta.db_table, "','".join(papers), str(start_year), min_months)
     cursor = connection.cursor()
     cursor.execute(sql)
     result = {}
@@ -708,12 +708,12 @@ def search_by_supervisor(request):
     max_years = get_max_years()
 
     sql = """
-        select distinct(s.supervisor)
-        from %s sd, %s s
-        where lower(s.supervisor) like '%%%s%%'
-        and s.active = True
-        order by s.supervisor
-        """ % (StudentDates._meta.db_table, Supervisors._meta.db_table, name.lower())
+        select distinct(a.person)
+        from %s sd, %s a
+        where lower(a.person) like '%%%s%%'
+        and a.active = True
+        order by a.person
+        """ % (StudentDates._meta.db_table, AssociatedRole._meta.db_table, name.lower())
     cursor = connection.cursor()
     cursor.execute(sql)
     results = list()
@@ -774,17 +774,17 @@ def list_by_supervisor(request):
     write_last_parameter(request.user, 'search_by_supervisor.sort_order', sort_order)
 
     sql = """
-        select sd.school, sd.department, s.supervisor, s.student_id, sd.program
-        from %s sd, %s s
-        where sd.student_id = s.student_id
-        and sd.program = s.program
-        and s.supervisor = '%s'
+        select sd.school, sd.department, a.person, a.student_id, sd.program
+        from %s sd, %s a
+        where sd.student_id = a.student_id
+        and sd.program = a.program
+        and a.person = '%s'
         and sd.start_date >= '%s-01-01'
-        and s.active = True
+        and a.active = True
         and sd.months >= %f
-        group by sd.school, sd.department, s.supervisor, s.student_id, sd.program
-        order by sd.school, sd.department, s.supervisor, s.student_id, sd.program
-        """ % (StudentDates._meta.db_table, Supervisors._meta.db_table, name, start_year, min_months)
+        group by sd.school, sd.department, a.person, a.student_id, sd.program
+        order by sd.school, sd.department, a.person, a.student_id, sd.program
+        """ % (StudentDates._meta.db_table, AssociatedRole._meta.db_table, name, start_year, min_months)
     cursor = connection.cursor()
     cursor.execute(sql)
     result = dict()
@@ -872,26 +872,26 @@ def search_by_student(request):
 
     if name.isdigit():
         sql = """
-            select s.student_id, sd.program, s.student
-            from %s sd, %s s
-            where s.student_id = '%s'
-            and s.active = True
-            and s.student_id = sd.student_id
-            and s.program = sd.program
-            group by s.student_id, sd.program, s.student
-            order by s.student_id, sd.program, s.student
-            """ % (StudentDates._meta.db_table, Supervisors._meta.db_table, name)
+            select a.student_id, sd.program, a.student
+            from %s sd, %s a
+            where a.student_id = '%s'
+            and a.active = True
+            and a.student_id = sd.student_id
+            and a.program = sd.program
+            group by a.student_id, sd.program, a.student
+            order by a.student_id, sd.program, a.student
+            """ % (StudentDates._meta.db_table, AssociatedRole._meta.db_table, name)
     else:
         sql = """
-            select s.student_id, sd.program, s.student
-            from %s sd, %s s
-            where lower(s.student) like '%%%s%%'
-            and s.active = True
-            and s.student_id = sd.student_id
-            and s.program = sd.program
-            group by s.student_id, sd.program, s.student
-            order by s.student_id, sd.program, s.student
-            """ % (StudentDates._meta.db_table, Supervisors._meta.db_table, name.lower())
+            select a.student_id, sd.program, a.student
+            from %s sd, %s a
+            where lower(a.student) like '%%%s%%'
+            and a.active = True
+            and a.student_id = sd.student_id
+            and a.program = sd.program
+            group by a.student_id, sd.program, a.student
+            order by a.student_id, sd.program, a.student
+            """ % (StudentDates._meta.db_table, AssociatedRole._meta.db_table, name.lower())
     cursor = connection.cursor()
     cursor.execute(sql)
     results = list()

@@ -846,6 +846,25 @@ def parse_associatedrole_date(name, value):
         return None
 
 
+def award_to_program(award):
+    """
+    Turns the award (eg PHD) into the program (ie DP).
+
+    :param award: the award to convert
+    :type award: str
+    :return: the program
+    :rtype: str
+    """
+
+    if award in ["PHD", 'DMA', 'EDD', "SJD"]:
+        return "DP"
+    elif award in ["MPHIL"]:
+        return "MD"
+    # other types: IPC, ...
+    else:
+        return "Other"
+
+
 def queue_import_supervisors(csv, encoding, email=None):
     """
     Queues the import of supervisors.
@@ -923,13 +942,7 @@ def import_supervisors(csv, encoding, email=None, delete=True):
                 r.active = ("removed" not in title) and ("replaced" not in title) and ("informal" not in title)
                 # determine program type
                 program = p2.sub('', p1.sub('', row['entity'])).upper()
-                if program in ["PHD", 'DMA', 'EDD', "SJD"]:
-                    r.program = "DP"
-                elif program in ["MPHIL"]:
-                    r.program = "MD"
-                # other types: IPC, ...
-                else:
-                    r.program = "Other"
+                r.program = award_to_program(program)
                 r.save()
                 # progress
                 if (count % 1000) == 0:
@@ -1090,6 +1103,10 @@ def import_associatedrole(csv, encoding, email=None, delete=True):
                 r.active = len(row['valid_to'].strip()) == 0
                 if " - " in r.entity:
                     r.student_id = r.entity[(r.entity.index(" - ") + 3):]
+                if "Award/" in r.entity:
+                    r.student = r.entity[r.entity.index("Award/") + 6:]
+                    r.program = award_to_program(r.student[0:r.student.index(" ")].upper())
+                    r.student = r.student[r.student.index(" ") + 1:]
                 r.save()
                 # progress
                 if (count % 1000) == 0:
