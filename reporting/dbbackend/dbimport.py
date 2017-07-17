@@ -467,7 +467,7 @@ def import_bulk(csv, email=None):
             try:
                 print("Importing: " + str(row))
                 if row['type'] == 'graderesults':
-                    msg = import_grade_results(int(row['year']), row['file'], bool(row['isgzip']), row['encoding'], delete=False)
+                    msg = import_grade_results(int(row['year']), row['file'], (row['isgzip'] == 'True'), row['encoding'], delete=False)
                     if msg is None:
                         update_tablestatus(GradeResults._meta.db_table)
                     else:
@@ -1087,7 +1087,9 @@ def import_associatedrole(csv, encoding, email=None, delete=True):
                 r.entity = row['entity']
                 r.valid_from = parse_associatedrole_date('valid_from', row['valid_from'])
                 r.valid_to = parse_associatedrole_date('valid_to', row['valid_to'])
-                r.student_id = None if (row['student_id'] == '') else row['student_id']
+                r.active = len(row['valid_to'].strip()) == 0
+                if " - " in r.entity:
+                    r.student_id = r.entity[(r.entity.index(" - ") + 3):]
                 r.save()
                 # progress
                 if (count % 1000) == 0:

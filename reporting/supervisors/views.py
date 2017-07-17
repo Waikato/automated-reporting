@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.db import connection
 from django.contrib.auth.decorators import login_required, permission_required
 from dbbackend.models import read_last_parameter, write_last_parameter
-from supervisors.models import StudentDates, Supervisors, Scholarship
+from supervisors.models import StudentDates, Supervisors, Scholarship, AssociatedRole
 from dbbackend.models import GradeResults
 from reporting.error import create_error_response
 from reporting.settings import REPORTING_OPTIONS
@@ -922,18 +922,18 @@ def list_by_student(request):
     # supervisors
     supervisors = list()
     sname = None
-    for sv in Supervisors.objects.all().filter(student_id=studentid):
+    for ar in AssociatedRole.objects.all().filter(student_id=studentid):
         for g in GradeResults.objects.all().filter(student_id=studentid):
             sname = g.name
             break
         data = dict()
         data["studentid"] = studentid
         data["studentname"] = sname
-        data["supervisor"] = sv.supervisor
-        data["role"] = sv.active_roles
+        data["supervisor"] = ar.person
+        data["role"] = ar.role
         if (data["role"] is None) or (len(data["role"]) == 0):
             data["role"] = "N/A"
-        data["active"] = sv.active
+        data["active"] = ar.active
         supervisors.append(data)
 
     # scholarships
