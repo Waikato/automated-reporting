@@ -234,6 +234,8 @@ Below are the application-specific permissions:
   * `supervisors.can_manage_supervisors` - for importing supervisor data
   * `supervisors.can_access_scholarship` - *reserved*
   * `supervisors.can_manage_scholarship` - for importing scholarship data
+  * `supervisors.can_access_associatedrole` - *reserved*
+  * `supervisors.can_manage_associatedrole` - for importing associated role data
   * `dbbackend.can_access_table_status` - for checking the table status
   * `dbbackend.can_manage_table_status` - *reserved*
   * `dbbackend.can_access_grade_results` - *reserved*
