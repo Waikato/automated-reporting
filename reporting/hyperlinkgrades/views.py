@@ -7,6 +7,10 @@ from reporting.form_utils import get_variable, create_error_response
 import reporting.settings
 import subprocess
 import os.path
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 DEFAULT_EXPRESSION = '.*(possible b sem 15 completer|possible b sem 15 completion|potential sem b 2015 completion|potential b sem 2015 completion).*'
 """ The default expression for matching the links. """
@@ -49,11 +53,14 @@ def upload(request):
         params = params + ["--casesensitive", "true"]
     if exclude_completions:
         params = params + ["--nocompletions", "true"]
+    logger.info("Command: {0}".format(" ".join(params)))
     retval = subprocess.call(
         params,
     )
     if retval != 0:
-        return create_error_response(request, 'hyperlinkgrades', 'Failed to execute HyperLinkGrades: {0}'.format(retval))
+        msg = 'Failed to execute HyperLinkGrades! exit code: {1}, command: {0}'.format(" ".join(params), retval)
+        logger.error(msg);
+        return create_error_response(request, 'hyperlinkgrades', msg)
 
     if not os.path.exists(newpdf):
         return create_error_response(request, 'hyperlinkgrades', 'Failed to generate output!')

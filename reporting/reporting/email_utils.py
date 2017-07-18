@@ -2,6 +2,10 @@ from . import settings
 from django.core.mail import send_mail
 import traceback
 import sys
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 def send_email(to, subject, body):
     """
@@ -27,7 +31,7 @@ def send_email(to, subject, body):
         )
     except Exception as ex:
         msg = traceback.format_exc()
-        print(msg, file=sys.stdout)
+        logger.exception()
         return msg
 
     return None

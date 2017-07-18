@@ -2,8 +2,11 @@ import reporting.applist as applist
 from django.http import HttpRequest
 from .error import create_error_response
 import urllib.parse
+import logging
 
 apps = applist.get_apps()
+
+logger = logging.getLogger(__name__)
 
 
 def get_variable_with_error(request, app, var, as_list=False, def_value=None, blank=True):

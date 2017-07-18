@@ -11,6 +11,10 @@ from datetime import datetime
 from django.db import connection
 from maintenance_mode.core import set_maintenance_mode
 from reporting.email_utils import send_email
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 FULL_TIME_CREDITS = 120
 """ the minimum number of credits in order to be considered full time student """
@@ -72,8 +76,7 @@ def parse_grade_results_date(name, value):
         d = datetime.strptime(value, dformat)
         return d.strftime("%Y-%m-%d")
     except Exception as ex:
-        print("name=" + name + ", value=" + value + ", format=" + dformat)
-        traceback.print_exc(file=sys.stdout)
+        logger.exception("name=" + name + ", value=" + value + ", format=" + dformat)
         return None
 
 
@@ -295,7 +298,7 @@ def import_grade_results(year, csv, isgzip, encoding, email=None, delete=True):
         csvfile.close()
     except Exception as ex:
         msg = traceback.format_exc()
-        print(msg, file=sys.stdout)
+        logger.exception()
         return msg
     finally:
         if delete:
@@ -303,7 +306,7 @@ def import_grade_results(year, csv, isgzip, encoding, email=None, delete=True):
                 os.remove(csv)
             except Exception as ex:
                 msg = traceback.format_exc()
-                print(msg, file=sys.stdout)
+                logger.exception()
                 result = msg
 
     if email is not None:
@@ -420,7 +423,7 @@ def import_coursedefs(year, csv, encoding, email=None, delete=True):
         csvfile.close()
     except Exception as ex:
         msg = traceback.format_exc()
-        print(msg, file=sys.stdout)
+        logger.exception()
         return msg
     finally:
         if delete:
@@ -428,7 +431,7 @@ def import_coursedefs(year, csv, encoding, email=None, delete=True):
                 os.remove(csv)
             except Exception as ex:
                 msg = traceback.format_exc()
-                print(msg, file=sys.stdout)
+                logger.exception()
                 result = msg
 
     if email is not None:
@@ -465,7 +468,7 @@ def import_bulk(csv, email=None):
             if len(row) != 5:
                 continue
             try:
-                print("Importing: " + str(row))
+                logger.debug("Importing: " + str(row))
                 if row['type'] == 'graderesults':
                     msg = import_grade_results(int(row['year']), row['file'], (row['isgzip'] == 'True'), row['encoding'], delete=False)
                     if msg is None:
@@ -506,7 +509,7 @@ def import_bulk(csv, email=None):
         result.append(str(ex))
 
     if len(result) == 0:
-        print("Populating student dates")
+        logger.info("Populating student dates")
         populate_student_dates()
         update_tablestatus(StudentDates._meta.db_table)
         result_msg = None
@@ -789,9 +792,9 @@ def populate_student_dates(email=None):
                 r.save()
 
         except Exception as ex:
-            print("PhD: id=%s, start=%s, end=%s, months=%s" % (sid, phd_start, phd_end, phd_months))
-            print("Master: id=%s, start=%s, end=%s, months=%s" % (sid, master_start, master_end, master_months))
-            traceback.print_exc(file=sys.stdout)
+            logger.error("PhD: id=%s, start=%s, end=%s, months=%s" % (sid, phd_start, phd_end, phd_months))
+            logger.error("Master: id=%s, start=%s, end=%s, months=%s" % (sid, master_start, master_end, master_months))
+            logger.exception()
 
         # progress
         if (count % 1000) == 0:
@@ -822,8 +825,7 @@ def parse_supervisors_date(name, value):
         d = datetime.strptime(value, dformat)
         return d.strftime("%Y-%m-%d")
     except Exception as ex:
-        print("name=" + name + ", value=" + value + ", format=" + dformat)
-        traceback.print_exc(file=sys.stdout)
+        logger.exception(msg="name=" + name + ", value=" + value + ", format=" + dformat)
         return None
 
 
@@ -841,8 +843,7 @@ def parse_associatedrole_date(name, value):
         d = datetime.strptime(value, dformat)
         return d.strftime("%Y-%m-%d")
     except Exception as ex:
-        print("name=" + name + ", value=" + value + ", format=" + dformat)
-        traceback.print_exc(file=sys.stdout)
+        logger.exception(msg="name=" + name + ", value=" + value + ", format=" + dformat)
         return None
 
 
@@ -949,7 +950,7 @@ def import_supervisors(csv, encoding, email=None, delete=True):
                     update_tablestatus(Supervisors._meta.db_table, "Imported " + str(count) + " rows...")
     except Exception as ex:
         msg = traceback.format_exc()
-        print(msg, file=sys.stdout)
+        logger.exception()
         result = msg
     finally:
         if delete:
@@ -957,7 +958,7 @@ def import_supervisors(csv, encoding, email=None, delete=True):
                 os.remove(csv)
             except Exception as ex:
                 msg = traceback.format_exc()
-                print(msg, file=sys.stdout)
+                logger.exception()
                 result = msg
 
     if email is not None:
@@ -1028,7 +1029,7 @@ def import_scholarships(csv, encoding, email=None, delete=True):
 
     except Exception as ex:
         msg = traceback.format_exc()
-        print(msg, file=sys.stdout)
+        logger.exception()
         result = msg
     finally:
         if delete:
@@ -1036,7 +1037,7 @@ def import_scholarships(csv, encoding, email=None, delete=True):
                 os.remove(csv)
             except Exception as ex:
                 msg = traceback.format_exc()
-                print(msg, file=sys.stdout)
+                logger.exception()
                 result = msg
 
     if email is not None:
@@ -1114,7 +1115,7 @@ def import_associatedrole(csv, encoding, email=None, delete=True):
 
     except Exception as ex:
         msg = traceback.format_exc()
-        print(msg, file=sys.stdout)
+        logger.exception()
         result = msg
     finally:
         if delete:
@@ -1122,7 +1123,7 @@ def import_associatedrole(csv, encoding, email=None, delete=True):
                 os.remove(csv)
             except Exception as ex:
                 msg = traceback.format_exc()
-                print(msg, file=sys.stdout)
+                logger.exception()
                 result = msg
 
     if email is not None:

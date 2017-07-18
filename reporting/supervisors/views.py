@@ -17,6 +17,10 @@ import sys
 from datetime import date
 import reporting.form_utils as form_utils
 import django_excel as excel
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 YEARS_BACK = 5
 """ the default number of years to go back """
@@ -434,8 +438,7 @@ def list_by_faculty(request):
                         program=row[4], supervisor_type=supervisor_type, study_type=study_type,
                         only_current=only_current, scholarship=scholarship)
         except Exception as ex:
-            print("row=" + str(row))
-            traceback.print_exc(file=sys.stdout)
+            logger.exception(msg="row=" + str(row))
 
     # sort
     for school in result:
@@ -595,8 +598,7 @@ def list_by_paper(request):
                         program=row[4], supervisor_type=supervisor_type, study_type=study_type,
                         only_current=only_current, scholarship=scholarship)
         except Exception as ex:
-            print("row=" + str(row))
-            traceback.print_exc(file=sys.stdout)
+            logger.exception("row=" + str(row))
 
     # sort
     for school in result:
@@ -794,7 +796,7 @@ def list_by_supervisor(request):
     for row in cursor.fetchall():
         try:
             if len(row[0]) < 1:
-                print("empty school: " + str(row))
+                logger.warning("empty school: " + str(row))
                 continue
             if row[4] not in programs:
                 continue
@@ -802,8 +804,7 @@ def list_by_supervisor(request):
                         program=row[4], supervisor_type=supervisor_type, study_type=study_type,
                         only_current=only_current, scholarship=scholarship)
         except Exception as ex:
-            print("row=" + str(row))
-            traceback.print_exc(file=sys.stdout)
+            logger.exception("row=" + str(row))
 
     # sort
     for school in result:

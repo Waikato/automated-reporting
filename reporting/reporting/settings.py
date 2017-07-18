@@ -23,17 +23,17 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '5)!dc%xc6622p!!wa54qaf+$_8v5a29ax04+$b)nc8x@-jtu$_'
 
 LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
         },
     },
-    "loggers": {
-        "django_python3_ldap": {
-            "handlers": ["console"],
-            "level": "INFO",
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
         },
     },
 }
@@ -193,6 +193,7 @@ try:
 
     DEBUG = reporting.settings_custom.DEBUG
     PRODUCTION = reporting.settings_custom.PRODUCTION
+    LOGGING = reporting.settings_custom.LOGGING
     TABLE_STATUS_REFRESH_INTERVAL = reporting.settings_custom.TABLE_STATUS_REFRESH_INTERVAL
     SECRET_KEY = reporting.settings_custom.SECRET_KEY
     DATABASES = reporting.settings_custom.DATABASES

@@ -13,6 +13,9 @@ import csv
 import os
 import subprocess
 import django_excel as excel
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @login_required
@@ -86,10 +89,12 @@ def output(request):
         ORDER BY
             paper_master_code ASC
         """.format(cols, year, schoolsql, GradeResults._meta.db_table)
+    logger.debug(sql)
     cursor.execute(sql)
 
     # generate CSV
     fd, outname = tempfile.mkstemp(suffix=".csv", prefix="reporting-")
+    logger.info("Generating CSV: {0}".format(outname))
     with open(outname, 'w') as outfile:
         writer = csv.writer(outfile, quoting=csv.QUOTE_NONNUMERIC)
         writer.writerow(cols.split(","))
@@ -108,12 +113,15 @@ def output(request):
     ]
     if ptype == "occurrence":
         params.append("-o")
+    logger.info("Command: {0}".format(" ".join(params)))
     retval = subprocess.call(
         params,
         stdout=stdoutfile,
     )
     if retval != 0:
-        return create_error_response(request, 'lpp', 'Failed to execute lpp! exit code: {1}, command: {0}'.format(" ".join(params), retval))
+        msg = 'Failed to execute lpp! exit code: {1}, command: {0}'.format(" ".join(params), retval)
+        logger.error(msg)
+        return create_error_response(request, 'lpp', msg)
 
     # read data
     header = []

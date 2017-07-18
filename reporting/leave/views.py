@@ -10,6 +10,10 @@ from dbbackend.models import GradeResults
 from csv import DictReader
 import traceback
 import sys
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 MINIMUM_DAYS = 25
 

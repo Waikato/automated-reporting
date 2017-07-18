@@ -5,6 +5,10 @@ from django.template.defaulttags import register
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import login
 import reporting.settings
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 @login_required
 def index(request):

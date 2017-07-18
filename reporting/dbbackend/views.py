@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required, permission_required, 
 from . import dbimport
 from datetime import date
 import threading
+import logging
 from reporting.tempfile_utils import create_temp_copy
 import reporting.settings
 from dbbackend.models import read_last_parameter, write_last_parameter
@@ -13,6 +14,8 @@ from dbbackend.models import read_last_parameter, write_last_parameter
 from dbbackend.models import TableStatus, GradeResults, CourseDefs
 from supervisors.models import Supervisors, Scholarship, StudentDates, AssociatedRole
 from reporting.form_utils import get_variable
+
+logger = logging.getLogger(__name__)
 
 
 @login_required
