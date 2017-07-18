@@ -112,7 +112,7 @@ def output(request):
         stdout=stdoutfile,
     )
     if retval != 0:
-        return create_error_response(request, 'lpp', 'Failed to execute lpp:<br/>command: {0}<br/>retval: {1}'.format(" ".join(params), retval))
+        return create_error_response(request, 'lpp', 'Failed to execute lpp! exit code: {1}, command: {0}'.format(" ".join(params), retval))
 
     # read data
     header = []
