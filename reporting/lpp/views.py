@@ -75,7 +75,7 @@ def output(request):
         schoolsql = "AND owning_school_clevel IN ('" + "','".join(school) + "')"
     cols = "owning_school_clevel,paper_master_code,paper_occurrence,prog_abbr,grade,isdomestic,result_status"
     cursor = connection.cursor()
-    cursor.execute("""
+    sql = """
         SELECT
             {0}
         FROM
@@ -85,7 +85,8 @@ def output(request):
             {2}
         ORDER BY
             paper_master_code ASC
-        """.format(cols, year, schoolsql, GradeResults._meta.db_table))
+        """.format(cols, year, schoolsql, GradeResults._meta.db_table)
+    cursor.execute(sql)
 
     # generate CSV
     fd, outname = tempfile.mkstemp(suffix=".csv", prefix="reporting-")
