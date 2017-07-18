@@ -409,6 +409,7 @@ def list_by_faculty(request):
     write_last_parameter(request.user, 'supervisors.search_by_faculty.sort_column', sort_column)
     write_last_parameter(request.user, 'supervisors.search_by_faculty.sort_order', sort_order)
 
+    sql_active = " and a.active = True " if only_current else ""
     sql = """
         select sd.school, sd.department, a.person, a.student_id, sd.program
         from %s sd, %s a
@@ -417,11 +418,11 @@ def list_by_faculty(request):
         and sd.school in ('%s')
         and sd.department in ('%s')
         and sd.start_date >= '%s-01-01'
-        and a.active = True
+        %s
         and sd.months >= %f
         group by sd.school, sd.department, a.person, a.student_id, sd.program
         order by sd.school, sd.department, a.person, a.student_id, sd.program
-        """ % (StudentDates._meta.db_table, AssociatedRole._meta.db_table, "','".join(schools), "','".join(departments), str(start_year), min_months)
+        """ % (StudentDates._meta.db_table, AssociatedRole._meta.db_table, "','".join(schools), "','".join(departments), str(start_year), sql_active, min_months)
     cursor = connection.cursor()
     cursor.execute(sql)
     result = {}
@@ -569,6 +570,7 @@ def list_by_paper(request):
     write_last_parameter(request.user, 'supervisors.search_by_paper.sort_column', sort_column)
     write_last_parameter(request.user, 'supervisors.search_by_paper.sort_order', sort_order)
 
+    sql_active = " and a.active = True " if only_current else ""
     sql = """
         select sd.school, sd.department, a.person, a.student_id, sd.program
         from %s sd, %s a, %s gr
@@ -577,11 +579,11 @@ def list_by_paper(request):
         and sd.program = a.program
         and gr.paper_master_code in ('%s')
         and sd.start_date >= '%s-01-01'
-        and a.active = True
+        %s
         and sd.months >= %f
         group by sd.school, sd.department, a.person, a.student_id, sd.program
         order by sd.school, sd.department, a.person, a.student_id, sd.program
-        """ % (StudentDates._meta.db_table, AssociatedRole._meta.db_table, GradeResults._meta.db_table, "','".join(papers), str(start_year), min_months)
+        """ % (StudentDates._meta.db_table, AssociatedRole._meta.db_table, GradeResults._meta.db_table, "','".join(papers), str(start_year), sql_active, min_months)
     cursor = connection.cursor()
     cursor.execute(sql)
     result = {}
@@ -773,6 +775,7 @@ def list_by_supervisor(request):
     write_last_parameter(request.user, 'search_by_supervisor.sort_column', sort_column)
     write_last_parameter(request.user, 'search_by_supervisor.sort_order', sort_order)
 
+    sql_active = " and a.active = True " if only_current else ""
     sql = """
         select sd.school, sd.department, a.person, a.student_id, sd.program
         from %s sd, %s a
@@ -780,11 +783,11 @@ def list_by_supervisor(request):
         and sd.program = a.program
         and a.person = '%s'
         and sd.start_date >= '%s-01-01'
-        and a.active = True
+        %s
         and sd.months >= %f
         group by sd.school, sd.department, a.person, a.student_id, sd.program
         order by sd.school, sd.department, a.person, a.student_id, sd.program
-        """ % (StudentDates._meta.db_table, AssociatedRole._meta.db_table, name, start_year, min_months)
+        """ % (StudentDates._meta.db_table, AssociatedRole._meta.db_table, name, start_year, sql_active, min_months)
     cursor = connection.cursor()
     cursor.execute(sql)
     result = dict()
