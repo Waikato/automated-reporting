@@ -131,6 +131,14 @@ def output(request):
         stderr=stderrfile,
         env=env,
     )
+    try:
+        stdoutfile.close()
+    except:
+        pass
+    try:
+        stderrfile.close()
+    except:
+        pass
     if not os.path.isfile(genname):
         msg = 'Failed to execute lpp! exit code: {1}, command: {0}'.format(" ".join(params), retval)
         logger.error(msg)
@@ -173,6 +181,10 @@ def output(request):
         pass
     try:
         os.remove(stdoutname)
+    except:
+        pass
+    try:
+        os.remove(stderrname)
     except:
         pass
 
