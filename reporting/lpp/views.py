@@ -102,6 +102,8 @@ def output(request):
         writer.writerow(cols.split(","))
         for row in cursor.fetchall():
             writer.writerow(row)
+        outfile.flush()
+    logger.info("Generated CSV ({0}) exists: ".format(outname, os.path.isfile(outname)))
 
     # call LPP
     genname = outname.replace(".csv", "-gen.csv")
