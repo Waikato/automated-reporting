@@ -206,6 +206,7 @@ try:
     DOC_MOD_LIB = reporting.settings_custom.DOC_MOD_LIB
     JAVA = reporting.settings_custom.JAVA
     PERL = reporting.settings_custom.PERL
+    PERLLIB = reporting.settings_custom.PERLLIB
     LPP_SCRIPT = reporting.settings_custom.LPP_SCRIPT
     LOCAL_USERS = True
     AUTHENTICATION_TYPE = "local"
@@ -255,6 +256,7 @@ except ImportError:
     DOC_MOD_LIB = "/usr/local/bin/fcms-doc-modifier/lib"
     JAVA = "/usr/bin/java"
     PERL = "/usr/bin/perl"
+    PERLLIB = None
     LPP_SCRIPT = "/usr/local/bin/LPP/pass-rates"
 
     LOCAL_USERS = True

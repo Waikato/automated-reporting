@@ -109,6 +109,13 @@ def output(request):
     genname = outname.replace(".csv", "-gen.csv")
     stdoutname = outname.replace(".csv", "-stdout.csv")
     stdoutfile = open(stdoutname, 'wb')
+    stderrname = outname.replace(".csv", "-stderr.txt")
+    stderrfile = open(stderrname, 'wb')
+    if reporting.settings.PERLLIB is not None:
+        env = dict(os.environ)
+        env['PERL5LIB'] = reporting.settings.PERLLIB
+    else:
+        env = None
     params = [
         reporting.settings.PERL,
         reporting.settings.LPP_SCRIPT,
@@ -121,6 +128,8 @@ def output(request):
     retval = subprocess.call(
         params,
         stdout=stdoutfile,
+        stderr=stderrfile,
+        env=env,
     )
     if not os.path.isfile(genname):
         msg = 'Failed to execute lpp! exit code: {1}, command: {0}'.format(" ".join(params), retval)
