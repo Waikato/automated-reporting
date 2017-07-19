@@ -4,6 +4,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from jsonfield import JSONField
 import json
+from datetime import date
 
 
 class LastParameters(models.Model):
@@ -296,3 +297,54 @@ class CourseDefs(models.Model):
             ("can_access_coursedefs", "Can access Course definitions"),
             ("can_manage_coursedefs", "Can manage Course definitions"),
         )
+
+
+class Announcement(models.Model):
+    """
+    System-wide announcements.
+    """
+
+    TYPE_CHOICES = (
+        ('s', 'Success'),
+        ('i', 'Info'),
+        ('w', 'Warning'),
+        ('d', 'Danger'),
+    )
+
+    nickname = models.CharField(max_length=50, default='')
+    text = models.TextField(default='')
+    enabled = models.BooleanField(default=False)
+    from_date = models.DateField(null=True, blank=True, default=None)
+    to_date = models.DateField(null=True, blank=True, default=None)
+    type = models.CharField(max_length=1, choices=TYPE_CHOICES, default='i')
+
+    def __str__(self):
+        return str(self.id) + "-" + str(self.nickname)
+
+
+def get_active_announcements():
+    """
+    Returns a list of active announcements (each announcement is a dictionary).
+
+    :return: the active accouncements
+    :rtype: list
+    """
+
+    result = list()
+    today = date.today()
+
+    for a in Announcement.objects.all().filter(enabled=True):
+        if a.from_date is not None:
+            if today < a.from_date:
+                continue
+        if a.to_date is not None:
+            if today > a.to_date:
+                continue
+        d = dict()
+        d['text'] = a.text
+        d['from_date'] = a.from_date
+        d['to_date'] = a.to_date
+        d['type'] = a.type
+        result.append(d)
+
+    return result

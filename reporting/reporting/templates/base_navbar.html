@@ -94,6 +94,22 @@
 {% endblock %}
 
 <div class="container">
+
+{% for a in announcements %}
+  {% if a.type == 's' %}
+  <div class="alert alert-success" role="alert">{{ a.text }}</div>
+  {% endif %}
+  {% if a.type == 'i' %}
+  <div class="alert alert-info" role="alert">{{ a.text }}</div>
+  {% endif %}
+  {% if a.type == 'w' %}
+  <div class="alert alert-warning" role="alert">{{ a.text }}</div>
+  {% endif %}
+  {% if a.type == 'd' %}
+  <div class="alert alert-dange" role="alert">{{ a.text }}</div>
+  {% endif %}
+{% endfor %}
+
 {% block main %}
 {% endblock %}
 </div>

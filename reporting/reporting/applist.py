@@ -8,6 +8,7 @@ from reporting.settings import LOCAL_USERS
 from reporting.settings import AUTHENTICATION_TYPE
 from reporting.settings import EMAIL_ENABLED
 from maintenance_mode.core import get_maintenance_mode
+import dbbackend.models as db_models
 
 
 def get_apps():
@@ -71,6 +72,7 @@ def template_context(app=None):
         'local_users': LOCAL_USERS,
         'auth_type': AUTHENTICATION_TYPE,
         'email_enabled': EMAIL_ENABLED,
+        'announcements': db_models.get_active_announcements()
     }
 
     if app is not None:
