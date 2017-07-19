@@ -14,6 +14,7 @@ import os
 import subprocess
 import django_excel as excel
 import logging
+import reporting.tempfile_utils as tempfile_utils
 
 logger = logging.getLogger(__name__)
 
@@ -93,7 +94,7 @@ def output(request):
     cursor.execute(sql)
 
     # generate CSV
-    fd, outname = tempfile.mkstemp(suffix=".csv", prefix="reporting-")
+    fd, outname = tempfile.mkstemp(suffix=".csv", prefix="reporting-", dir=tempfile_utils.gettempdir())
     logger.info("Generating CSV: {0}".format(outname))
     with open(outname, 'w') as outfile:
         writer = csv.writer(outfile, quoting=csv.QUOTE_NONNUMERIC)

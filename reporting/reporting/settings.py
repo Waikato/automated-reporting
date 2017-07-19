@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
+import tempfile
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -185,6 +186,9 @@ ADMIN_EMAIL = 'admin@example.com'
 # only show production-ready apps?
 PRODUCTION = True
 
+# the default temp directory
+TMP_DIR = tempfile.gettempdir()
+
 # custom settings?
 try:
     import reporting.settings_custom
@@ -193,6 +197,7 @@ try:
 
     DEBUG = reporting.settings_custom.DEBUG
     PRODUCTION = reporting.settings_custom.PRODUCTION
+    TMP_DIR = reporting.settings_custom.TMP_DIR
     LOGGING = reporting.settings_custom.LOGGING
     TABLE_STATUS_REFRESH_INTERVAL = reporting.settings_custom.TABLE_STATUS_REFRESH_INTERVAL
     SECRET_KEY = reporting.settings_custom.SECRET_KEY
@@ -236,6 +241,7 @@ except ImportError:
 
     DEBUG = False
     PRODUCTION = True
+    TMP_DIR = tempfile.gettempdir()
     TABLE_STATUS_REFRESH_INTERVAL = 10
     DATABASES = {
         'default': {

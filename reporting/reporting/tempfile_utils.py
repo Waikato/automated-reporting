@@ -2,6 +2,24 @@ import tempfile
 import time
 import shutil
 import os
+import reporting.settings
+
+
+def gettempdir():
+    """
+    Returns either a custom temp directory of the default system one.
+
+    :return: the temp directory
+    :rtype: str
+    """
+
+    if reporting.settings.TMP_DIR is not None:
+        print(reporting.settings.TMP_DIR)
+        return reporting.settings.TMP_DIR
+    else:
+        print(tempfile.gettempdir())
+        return tempfile.gettempdir()
+
 
 def create_temp_copy(infile):
     """
@@ -17,7 +35,7 @@ def create_temp_copy(infile):
     :rtype: str
     """
 
-    temp_dir = tempfile.gettempdir()
+    temp_dir = gettempdir()
     result = os.path.join(temp_dir, str(time.time()))
     shutil.copy2(infile, result)
     return result
