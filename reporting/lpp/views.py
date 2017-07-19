@@ -107,8 +107,8 @@ def output(request):
 
     # call LPP
     genname = outname.replace(".csv", "-gen.csv")
-    stdoutname = outname.replace(".csv", "-stdout.csv")
-    stdoutfile = open(stdoutname, 'wb')
+    #stdoutname = outname.replace(".csv", "-stdout.csv")
+    #stdoutfile = open(stdoutname, 'wb')
     params = [
         reporting.settings.PERL,
         reporting.settings.LPP_SCRIPT,
@@ -120,7 +120,7 @@ def output(request):
     logger.info("Command: {0}".format(" ".join(params)))
     retval = subprocess.call(
         params,
-        stdout=stdoutfile,
+        #stdout=stdoutfile,
     )
     if not os.path.isfile(genname):
         msg = 'Failed to execute lpp! exit code: {1}, command: {0}'.format(" ".join(params), retval)
