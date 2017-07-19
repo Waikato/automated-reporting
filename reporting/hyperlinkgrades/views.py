@@ -59,7 +59,7 @@ def upload(request):
     )
     if retval != 0:
         msg = 'Failed to execute HyperLinkGrades! exit code: {1}, command: {0}'.format(" ".join(params), retval)
-        logger.error(msg);
+        logger.error(msg)
         return create_error_response(request, 'hyperlinkgrades', msg)
 
     if not os.path.exists(newpdf):
