@@ -11,6 +11,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 import tempfile
 import csv
 import os
+import os.path
 import subprocess
 import django_excel as excel
 import logging
@@ -119,7 +120,7 @@ def output(request):
         params,
         stdout=stdoutfile,
     )
-    if retval != 0:
+    if not os.path.isfile(genname):
         msg = 'Failed to execute lpp! exit code: {1}, command: {0}'.format(" ".join(params), retval)
         logger.error(msg)
         return create_error_response(request, 'lpp', msg)
