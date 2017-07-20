@@ -564,6 +564,7 @@ def populate_student_dates(email=None):
     for row in cursor.fetchall():
         sid = str(row[0]).strip()
         count += 1
+        logger.debug(str(count) + "/studentid: " + sid)
 
         master_months = None
         master_start = None
@@ -792,9 +793,9 @@ def populate_student_dates(email=None):
                 r.save()
 
         except Exception as ex:
-            logger.error("PhD: id=%s, start=%s, end=%s, months=%s" % (sid, phd_start, phd_end, phd_months))
-            logger.error("Master: id=%s, start=%s, end=%s, months=%s" % (sid, master_start, master_end, master_months))
-            logger.exception()
+            msg = "PhD: id=%s, start=%s, end=%s, months=%s" % (sid, phd_start, phd_end, phd_months)
+            msg += "\n" + "Master: id=%s, start=%s, end=%s, months=%s" % (sid, master_start, master_end, master_months)
+            logger.exception(msg=msg)
 
         # progress
         if (count % 1000) == 0:
