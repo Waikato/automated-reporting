@@ -298,7 +298,7 @@ def import_grade_results(year, csv, isgzip, encoding, email=None, delete=True):
         csvfile.close()
     except Exception as ex:
         msg = traceback.format_exc()
-        logger.exception()
+        logger.error(msg=msg)
         return msg
     finally:
         if delete:
@@ -306,7 +306,7 @@ def import_grade_results(year, csv, isgzip, encoding, email=None, delete=True):
                 os.remove(csv)
             except Exception as ex:
                 msg = traceback.format_exc()
-                logger.exception()
+                logger.error(msg=msg)
                 result = msg
 
     if email is not None:
@@ -423,7 +423,7 @@ def import_coursedefs(year, csv, encoding, email=None, delete=True):
         csvfile.close()
     except Exception as ex:
         msg = traceback.format_exc()
-        logger.exception()
+        logger.error(msg=msg)
         return msg
     finally:
         if delete:
@@ -431,7 +431,7 @@ def import_coursedefs(year, csv, encoding, email=None, delete=True):
                 os.remove(csv)
             except Exception as ex:
                 msg = traceback.format_exc()
-                logger.exception()
+                logger.error(msg=msg)
                 result = msg
 
     if email is not None:
@@ -951,7 +951,7 @@ def import_supervisors(csv, encoding, email=None, delete=True):
                     update_tablestatus(Supervisors._meta.db_table, "Imported " + str(count) + " rows...")
     except Exception as ex:
         msg = traceback.format_exc()
-        logger.exception()
+        logger.error(msg=msg)
         result = msg
     finally:
         if delete:
@@ -959,7 +959,7 @@ def import_supervisors(csv, encoding, email=None, delete=True):
                 os.remove(csv)
             except Exception as ex:
                 msg = traceback.format_exc()
-                logger.exception()
+                logger.error(msg=msg)
                 result = msg
 
     if email is not None:
@@ -1030,7 +1030,7 @@ def import_scholarships(csv, encoding, email=None, delete=True):
 
     except Exception as ex:
         msg = traceback.format_exc()
-        logger.exception()
+        logger.error(msg=msg)
         result = msg
     finally:
         if delete:
@@ -1038,7 +1038,7 @@ def import_scholarships(csv, encoding, email=None, delete=True):
                 os.remove(csv)
             except Exception as ex:
                 msg = traceback.format_exc()
-                logger.exception()
+                logger.error(msg=msg)
                 result = msg
 
     if email is not None:
@@ -1116,7 +1116,7 @@ def import_associatedrole(csv, encoding, email=None, delete=True):
 
     except Exception as ex:
         msg = traceback.format_exc()
-        logger.exception()
+        logger.error(msg=msg)
         result = msg
     finally:
         if delete:
@@ -1124,7 +1124,7 @@ def import_associatedrole(csv, encoding, email=None, delete=True):
                 os.remove(csv)
             except Exception as ex:
                 msg = traceback.format_exc()
-                logger.exception()
+                logger.error(msg=msg)
                 result = msg
 
     if email is not None:
