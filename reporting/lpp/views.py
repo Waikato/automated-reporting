@@ -89,7 +89,7 @@ def output(request):
             year = {1}
             {2}
         ORDER BY
-            paper_master_code ASC
+            paper_occurrence ASC
         """.format(cols, year, schoolsql, GradeResults._meta.db_table)
     logger.debug(sql)
     cursor.execute(sql)
