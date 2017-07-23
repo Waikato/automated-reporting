@@ -14,10 +14,8 @@ def gettempdir():
     """
 
     if reporting.settings.TMP_DIR is not None:
-        print(reporting.settings.TMP_DIR)
         return reporting.settings.TMP_DIR
     else:
-        print(tempfile.gettempdir())
         return tempfile.gettempdir()
 
 
