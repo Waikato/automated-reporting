@@ -15,7 +15,11 @@
             <select name="year">
               {% if years %}
               {% for year in years %}
+              {% if last_year == year %}
+              <option value="{{ year }}" selected>{{ year }}</option>
+              {% else %}
               <option value="{{ year }}">{{ year }}</option>
+              {% endif %}
               {% endfor %}
               {% else %}
               <option value="9999">Not available</option>
@@ -29,7 +33,11 @@
             <select name="school" size="10" multiple>
               {% if schools %}
               {% for school in schools %}
+              {% if school in last_schools %}
+              <option value="{{ school }}" selected>{{ school }}</option>
+              {% else %}
               <option value="{{ school }}">{{ school }}</option>
+              {% endif %}
               {% endfor %}
               {% else %}
               <option value="9999">Not available</option>
@@ -41,8 +49,128 @@
           <td>Type</td>
           <td>
             <select name="type">
+              {% if last_type == "master" %}
+              <option value="master" selected>Master</option>
+              {% else %}
               <option value="master">Master</option>
+              {% endif %}
+              {% if last_type == "occurrence" %}
+              <option value="occurrence" selected>Occurrence</option>
+              {% else %}
               <option value="occurrence">Occurrence</option>
+              {% endif %}
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Display columns</td>
+          <td>
+            <select name="columns" size="10" multiple>
+              {% if "Total Enrolment" in last_columns %}
+              <option value="Total Enrolment" selected>Total Enrolment</option>
+              {% else %}
+              <option value="Total Enrolment">Total Enrolment</option>
+              {% endif %}
+              {% if "Total Passed" in last_columns %}
+              <option value="Total Passed" selected>Total Passed</option>
+              {% else %}
+              <option value="Total Passed">Total Passed</option>
+              {% endif %}
+              {% if "Total Passed %" in last_columns %}
+              <option value="Total Passed %" selected>Total Passed %</option>
+              {% else %}
+              <option value="Total Passed %">Total Passed %</option>
+              {% endif %}
+              {% if "Domestic Total" in last_columns %}
+              <option value="Domestic Total" selected>Domestic Total</option>
+              {% else %}
+              <option value="Domestic Total">Domestic Total</option>
+              {% endif %}
+              {% if "Domestic Passed" in last_columns %}
+              <option value="Domestic Passed" selected>Domestic Passed</option>
+              {% else %}
+              <option value="Domestic Passed">Domestic Passed</option>
+              {% endif %}
+              {% if "Domestic Passed %" in last_columns %}
+              <option value="Domestic Passed %" selected>Domestic Passed %</option>
+              {% else %}
+              <option value="Domestic Passed %">Domestic Passed %</option>
+              {% endif %}
+              {% if "International Total" in last_columns %}
+              <option value="International Total" selected>International Total</option>
+              {% else %}
+              <option value="International Total">International Total</option>
+              {% endif %}
+              {% if "International Passed" in last_columns %}
+              <option value="International Passed" selected>International Passed</option>
+              {% else %}
+              <option value="International Passed">International Passed</option>
+              {% endif %}
+              {% if "International Passed %" in last_columns %}
+              <option value="International Passed %" selected>International Passed %</option>
+              {% else %}
+              <option value="International Passed %">International Passed %</option>
+              {% endif %}
+              {% if "Domestic Level 7 Total" in last_columns %}
+              <option value="Domestic Level 7 Total" selected>Domestic Level 7 Total</option>
+              {% else %}
+              <option value="Domestic Level 7 Total">Domestic Level 7 Total</option>
+              {% endif %}
+              {% if "Domestic Level 7 Passed" in last_columns %}
+              <option value="Domestic Level 7 Passed" selected>Domestic Level 7 Passed</option>
+              {% else %}
+              <option value="Domestic Level 7 Passed">Domestic Level 7 Passed</option>
+              {% endif %}
+              {% if "Domestic Level 7 Passed %" in last_columns %}
+              <option value="Domestic Level 7 Passed %" selected>Domestic Level 7 Passed %</option>
+              {% else %}
+              <option value="Domestic Level 7 Passed %">Domestic Level 7 Passed %</option>
+              {% endif %}
+              {% if "Domestic Level >=8 Total" in last_columns %}
+              <option value="Domestic Level >=8 Total" selected>Domestic Level >=8 Total</option>
+              {% else %}
+              <option value="Domestic Level >=8 Total">Domestic Level >=8 Total</option>
+              {% endif %}
+              {% if "Domestic Level >=8 Passed" in last_columns %}
+              <option value="Domestic Level >=8 Passed" selected>Domestic Level >=8 Passed</option>
+              {% else %}
+              <option value="Domestic Level >=8 Passed">Domestic Level >=8 Passed</option>
+              {% endif %}
+              {% if "Domestic Level >=8 Passed %" in last_columns %}
+              <option value="Domestic Level >=8 Passed %" selected>Domestic Level >=8 Passed %</option>
+              {% else %}
+              <option value="Domestic Level >=8 Passed %">Domestic Level >=8 Passed %</option>
+              {% endif %}
+              {% if "International Level 7 Total" in last_columns %}
+              <option value="International Level 7 Total" selected>International Level 7 Total</option>
+              {% else %}
+              <option value="International Level 7 Total">International Level 7 Total</option>
+              {% endif %}
+              {% if "International Level 7 Passed" in last_columns %}
+              <option value="International Level 7 Passed" selected>International Level 7 Passed</option>
+              {% else %}
+              <option value="International Level 7 Passed">International Level 7 Passed</option>
+              {% endif %}
+              {% if "International Level 7 Passed %" in last_columns %}
+              <option value="International Level 7 Passed %" selected>International Level 7 Passed %</option>
+              {% else %}
+              <option value="International Level 7 Passed %">International Level 7 Passed %</option>
+              {% endif %}
+              {% if "International Level >=8 Total" in last_columns %}
+              <option value="International Level >=8 Total" selected>International Level >=8 Total</option>
+              {% else %}
+              <option value="International Level >=8 Total">International Level >=8 Total</option>
+              {% endif %}
+              {% if "International Level >=8 Passed" in last_columns %}
+              <option value="International Level >=8 Passed" selected>International Level >=8 Passed</option>
+              {% else %}
+              <option value="International Level >=8 Passed">International Level >=8 Passed</option>
+              {% endif %}
+              {% if "International Level >=8 Passed %" in last_columns %}
+              <option value="International Level >=8 Passed %" selected>International Level >=8 Passed %</option>
+              {% else %}
+              <option value="International Level >=8 Passed %">International Level >=8 Passed %</option>
+              {% endif %}
             </select>
           </td>
         </tr>

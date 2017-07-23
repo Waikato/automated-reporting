@@ -16,8 +16,38 @@ import subprocess
 import django_excel as excel
 import logging
 import reporting.tempfile_utils as tempfile_utils
+from dbbackend.models import read_last_parameter, write_last_parameter
 
 logger = logging.getLogger(__name__)
+
+
+DEFAULT_COLUMNS = [
+    "Total Enrolment",
+    "Total Passed",
+    "Total Passed %",
+    "Domestic Total",
+    "Domestic Passed",
+    "Domestic Passed %",
+    "International Total",
+    "International Passed",
+    "International Passed %",
+    "Domestic Level 7 Total",
+    "Domestic Level 7 Passed",
+    "Domestic Level 7 Passed %",
+    "Domestic Level >=8 Total",
+    "Domestic Level >=8 Passed",
+    "Domestic Level >=8 Passed %",
+    "International Level 7 Total",
+    "International Level 7 Passed",
+    "International Level 7 Passed %",
+    "International Level >=8 Total",
+    "International Level >=8 Passed",
+    "International Level >=8 Passed %",
+]
+""" The default columns to display. """
+
+DEFAULT_TYPE = "master"
+""" the default type. """
 
 
 @login_required
@@ -32,7 +62,7 @@ def index(request):
         """ % GradeResults._meta.db_table)
     years = []
     for row in cursor.fetchall():
-        years.append(row[0])
+        years.append(str(row[0]))
 
     # get all schools
     cursor = connection.cursor()
@@ -50,6 +80,10 @@ def index(request):
     context = applist.template_context('lpp')
     context['years'] = years
     context['schools'] = schools
+    context['last_year'] = read_last_parameter(request.user, 'lpp.year', str(years[0]))
+    context['last_schools'] = read_last_parameter(request.user, 'lpp.schools', schools)
+    context['last_type'] = read_last_parameter(request.user, 'lpp.type', DEFAULT_TYPE)
+    context['last_columns'] = read_last_parameter(request.user, 'lpp.columns', DEFAULT_COLUMNS)
     return HttpResponse(template.render(context, request))
 
 
@@ -71,7 +105,17 @@ def output(request):
     if ptype not in ["master", "occurrence"]:
         return create_error_response(request, 'lpp', 'Unsupported type: {0}'.format(ptype))
 
+    response, columns = get_variable_with_error(request, 'lpp', 'columns', as_list=True)
+    if response is not None:
+        return response
+
     formattype = get_variable(request, 'format')
+
+    # save parameters
+    write_last_parameter(request.user, 'lpp.year', str(year))
+    write_last_parameter(request.user, 'lpp.schools', school)
+    write_last_parameter(request.user, 'lpp.type', ptype)
+    write_last_parameter(request.user, 'lpp.columns', columns)
 
     # load data from DB
     if len(school) == 0:
@@ -147,15 +191,20 @@ def output(request):
     # read data
     header = []
     body = []
+    display = []
     with open(genname, 'r') as infile:
         reader = csv.reader(infile)
         first = True
         for row in reader:
             if first:
-                header = row
+                for i, c in enumerate(columns):
+                    if c in columns:
+                        display.append(i)
+                header = [row[i] for i in display]
                 first = False
             else:
-                body.append(row)
+                arow = [row[i] for i in display]
+                body.append(arow)
 
     # generate output
     if formattype in ["csv", "xls"]:
