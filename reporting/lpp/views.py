@@ -197,7 +197,7 @@ def output(request):
         first = True
         for row in reader:
             if first:
-                for i, c in enumerate(columns):
+                for i, c in enumerate(row):
                     if c in columns:
                         display.append(i)
                 header = [row[i] for i in display]
