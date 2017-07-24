@@ -16,7 +16,7 @@ import subprocess
 import django_excel as excel
 import logging
 import reporting.tempfile_utils as tempfile_utils
-from dbbackend.models import read_last_parameter, write_last_parameter
+from dbbackend.models import read_last_parameter, write_last_parameter, TableStatus
 
 logger = logging.getLogger(__name__)
 
@@ -75,11 +75,19 @@ def index(request):
     for row in cursor.fetchall():
         schools.append(row[0])
 
+    # get query date
+    query_date = None
+    rs = TableStatus.objects.all().filter(table=GradeResults._meta.db_table)
+    for r in rs:
+        query_date = r.timestamp
+        break
+
     # configure template
     template = loader.get_template('lpp/index.html')
     context = applist.template_context('lpp')
     context['years'] = years
     context['schools'] = schools
+    context['query_date'] = query_date
     context['last_year'] = read_last_parameter(request.user, 'lpp.year', str(years[0]))
     context['last_schools'] = read_last_parameter(request.user, 'lpp.schools', schools)
     context['last_type'] = read_last_parameter(request.user, 'lpp.type', DEFAULT_TYPE)

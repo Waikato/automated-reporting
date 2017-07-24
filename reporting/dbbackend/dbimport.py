@@ -98,7 +98,9 @@ def queue_import_grade_results(year, csv, isgzip, encoding, email=None):
 
     update_tablestatus(GradeResults._meta.db_table, "Importing...")
     msg = import_grade_results(year, csv, isgzip, encoding, email=email)
-    update_tablestatus(GradeResults._meta.db_table, msg=msg)
+    # query date from import is used when current year
+    if (msg is not None) or (datetime.today().year != year):
+        update_tablestatus(GradeResults._meta.db_table, msg=msg)
 
 
 def import_grade_results(year, csv, isgzip, encoding, email=None, delete=True):
@@ -124,6 +126,8 @@ def import_grade_results(year, csv, isgzip, encoding, email=None, delete=True):
     result = None
 
     set_maintenance_mode(True)
+
+    query_date = None
 
     # delete previous rows for year
     GradeResults.objects.all().filter(year=year).delete()
@@ -265,6 +269,8 @@ def import_grade_results(year, csv, isgzip, encoding, email=None, delete=True):
             r.iscontinuinggrade = int_cell(row, ['iscontinuinggrade'])
             r.ispassgrade = int_cell(row, ['ispassgrade'])
             r.query_date = parse_grade_results_date('query_date', string_cell(row, ['query_date']))
+            if (query_date is None) and (r.query_date is not None):
+                query_date = datetime.strptime(parse_grade_results_date('query_date', string_cell(row, ['query_date'])), "%Y-%m-%d")
             r.enr_year = int_cell(row, ['enr_year', 'enrolment_year'])
             r.enrolment_status = string_cell(row, ['enrolment_status'])
             r.final_grade = string_cell(row, ['final_grade'])
@@ -308,6 +314,10 @@ def import_grade_results(year, csv, isgzip, encoding, email=None, delete=True):
                 msg = traceback.format_exc()
                 logger.error(msg=msg)
                 result = msg
+
+    #
+    if (result is None) and (query_date is not None) and (query_date.year == datetime.today().year):
+        update_tablestatus(GradeResults._meta.db_table, timestamp=query_date)
 
     if email is not None:
         send_email(email, 'Import: grade results', 'Import succeeded' if (result is None) else 'Import failed: ' + result)
@@ -1133,7 +1143,7 @@ def import_associatedrole(csv, encoding, email=None, delete=True):
     return result
 
 
-def update_tablestatus(table, msg=None):
+def update_tablestatus(table, msg=None, timestamp=None):
     """
     Updates the table status of the specified table.
 
@@ -1141,11 +1151,17 @@ def update_tablestatus(table, msg=None):
     :type table: str
     :param msg: the optional message
     :type msg: str
+    :param timestamp: the timestamp of the import (not all imports record the extraction/query date/time)
+    :type timestamp: datetime
     """
+
+    if timestamp is None:
+        timestamp = datetime.now()
+
     TableStatus.objects.all().filter(table=table).delete()
     r = TableStatus()
     r.table = table
-    r.timestamp = datetime.now()
+    r.timestamp = timestamp
     r.message = msg
     r.save()
 
