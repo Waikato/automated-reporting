@@ -125,6 +125,9 @@ def output(request):
     write_last_parameter(request.user, 'lpp.type', ptype)
     write_last_parameter(request.user, 'lpp.columns', columns)
 
+    # add paper code
+    columns.append("Paper Code")
+
     # load data from DB
     if len(school) == 0:
         schoolsql = ""
