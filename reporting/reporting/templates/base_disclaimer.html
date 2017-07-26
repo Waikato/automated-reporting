@@ -18,7 +18,11 @@
         <img alt="Brand" src="/static/img/coat-of-arms_alone_small.png">
       </a>
       <a class="navbar-brand" href="/">Reporting</a>
+      {% if disclaimer_title %}
+      <p class="navbar-text navbar-left">{{ disclaimer_title }}</p>
+      {% else %}
       <p class="navbar-text navbar-left">Disclaimer</p>
+      {% endif %}
     </div>
   </div><!-- /.container-fluid -->
 </nav>
@@ -29,6 +33,7 @@
 
 {% block main %}
 {% endblock %}
+
 </div>
 
 {% block footer %}
