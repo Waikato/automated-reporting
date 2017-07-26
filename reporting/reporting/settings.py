@@ -83,7 +83,7 @@ APPS_LONG = {
     'leave': 'Annual Leave',
     'hr_forms': 'HR Forms',
     'hyperlinkgrades': 'Hyperlink Grades',
-    'lpp': 'Low performing pass-rates',
+    'lpp': 'Low performing provision',
     'supervisors': 'Supervisor Register',
 }
 
