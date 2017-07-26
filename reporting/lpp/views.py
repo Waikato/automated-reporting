@@ -249,3 +249,11 @@ def output(request):
         pass
 
     return response
+
+
+@login_required
+@permission_required("lpp.can_access_lpp")
+def disclaimer(request):
+    template = loader.get_template('lpp/disclaimer.html')
+    context = applist.template_context('lpp')
+    return HttpResponse(template.render(context, request))

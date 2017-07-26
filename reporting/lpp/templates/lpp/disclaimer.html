@@ -1,0 +1,48 @@
+{% extends "base_disclaimer.html" %}
+
+{% block main %}
+
+<h3>{{ title }}</h3>
+
+<div class="panel panel-default">
+  <div class="panel-body">
+      <ol>
+        <li>TEC tends to concentrate on cohorts with 5 EFTS or more (so 40 domestic
+          students or more in a 15 point paper and 30 domestic students or more in
+          a 20 point paper).</li>
+        <li>For papers with several occurrences a year, the enrolments in all these
+          occurrences are combined when a report is made to TEC. So choosing the "Master"
+          type is more likely to be useful at the end of the year. For Semester A grades
+          at the end of Semester A, choosing the "Occurrence" type would be more useful
+          (unless someone wants to combine Semester A and S).</li>
+        <li>TEC's current requirement is for a 60% pass rate for domestic students in
+          Level 7 (or lower) qualifications.</li>
+        <li>The LPP software is required because in papers with students in a mixture
+          of Level 7 and Level 8 quals, just looking at the pass rate for the domestic
+          students as one cohort is not enough.<br/>
+          For example, suppose a 15 point 100 level paper has 120 domestic students with
+          50 of them in a Level 7 qual and the other 70 students in a Level 8 qual. If
+          the number passing out of the 50 is 25 while 60 out of the 70 pass, then the
+          pass rate overall for the 120 domestic students is 85/120 = 70.8%. But the
+          pass rate for the 50 domestic students in the Level 7 qual is just 50%.</li>
+        <li>Any student with an "..." grade or a "blank" grade is excluded from the
+          calculations. This is not consistent with TEC methodology, but the number of
+          students in Level 7 or lower quals with such a grade is low.</li>
+        <li>Students enrolled in a qualification with "Hons" in the title (including
+          conjoints) or in a paper at 500 level or higher are assumed to be in a Level 8
+          or higher qual; any other students are assumed to be in a Level 7 qual.<br/>
+          Since capable students in, say, a BSc may be permitted to take 500 level
+          papers, this assumption will not be true for all students. Also, a student
+          in a conjoint with one component an honours degree and the other component
+          a non-honours degree will not be counted correctly in a paper taken for
+          the non-honours component.</li>
+        <li>Because of the assumptions made under 6. and 7. above, there are limitations.
+          So pass rates are not guaranteed to be exactly correct. It is strongly
+          recommended that any paper having a pass rate for domestic students in Level 7
+          quals of 60% or lower (as given by the output) and with at least five such
+          EFTS be investigated in more detail.</li>
+      </ol>
+  </div>
+</div>
+
+{% endblock %}
