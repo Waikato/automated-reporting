@@ -90,6 +90,7 @@ def index(request):
     context['query_date'] = query_date
     context['last_year'] = read_last_parameter(request.user, 'lpp.year', str(years[0]))
     context['last_schools'] = read_last_parameter(request.user, 'lpp.schools', schools)
+    context['last_paper'] = read_last_parameter(request.user, 'lpp.paper', "")
     context['last_type'] = read_last_parameter(request.user, 'lpp.type', DEFAULT_TYPE)
     context['last_columns'] = read_last_parameter(request.user, 'lpp.columns', DEFAULT_COLUMNS)
     return HttpResponse(template.render(context, request))
@@ -113,6 +114,10 @@ def output(request):
     if ptype not in ["master", "occurrence"]:
         return create_error_response(request, 'lpp', 'Unsupported type: {0}'.format(ptype))
 
+    response, paper = get_variable_with_error(request, 'lpp', 'paper')
+    if paper is None:
+        paper = ''
+
     response, columns = get_variable_with_error(request, 'lpp', 'columns', as_list=True)
     if response is not None:
         return response
@@ -123,16 +128,22 @@ def output(request):
     write_last_parameter(request.user, 'lpp.year', str(year))
     write_last_parameter(request.user, 'lpp.schools', school)
     write_last_parameter(request.user, 'lpp.type', ptype)
+    write_last_parameter(request.user, 'lpp.paper', paper)
     write_last_parameter(request.user, 'lpp.columns', columns)
 
     # add paper code
     columns.append("Paper Code")
 
     # load data from DB
-    if len(school) == 0:
-        schoolsql = ""
+    if len(paper) > 0:
+        if ptype == "master":
+            where = "AND paper_master_code LIKE '" + paper + "' "
+        else:
+            where = "AND paper_occurrence LIKE '" + paper + "' "
+    elif len(school) > 0:
+        where = "AND owning_school_clevel IN ('" + "','".join(school) + "')"
     else:
-        schoolsql = "AND owning_school_clevel IN ('" + "','".join(school) + "')"
+        where = ""
     cols = "owning_school_clevel,paper_master_code,paper_occurrence,prog_abbr,grade,isdomestic,result_status"
     cursor = connection.cursor()
     sql = """
@@ -145,7 +156,7 @@ def output(request):
             {2}
         ORDER BY
             paper_occurrence ASC
-        """.format(cols, year, schoolsql, GradeResults._meta.db_table)
+        """.format(cols, year, where, GradeResults._meta.db_table)
     logger.debug(sql)
     cursor.execute(sql)
 
