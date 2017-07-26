@@ -267,4 +267,5 @@ def output(request):
 def disclaimer(request):
     template = loader.get_template('lpp/disclaimer.html')
     context = applist.template_context('lpp')
+    context['disclaimer_title'] = 'Information & Disclaimer'
     return HttpResponse(template.render(context, request))
