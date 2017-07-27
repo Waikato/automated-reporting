@@ -2,7 +2,7 @@ from django.template import loader
 import reporting.applist as applist
 import reporting.form_utils as form_utils
 from reporting.form_utils import get_variable_with_error, get_variable
-from dbbackend.models import GradeResults
+from dbbackend.models import GradeResults, TableStatus
 from django.db import connection
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required, permission_required
@@ -40,10 +40,18 @@ def index(request):
     for row in cursor.fetchall():
         schools.append(row[0])
 
+    # get query date
+    query_date = None
+    rs = TableStatus.objects.all().filter(table=GradeResults._meta.db_table)
+    for r in rs:
+        query_date = r.timestamp
+        break
+
     # configure template
     template = loader.get_template('al/index.html')
     context = applist.template_context('al')
     context['schools'] = schools
+    context['query_date'] = query_date
     context['last_schools'] = read_last_parameter(request.user, 'al.schools', schools)
     context['last_cutoff'] = read_last_parameter(request.user, 'al.cutoff', "")
     return HttpResponse(template.render(context, request))

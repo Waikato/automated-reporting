@@ -37,6 +37,12 @@
             {% endif %}
           </td>
         </tr>
+        {% if query_date %}
+        <tr>
+          <td>Data as of</td>
+          <td>{{ query_date }}</td>
+        </tr>
+        {% endif %}
         <tr>
           <td><input type="submit" value="Generate"/></td>
           <td></td>
