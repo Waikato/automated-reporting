@@ -1,0 +1,50 @@
+{% extends "base_navbar.html" %}
+
+{% block main %}
+
+<h3>{{ title }}</h3>
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Academic history for student
+      <span style="float: right;">
+        <a class="btn btn-default btn-export" href="{{ csv_url }}" role="button">csv</a>
+        <a class="btn btn-default btn-export" href="{{ xls_url }}" role="button">xls</a></span></h3>
+  </div>
+  <div class="panel-body">
+    <div class="table-responsive">
+      <table class="table">
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Program</th>
+          <th>Faculty/School</th>
+          <th>Paper code</th>
+          <th>Start date</th>
+          <th>Classification</th>
+          <th>Credits</th>
+          <th>Student credit points</th>
+          <th>Grade</th>
+          <th>Grade status</th>
+        </tr>
+        {% for row in papers %}
+        <tr>
+          <td>{{ row|get_item:'studentid' }}</td>
+          <td>{{ row|get_item:'studentname' }}</td>
+          <td>{{ row|get_item:'school' }}</td>
+          <td>{{ row|get_item:'program' }}</td>
+          <td>{{ row|get_item:'paper' }}</td>
+          <td>{{ row|get_item:'start_date' }}</td>
+          <td>{{ row|get_item:'classification' }}</td>
+          <td>{{ row|get_item:'credits' }}</td>
+          <td>{{ row|get_item:'student_credit_points' }}</td>
+          <td>{{ row|get_item:'grade' }}</td>
+          <td>{{ row|get_item:'grade_status' }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

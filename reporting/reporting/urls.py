@@ -20,6 +20,7 @@ from . import views
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
+    url(r'^al/', include('al.urls')),
     url(r'^dbbackend/', include('dbbackend.urls')),
     url(r'^leave/', include('leave.urls')),
     url(r'^hr_forms/', include('hr_forms.urls')),

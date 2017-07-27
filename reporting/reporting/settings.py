@@ -46,6 +46,7 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
+    'al',
     'dbbackend',
     'leave',
     'lpp',
@@ -64,6 +65,7 @@ INSTALLED_APPS = [
 ]
 
 APPS_LIST = [
+    'al',
     'leave',
     'hr_forms',
     'hyperlinkgrades',
@@ -72,6 +74,7 @@ APPS_LIST = [
 ]
 
 APPS_SHORT = {
+    'al': 'Adult Learners',
     'leave': 'Leave',
     'hr_forms': 'HR Forms',
     'hyperlinkgrades': 'Hyperlink Grades',
@@ -80,6 +83,7 @@ APPS_SHORT = {
 }
 
 APPS_LONG = {
+    'al': 'Adult Learners',
     'leave': 'Annual Leave',
     'hr_forms': 'HR Forms',
     'hyperlinkgrades': 'Hyperlink Grades',
@@ -88,6 +92,7 @@ APPS_LONG = {
 }
 
 APPS_PRODUCTION = {
+    'al': False,
     'leave': False,
     'hr_forms': False,
     'hyperlinkgrades': True,

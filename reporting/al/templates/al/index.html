@@ -1,0 +1,49 @@
+{% extends "base_navbar.html" %}
+
+{% block main %}
+
+<h3>{{ title }}</h3>
+
+<div class="panel panel-default">
+  <div class="panel-body">
+    <form action="/al/output" method="POST">
+      {% csrf_token %}
+      <table class="table_params">
+        <tr>
+          <td>Faculty/School</td>
+          <td>
+            <select name="school" size="10" multiple>
+              {% if schools %}
+              {% for school in schools %}
+              {% if school in last_schools %}
+              <option value="{{ school }}" selected>{{ school }}</option>
+              {% else %}
+              <option value="{{ school }}">{{ school }}</option>
+              {% endif %}
+              {% endfor %}
+              {% else %}
+              <option value="9999">Not available</option>
+              {% endif %}
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Cuf-off date (YYYY-MM-DD)</td>
+          <td>
+            {% if last_cutoff %}
+            <input type="date" name="cutoff" value="{{ last_cutoff }}" required/>
+            {% else %}
+            <input type="date" name="cutoff" required/>
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <td><input type="submit" value="Generate"/></td>
+          <td></td>
+        </tr>
+      </table>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
