@@ -93,6 +93,9 @@ def index(request):
     context['last_paper'] = read_last_parameter(request.user, 'lpp.paper', "")
     context['last_type'] = read_last_parameter(request.user, 'lpp.type', DEFAULT_TYPE)
     context['last_columns'] = read_last_parameter(request.user, 'lpp.columns', DEFAULT_COLUMNS)
+    context['last_filter1'] = read_last_parameter(request.user, 'lpp.filter1', "")
+    context['last_operator1'] = read_last_parameter(request.user, 'lpp.operator1', "lt")
+    context['last_value1'] = read_last_parameter(request.user, 'lpp.value1', "")
     return HttpResponse(template.render(context, request))
 
 
@@ -122,6 +125,16 @@ def output(request):
     if response is not None:
         return response
 
+    response, filter1 = get_variable_with_error(request, 'lpp', 'filter1')
+    if filter1 is None:
+        filter1 = ''
+    response, operator1 = get_variable_with_error(request, 'lpp', 'operator1')
+    if operator1 is None:
+        operator1 = 'lt'
+    response, value1 = get_variable_with_error(request, 'lpp', 'value1')
+    if (value1 is None) or (len(value1) == 0):
+        value1 = '0'
+
     formattype = get_variable(request, 'format')
 
     # save parameters
@@ -130,6 +143,9 @@ def output(request):
     write_last_parameter(request.user, 'lpp.type', ptype)
     write_last_parameter(request.user, 'lpp.paper', paper)
     write_last_parameter(request.user, 'lpp.columns', columns)
+    write_last_parameter(request.user, 'lpp.filter1', filter1)
+    write_last_parameter(request.user, 'lpp.operator1', operator1)
+    write_last_parameter(request.user, 'lpp.value1', value1)
 
     # add paper code
     columns.append("Paper Code")
@@ -214,6 +230,8 @@ def output(request):
     header = []
     body = []
     display = []
+    filter1_idx = -1
+    value1_num = float(value1)
     with open(genname, 'r') as infile:
         reader = csv.reader(infile)
         first = True
@@ -222,10 +240,29 @@ def output(request):
                 for i, c in enumerate(row):
                     if c in columns:
                         display.append(i)
+                    if c == filter1:
+                        filter1_idx = i
                 header = [row[i] for i in display]
                 first = False
             else:
                 arow = [row[i] for i in display]
+                if filter1_idx > -1:
+                    if len(row[filter1_idx]) == 0:
+                        continue
+                    try:
+                        curr1 = float(row[filter1_idx].replace('%', ''))
+                    except Exception as e:
+                        continue
+                    if (operator1 == "lt") and (curr1 >= value1_num):
+                        continue
+                    if (operator1 == "le") and (curr1 > value1_num):
+                        continue
+                    if (operator1 == "eq") and (curr1 != value1_num):
+                        continue
+                    if (operator1 == "ge") and (curr1 < value1_num):
+                        continue
+                    if (operator1 == "gt") and (curr1 <= value1_num):
+                        continue
                 body.append(arow)
 
     # generate output

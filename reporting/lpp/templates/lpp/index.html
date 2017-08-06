@@ -178,6 +178,155 @@
             </select>
           </td>
         </tr>
+        <tr>
+          <td>Filter</td>
+          <td>
+            <select name="filter1">
+              {% if "" == last_filter1 %}
+              <option value="" selected></option>
+              {% else %}
+              <option value=""></option>
+              {% endif %}
+              {% if "Total Enrolment" == last_filter1 %}
+              <option value="Total Enrolment" selected>Total Enrolment</option>
+              {% else %}
+              <option value="Total Enrolment">Total Enrolment</option>
+              {% endif %}
+              {% if "Total Passed" == last_filter1 %}
+              <option value="Total Passed" selected>Total Passed</option>
+              {% else %}
+              <option value="Total Passed">Total Passed</option>
+              {% endif %}
+              {% if "Total Passed %" == last_filter1 %}
+              <option value="Total Passed %" selected>Total Passed %</option>
+              {% else %}
+              <option value="Total Passed %">Total Passed %</option>
+              {% endif %}
+              {% if "Domestic Total" == last_filter1 %}
+              <option value="Domestic Total" selected>Domestic Total</option>
+              {% else %}
+              <option value="Domestic Total">Domestic Total</option>
+              {% endif %}
+              {% if "Domestic Passed" == last_filter1 %}
+              <option value="Domestic Passed" selected>Domestic Passed</option>
+              {% else %}
+              <option value="Domestic Passed">Domestic Passed</option>
+              {% endif %}
+              {% if "Domestic Passed %" == last_filter1 %}
+              <option value="Domestic Passed %" selected>Domestic Passed %</option>
+              {% else %}
+              <option value="Domestic Passed %">Domestic Passed %</option>
+              {% endif %}
+              {% if "International Total" == last_filter1 %}
+              <option value="International Total" selected>International Total</option>
+              {% else %}
+              <option value="International Total">International Total</option>
+              {% endif %}
+              {% if "International Passed" == last_filter1 %}
+              <option value="International Passed" selected>International Passed</option>
+              {% else %}
+              <option value="International Passed">International Passed</option>
+              {% endif %}
+              {% if "International Passed %" == last_filter1 %}
+              <option value="International Passed %" selected>International Passed %</option>
+              {% else %}
+              <option value="International Passed %">International Passed %</option>
+              {% endif %}
+              {% if "Domestic Level 7 Total" == last_filter1 %}
+              <option value="Domestic Level 7 Total" selected>Domestic Level 7 Total</option>
+              {% else %}
+              <option value="Domestic Level 7 Total">Domestic Level 7 Total</option>
+              {% endif %}
+              {% if "Domestic Level 7 Passed" == last_filter1 %}
+              <option value="Domestic Level 7 Passed" selected>Domestic Level 7 Passed</option>
+              {% else %}
+              <option value="Domestic Level 7 Passed">Domestic Level 7 Passed</option>
+              {% endif %}
+              {% if "Domestic Level 7 Passed %" == last_filter1 %}
+              <option value="Domestic Level 7 Passed %" selected>Domestic Level 7 Passed %</option>
+              {% else %}
+              <option value="Domestic Level 7 Passed %">Domestic Level 7 Passed %</option>
+              {% endif %}
+              {% if "Domestic Level >=8 Total" == last_filter1 %}
+              <option value="Domestic Level >=8 Total" selected>Domestic Level >=8 Total</option>
+              {% else %}
+              <option value="Domestic Level >=8 Total">Domestic Level >=8 Total</option>
+              {% endif %}
+              {% if "Domestic Level >=8 Passed" == last_filter1 %}
+              <option value="Domestic Level >=8 Passed" selected>Domestic Level >=8 Passed</option>
+              {% else %}
+              <option value="Domestic Level >=8 Passed">Domestic Level >=8 Passed</option>
+              {% endif %}
+              {% if "Domestic Level >=8 Passed %" == last_filter1 %}
+              <option value="Domestic Level >=8 Passed %" selected>Domestic Level >=8 Passed %</option>
+              {% else %}
+              <option value="Domestic Level >=8 Passed %">Domestic Level >=8 Passed %</option>
+              {% endif %}
+              {% if "International Level 7 Total" == last_filter1 %}
+              <option value="International Level 7 Total" selected>International Level 7 Total</option>
+              {% else %}
+              <option value="International Level 7 Total">International Level 7 Total</option>
+              {% endif %}
+              {% if "International Level 7 Passed" == last_filter1 %}
+              <option value="International Level 7 Passed" selected>International Level 7 Passed</option>
+              {% else %}
+              <option value="International Level 7 Passed">International Level 7 Passed</option>
+              {% endif %}
+              {% if "International Level 7 Passed %" == last_filter1 %}
+              <option value="International Level 7 Passed %" selected>International Level 7 Passed %</option>
+              {% else %}
+              <option value="International Level 7 Passed %">International Level 7 Passed %</option>
+              {% endif %}
+              {% if "International Level >=8 Total" == last_filter1 %}
+              <option value="International Level >=8 Total" selected>International Level >=8 Total</option>
+              {% else %}
+              <option value="International Level >=8 Total">International Level >=8 Total</option>
+              {% endif %}
+              {% if "International Level >=8 Passed" == last_filter1 %}
+              <option value="International Level >=8 Passed" selected>International Level >=8 Passed</option>
+              {% else %}
+              <option value="International Level >=8 Passed">International Level >=8 Passed</option>
+              {% endif %}
+              {% if "International Level >=8 Passed %" == last_filter1 %}
+              <option value="International Level >=8 Passed %" selected>International Level >=8 Passed %</option>
+              {% else %}
+              <option value="International Level >=8 Passed %">International Level >=8 Passed %</option>
+              {% endif %}
+            </select>
+            <select name="operator1">
+              {% if "lt" == last_operator1 %}
+              <option value="lt" selected>&lt;</option>
+              {% else %}
+              <option value="lt">&lt;</option>
+              {% endif %}
+              {% if "le" == last_operator1 %}
+              <option value="le" selected>&lt;=</option>
+              {% else %}
+              <option value="le">&lt;=</option>
+              {% endif %}
+              {% if "eq" == last_operator1 %}
+              <option value="eq" selected>=</option>
+              {% else %}
+              <option value="eq">=</option>
+              {% endif %}
+              {% if "ge" == last_operator1 %}
+              <option value="ge" selected>&gt;=</option>
+              {% else %}
+              <option value="ge">&gt;=</option>
+              {% endif %}
+              {% if "gt" == last_operator1 %}
+              <option value="gt" selected>&gt;</option>
+              {% else %}
+              <option value="gt">&gt;</option>
+              {% endif %}
+            </select>
+            {% if last_value1 %}
+            <input type="number" min="0" name="value1" value="{{ last_value1 }}"/>
+            {% else %}
+            <input type="number" min="0" name="value1"/>
+            {% endif %}
+          </td>
+        </tr>
         {% if query_date %}
         <tr>
           <td>Data as of</td>
