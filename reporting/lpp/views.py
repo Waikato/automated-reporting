@@ -188,12 +188,18 @@ def output(request):
         outfile.flush()
     logger.info("Generated CSV ({0}) exists: ".format(outname, os.path.isfile(outname)))
 
-    # call LPP
+    # file names
     genname = outname.replace(".csv", "-gen.csv")
     stdoutname = outname.replace(".csv", "-stdout.csv")
-    stdoutfile = open(stdoutname, 'wb')
     stderrname = outname.replace(".csv", "-stderr.txt")
+    tmpfiles = [outname, genname, stdoutname, stderrname]
+
+    # file descriptors
+    stdoutfile = open(stdoutname, 'wb')
     stderrfile = open(stderrname, 'wb')
+    tmpfds = [fd, stdoutfile, stderrfile]
+
+    # call LPP
     if reporting.settings.PERLLIB is not None:
         env = dict(os.environ)
         env['PERL5LIB'] = reporting.settings.PERLLIB
@@ -214,17 +220,11 @@ def output(request):
         stderr=stderrfile,
         env=env,
     )
-    try:
-        stdoutfile.close()
-    except:
-        pass
-    try:
-        stderrfile.close()
-    except:
-        pass
+    os_utils.close_files(tmpfds)
     if not os.path.isfile(genname):
         msg = 'Failed to execute lpp! exit code: {1}, command: {0}'.format(" ".join(params), retval)
         logger.error(msg)
+        os_utils.remove_files(tmpfiles)
         return create_error_response(request, 'lpp', msg)
 
     # read data
@@ -280,10 +280,7 @@ def output(request):
         response = HttpResponse(template.render(context, request))
 
     # remove temp files again
-    os_utils.remove_file(outname)
-    os_utils.remove_file(genname)
-    os_utils.remove_file(stdoutname)
-    os_utils.remove_file(stderrname)
+    os_utils.remove_files(tmpfiles)
 
     return response
 
