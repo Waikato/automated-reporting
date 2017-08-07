@@ -16,6 +16,7 @@ import subprocess
 import django_excel as excel
 import logging
 import reporting.tempfile_utils as tempfile_utils
+import reporting.os_utils as os_utils
 from dbbackend.models import read_last_parameter, write_last_parameter, TableStatus
 
 logger = logging.getLogger(__name__)
@@ -279,22 +280,10 @@ def output(request):
         response = HttpResponse(template.render(context, request))
 
     # remove temp files again
-    try:
-        os.remove(outname)
-    except:
-        pass
-    try:
-        os.remove(genname)
-    except:
-        pass
-    try:
-        os.remove(stdoutname)
-    except:
-        pass
-    try:
-        os.remove(stderrname)
-    except:
-        pass
+    os_utils.remove_file(outname)
+    os_utils.remove_file(genname)
+    os_utils.remove_file(stdoutname)
+    os_utils.remove_file(stderrname)
 
     return response
 
