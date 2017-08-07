@@ -213,6 +213,8 @@ try:
     PERL = reporting.settings_custom.PERL
     PERLLIB = reporting.settings_custom.PERLLIB
     LPP_SCRIPT = reporting.settings_custom.LPP_SCRIPT
+    GPA_GRADES = reporting.settings_custom.GPA_GRADES
+    GPA_CALC = reporting.settings_custom.GPA_CALC
     LOCAL_USERS = True
     AUTHENTICATION_TYPE = "local"
     MIDDLEWARE_CLASSES = reporting.settings_custom.MIDDLEWARE_CLASSES
@@ -263,6 +265,8 @@ except ImportError:
     PERL = "/usr/bin/perl"
     PERLLIB = None
     LPP_SCRIPT = "/usr/local/bin/LPP/pass-rates"
+    GPA_GRADES = "/usr/local/bin/GPA/gpa-grades"
+    GPA_CALC = "/usr/local/bin/GPA/gpacalc"
 
     LOCAL_USERS = True
     AUTHENTICATION_TYPE = "local"

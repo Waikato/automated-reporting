@@ -17,9 +17,9 @@
         </tr>
         {% for row in body %}
         <tr>
-          <td><a href="/al/details?student={{ row|get_item:'id' }}">{{ row|get_item:'id' }}</a></td>
-          <td>{{ row|get_item:'name' }}</td>
-          <td>{{ row|get_item:'school' }}</td>
+          {% for col in row %}
+          <td>{{ col }}</td>
+          {% endfor %}
         </tr>
         {% endfor %}
       </table>

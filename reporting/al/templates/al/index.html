@@ -12,10 +12,10 @@
         <tr>
           <td>Faculty/School</td>
           <td>
-            <select name="school" size="10" multiple>
+            <select name="school">
               {% if schools %}
               {% for school in schools %}
-              {% if school in last_schools %}
+              {% if school == last_school %}
               <option value="{{ school }}" selected>{{ school }}</option>
               {% else %}
               <option value="{{ school }}">{{ school }}</option>
@@ -28,12 +28,12 @@
           </td>
         </tr>
         <tr>
-          <td>Cuf-off date (YYYY-MM-DD)</td>
+          <td>Cuf-off date (YYYY-MM)</td>
           <td>
             {% if last_cutoff %}
-            <input type="date" name="cutoff" value="{{ last_cutoff }}" required/>
+            <input type="month" name="cutoff" value="{{ last_cutoff }}" required/>
             {% else %}
-            <input type="date" name="cutoff" required/>
+            <input type="month" name="cutoff" required/>
             {% endif %}
           </td>
         </tr>

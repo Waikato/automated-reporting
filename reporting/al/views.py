@@ -10,6 +10,14 @@ import django_excel as excel
 import logging
 from datetime import datetime
 from dbbackend.models import read_last_parameter, write_last_parameter
+import tempfile
+import reporting.tempfile_utils as tempfile_utils
+import reporting
+from reporting.error import create_error_response
+import csv
+import os
+import subprocess
+import reporting.os_utils as os_utils
 
 logger = logging.getLogger(__name__)
 
@@ -19,11 +27,11 @@ MIN_AGE = 25
 MIN_CREDITS = 96
 """ the minimum credits a student must have. """
 
-MIN_GPA = 8
-""" the minimum GPA that a student has to have. """
-
 PROGRAM_CODES = ['BC', 'BD', 'BH', 'BHC', 'UC', 'UD']
 """ the programme_type_code values that are eligible. """
+
+MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+""" the months for calculating the GPA. """
 
 
 @login_required
@@ -52,111 +60,229 @@ def index(request):
     context = applist.template_context('al')
     context['schools'] = schools
     context['query_date'] = query_date
-    context['last_schools'] = read_last_parameter(request.user, 'al.schools', schools)
+    context['last_school'] = read_last_parameter(request.user, 'al.school', "")
     context['last_cutoff'] = read_last_parameter(request.user, 'al.cutoff', "")
     return HttpResponse(template.render(context, request))
+
+
+def query_to_csv(cursor, cols, outname):
+    """
+    Turns the query into a CSV file for the GPA calculation.
+
+    :param cursor: the database cursor
+    :type cursor: DictCursor
+    :param cols: the header names
+    :type cols: list
+    :param outname: the CSV output filename
+    :type outname: str
+    """
+
+    logger.info("Generating CSV: {0}".format(outname))
+    with open(outname, 'w') as outfile:
+        writer = csv.writer(outfile, quoting=csv.QUOTE_NONNUMERIC)
+        writer.writerow(cols.split(","))
+        for row in cursor.fetchall():
+            writer.writerow(row)
+        outfile.flush()
+    logger.info("Generated CSV ({0}) exists: ".format(outname, os.path.isfile(outname)))
+
+
+def compute_gpa(fname, school, cutoff_date, header, body):
+    """
+    Computes the GPA.
+
+    :param fname: the name of the input CSV file
+    :type fname: str
+    :param school: the name of the school/faculty
+    :type school: str
+    :param cutoff_date: the cut-off date
+    :type cutoff_date: datetime
+    :param header: the list to store the header information in
+    :type header: list
+    :param body: the list to store the body information in
+    :type body: list
+    :return: None if successful, otherwise error message
+    :rtype: str
+    """
+
+    # filenames
+    outgpaname = fname.replace(".csv", "-outgpa.csv")
+    sortedname = fname.replace(".csv", "-sorted.csv")
+    calcname = fname.replace(".csv", "-calc.csv")
+    sorted2name = fname.replace(".csv", "-sorted2.csv")
+    tmpfiles = [outgpaname, sortedname, calcname, sorted2name]
+
+    # call GPA_GRADES
+    if reporting.settings.PERLLIB is not None:
+        env = dict(os.environ)
+        env['PERL5LIB'] = reporting.settings.PERLLIB
+    else:
+        env = None
+    params = [
+        reporting.settings.PERL,
+        reporting.settings.GPA_GRADES,
+        fname,
+        outgpaname,
+        school,
+    ]
+    logger.info("Command: {0}".format(" ".join(params)))
+    retval = subprocess.call(
+        params,
+        env=env,
+    )
+    if not os.path.isfile(outgpaname):
+        msg = 'Failed to execute gpa-grades! exit code: {1}, command: {0}'.format(" ".join(params), retval)
+        logger.error(msg)
+        os_utils.remove_files(tmpfiles)
+        return msg
+
+    # sort
+    retval = subprocess.call(
+        ["/usr/bin/sort", outgpaname, "-o", sortedname],
+        env=env,
+    )
+
+    # call GPA_CALC
+    if reporting.settings.PERLLIB is not None:
+        env = dict(os.environ)
+        env['PERL5LIB'] = reporting.settings.PERLLIB
+    else:
+        env = None
+    params = [
+        reporting.settings.PERL,
+        reporting.settings.GPA_CALC,
+        sortedname,
+        calcname,
+        MONTHS[cutoff_date.month - 1],
+        str(cutoff_date.year - MIN_AGE),
+    ]
+    logger.info("Command: {0}".format(" ".join(params)))
+    retval = subprocess.call(
+        params,
+        env=env,
+    )
+    if not os.path.isfile(calcname):
+        msg = 'Failed to execute gpacalc! exit code: {1}, command: {0}'.format(" ".join(params), retval)
+        logger.error(msg)
+        os_utils.remove_files(tmpfiles)
+        return msg
+
+    # sort (2)
+    retval = subprocess.call(
+        ["/usr/bin/sort", calcname, "-o", sorted2name, "-b", "-t", ",", "-n", "-r", "-k", "5,5", "-k", "6,6"],
+        env=env,
+    )
+
+    # fill header/body
+    header.append("Name")
+    header.append("ID")
+    header.append("BDay (Mon)")
+    header.append("BDay (Year)")
+    header.append("GPA")
+    header.append("Credits")
+    header.append("Programme")
+    with open(sorted2name, 'r') as infile:
+        reader = csv.reader(infile)
+        for row in reader:
+            body.append(row)
+
+    os_utils.remove_files(tmpfiles)
+
+    return None
 
 
 @login_required
 @permission_required("al.can_access_al")
 def output(request):
     # get parameters
-    response, school = get_variable_with_error(request, 'al', 'school', as_list=True)
+    response, school = get_variable_with_error(request, 'al', 'school')
     if response is not None:
         return response
 
     response, cutoff = get_variable_with_error(request, 'al', 'cutoff')
     if response is not None:
         return response
-    cutoff_date = datetime.strptime(cutoff, "%Y-%m-%d")
+    cutoff_date = datetime.strptime(cutoff + "-01", "%Y-%m-%d")
 
     formattype = get_variable(request, 'format')
 
     # save parameters
-    write_last_parameter(request.user, 'al.schools', school)
+    write_last_parameter(request.user, 'al.school', school)
     write_last_parameter(request.user, 'al.cutoff', cutoff)
 
     cursor = connection.cursor()
-    cursor2 = connection.cursor()
 
     last_year = cutoff_date.year - 1
     curr_year = cutoff_date.year
-    sql = """
-          select student_id, owning_school_clevel
-          from {8}
-          where
-              (    ((year = {0}) and (issemesteracourse = 1))
-                or ((year = {0}) and (issemesterbcourse = 1))
-                or ((year = {1}) and (issemesteracourse = 1)))
-          and (dateofbirth < date '{2}' - interval '{3} year')
-          and (credits_per_student >= {4})
-          and (programme_type_code in ('{5}'))
-          and owning_school_clevel in ('{6}')
-          and (gpa >= {7})
-          group by student_id, name, owning_school_clevel
-          having count(distinct(year)) = 2
-          order by owning_school_clevel, name
-          """.format(last_year, curr_year, cutoff, MIN_AGE, MIN_CREDITS, "', '".join(PROGRAM_CODES),
-                     "', '".join(school), MIN_GPA, GradeResults._meta.db_table)
+    last_year_where = "year = {0}".format(last_year)
+    curr_year_where = "(year = {0}) and (issemesteracourse = 1)".format(curr_year)
+    cols = "owning_school_clevel,paper_occurrence,credits,name,student_id,school_of_study_clevel,dateofbirth,prog_abbr,result_status,grade"
+    query = """
+          select 
+            {7}
+          from 
+            {6}
+          where 
+              ({0})
+          and (dateofbirth < date '{1}-01' - interval '{2} year')
+          and (credits_per_student >= {3})
+          and (programme_type_code in ('{4}'))
+          and (owning_school_clevel = '{5}')
+          order by student_id
+          """
+
+    # last year: query
+    sql = query.format(last_year_where, cutoff, MIN_AGE, MIN_CREDITS, "', '".join(PROGRAM_CODES),
+                     school, GradeResults._meta.db_table, cols)
     logger.debug(sql)
     cursor.execute(sql)
-    header = ['Student ID', 'Name', 'Faculty']
-    body = []
-    for row in cursor.fetchall():
-        studentid = row[0]
-        logger.debug("Student ID: " + studentid)
 
-        # check for full enrollment in prior year
-        sql = """
-              select student_id, sum(issemesteracourse) a_sem, sum(issemesterbcourse) b_sem
-              from {2}
-              where student_id = '{0}'
-              and year = {1}
-              group by year, student_id
-              having sum(issemesteracourse) > 0
-              and sum(issemesterbcourse) > 0
-              """.format(studentid, last_year, GradeResults._meta.db_table)
-        logger.debug(sql)
-        cursor2.execute(sql)
-        full = False
-        for row2 in cursor2.fetchall():
-            full = (row2[1] >= 1) and (row2[2] >= 1)
-            logger.info("not full time enrolled")
-            break
-        if not full:
-            continue
+    # last year: generate CSV
+    fd, outname = tempfile.mkstemp(suffix=".csv", prefix="reporting-", dir=tempfile_utils.gettempdir())
+    query_to_csv(cursor, cols, outname)
+    os_utils.close_file(fd)
 
-        # get student details
-        sql = """
-              select name
-              from {2}
-              where student_id = '{0}'
-              and year = {1}
-              limit 1
-              """.format(studentid, curr_year, GradeResults._meta.db_table)
-        logger.debug(sql)
-        cursor2.execute(sql)
-        name = ""
-        for row2 in cursor2.fetchall():
-            name = row2[0]
-            break
+    # last year: calculate GPA
+    last_header = []
+    last_body = []
+    compute_gpa(outname, school, cutoff_date, last_header, last_body)
 
-        bodyrow = dict()
-        bodyrow['id'] = row[0]
-        bodyrow['name'] = name
-        bodyrow['school'] = row[1]
-        body.append(bodyrow)
+    # current year: query
+    sql = query.format(curr_year_where, cutoff, MIN_AGE, MIN_CREDITS, "', '".join(PROGRAM_CODES),
+                     school, GradeResults._meta.db_table, cols)
+    logger.debug(sql)
+    cursor.execute(sql)
+
+    # current year: generate CSV
+    fd, outname = tempfile.mkstemp(suffix=".csv", prefix="reporting-", dir=tempfile_utils.gettempdir())
+    query_to_csv(cursor, cols, outname)
+
+    # current year: calculate GPA
+    curr_header = []
+    curr_body = []
+    compute_gpa(outname, school, cutoff_date, curr_header, curr_body)
+
+    # students have to be good in both years
+    final_header = last_header[:]
+    final_body = []
+    id_idx = last_header.index("ID")
+    last_ids = [row[id_idx] for row in last_body]
+    curr_ids = [row[id_idx] for row in curr_body]
+    both = set(last_ids).intersection(set(curr_ids))
+    for row in curr_body:
+        if row[id_idx] in both:
+            final_body.append(row)
 
     # generate output
     if formattype in ["csv", "xls"]:
-        book = excel.pe.Book({'Adult Learners': [header] + body})
+        book = excel.pe.Book({'Adult Learners': [final_header] + final_body})
         response = excel.make_response(book, formattype, file_name="al-{0}.{1}".format(cutoff, formattype))
         return response
     else:
         template = loader.get_template('al/list.html')
         context = applist.template_context('al')
-        context['header'] = header
-        context['body'] = body
+        context['header'] = final_header
+        context['body'] = final_body
         form_utils.add_export_urls(request, context, "/al/output", ['csv', 'xls'])
         response = HttpResponse(template.render(context, request))
 
