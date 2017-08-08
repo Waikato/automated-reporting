@@ -38,12 +38,32 @@
           </td>
         </tr>
         <tr>
+          <td>Minimum age</td>
+          <td>
+            {% if last_min_age %}
+            <input type="number" name="min_age" min="0.0" value="{{ last_min_age }}"/>
+            {% else %}
+            <input type="number" name="min_age" min="0.0"/>
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
           <td>Minimum GPA</td>
           <td>
             {% if last_min_gpa %}
-            <input type="number" name="min_gpa" value="{{ last_min_gpa }}"/>
+            <input type="number" name="min_gpa" min="0.0" max="9.0" value="{{ last_min_gpa }}"/>
             {% else %}
-            <input type="number" name="min_gpa"/>
+            <input type="number" name="min_gpa" min="0.0" max="9.0"/>
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <td>Minimum points</td>
+          <td>
+            {% if last_min_points %}
+            <input type="number" name="min_points" min="0.0" value="{{ last_min_points }}"/>
+            {% else %}
+            <input type="number" name="min_points" min="0.0"/>
             {% endif %}
           </td>
         </tr>

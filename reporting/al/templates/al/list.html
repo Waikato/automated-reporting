@@ -2,7 +2,7 @@
 
 {% block main %}
 
-<h3>{{ title }} - Suggestions ({{ school }})<span style="float: right;">
+<h3>{{ title }} - Recommendations ({{ school }})<span style="float: right;">
     <a class="btn btn-default btn-export" href="{{ csv_url }}" role="button">csv</a>
     <a class="btn btn-default btn-export" href="{{ xls_url }}" role="button">xls</a></span></h3>
 
@@ -27,7 +27,7 @@
   </div>
 </div>
 
-<h3>{{ title }} - Current year ({{ school }})<span style="float: right;">
+<h3>{{ title }} - {{ curr_year }} ({{ school }})<span style="float: right;">
     <a class="btn btn-default btn-export" href="{{ csv_url }}" role="button">csv</a>
     <a class="btn btn-default btn-export" href="{{ xls_url }}" role="button">xls</a></span></h3>
 
@@ -52,7 +52,7 @@
   </div>
 </div>
 
-<h3>{{ title }} - Last year ({{ school }})<span style="float: right;">
+<h3>{{ title }} - {{ last_year }} ({{ school }})<span style="float: right;">
     <a class="btn btn-default btn-export" href="{{ csv_url }}" role="button">csv</a>
     <a class="btn btn-default btn-export" href="{{ xls_url }}" role="button">xls</a></span></h3>
 

@@ -63,7 +63,9 @@ def index(request):
     context['query_date'] = query_date
     context['last_school'] = read_last_parameter(request.user, 'al.school', "")
     context['last_cutoff'] = read_last_parameter(request.user, 'al.cutoff', "")
-    context['last_min_gpa'] = read_last_parameter(request.user, 'al.min_gpa', "")
+    context['last_min_age'] = read_last_parameter(request.user, 'al.min_age', MIN_AGE)
+    context['last_min_gpa'] = read_last_parameter(request.user, 'al.min_gpa', MIN_CREDITS)
+    context['last_min_points'] = read_last_parameter(request.user, 'al.min_points', "")
     return HttpResponse(template.render(context, request))
 
 
@@ -209,18 +211,32 @@ def output(request):
         return response
     cutoff_date = datetime.strptime(cutoff + "-01", "%Y-%m-%d")
 
+    min_age = get_variable(request, 'min_age')
+    if (min_age is None) or (len(min_age) == 0):
+        min_age = MIN_AGE
+    else:
+        min_gpa = float(min_age)
+
     min_gpa = get_variable(request, 'min_gpa')
     if (min_gpa is None) or (len(min_gpa) == 0):
         min_gpa = 0.0
     else:
         min_gpa = float(min_gpa)
 
+    min_points = get_variable(request, 'min_points')
+    if (min_points is None) or (len(min_points) == 0):
+        min_points = MIN_CREDITS
+    else:
+        min_points = float(min_points)
+
     formattype = get_variable(request, 'format')
 
     # save parameters
     write_last_parameter(request.user, 'al.school', school)
     write_last_parameter(request.user, 'al.cutoff', cutoff)
+    write_last_parameter(request.user, 'al.min_age', min_age)
     write_last_parameter(request.user, 'al.min_gpa', min_gpa)
+    write_last_parameter(request.user, 'al.min_points', min_points)
 
     cursor = connection.cursor()
 
@@ -244,7 +260,7 @@ def output(request):
           """
 
     # last year: query
-    sql = query.format(last_year_where, cutoff, MIN_AGE, MIN_CREDITS, "', '".join(PROGRAM_CODES),
+    sql = query.format(last_year_where, cutoff, min_age, min_points, "', '".join(PROGRAM_CODES),
                      school, GradeResults._meta.db_table, cols)
     logger.debug(sql)
     cursor.execute(sql)
@@ -260,7 +276,7 @@ def output(request):
     compute_gpa(outname, school, cutoff_date, min_gpa, last_header, last_body)
 
     # current year: query
-    sql = query.format(curr_year_where, cutoff, MIN_AGE, MIN_CREDITS, "', '".join(PROGRAM_CODES),
+    sql = query.format(curr_year_where, cutoff, min_age, min_points, "', '".join(PROGRAM_CODES),
                      school, GradeResults._meta.db_table, cols)
     logger.debug(sql)
     cursor.execute(sql)
@@ -297,9 +313,9 @@ def output(request):
     # generate output
     if formattype in ["csv", "xls"]:
         data = OrderedDict()
-        data['AL - Suggestions - {0}'.format(school)] = [final_header] + final_body
-        data['AL - Current year - {0}'.format(school)] = [curr_header] + curr_body
-        data['AL - Last year - {0}'.format(school)] = [last_header] + last_body
+        data['AL - Recommendations - {0}'.format(school)] = [final_header] + final_body
+        data['AL - {1} - {0}'.format(school, curr_year)] = [curr_header] + curr_body
+        data['AL - {1} - {0}'.format(school, last_year)] = [last_header] + last_body
         book = excel.pe.Book(data)
         response = excel.make_response(book, formattype, file_name="al-{0}.{1}".format(cutoff, formattype))
         return response
@@ -308,8 +324,10 @@ def output(request):
         context = applist.template_context('al')
         context['header'] = final_header
         context['body'] = final_body
+        context['curr_year'] = curr_year
         context['curr_header'] = curr_header
         context['curr_body'] = curr_body
+        context['last_year'] = last_year
         context['last_header'] = last_header
         context['last_body'] = last_body
         context['school'] = school
