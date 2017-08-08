@@ -1,4 +1,5 @@
 from django.template import loader
+from collections import OrderedDict
 import reporting.applist as applist
 import reporting.form_utils as form_utils
 from reporting.form_utils import get_variable_with_error, get_variable
@@ -62,6 +63,7 @@ def index(request):
     context['query_date'] = query_date
     context['last_school'] = read_last_parameter(request.user, 'al.school', "")
     context['last_cutoff'] = read_last_parameter(request.user, 'al.cutoff', "")
+    context['last_min_gpa'] = read_last_parameter(request.user, 'al.min_gpa', "")
     return HttpResponse(template.render(context, request))
 
 
@@ -87,7 +89,7 @@ def query_to_csv(cursor, cols, outname):
     logger.info("Generated CSV ({0}) exists: ".format(outname, os.path.isfile(outname)))
 
 
-def compute_gpa(fname, school, cutoff_date, header, body):
+def compute_gpa(fname, school, cutoff_date, min_gpa, header, body):
     """
     Computes the GPA.
 
@@ -97,6 +99,8 @@ def compute_gpa(fname, school, cutoff_date, header, body):
     :type school: str
     :param cutoff_date: the cut-off date
     :type cutoff_date: datetime
+    :param min_gpa: the minimum GPA to include
+    :type min_gpa: flot
     :param header: the list to store the header information in
     :type header: list
     :param body: the list to store the body information in
@@ -176,15 +180,16 @@ def compute_gpa(fname, school, cutoff_date, header, body):
     # fill header/body
     header.append("Name")
     header.append("ID")
-    header.append("BDay (Mon)")
-    header.append("BDay (Year)")
+    header.append("DOB (Mon)")
+    header.append("DOB (Year)")
     header.append("GPA")
-    header.append("Credits")
-    header.append("Programme")
+    header.append("Points")
+    header.append("Qualification")
     with open(sorted2name, 'r') as infile:
         reader = csv.reader(infile)
         for row in reader:
-            body.append(row)
+            if float(row[4]) >= min_gpa:
+                body.append(row)
 
     os_utils.remove_files(tmpfiles)
 
@@ -204,11 +209,18 @@ def output(request):
         return response
     cutoff_date = datetime.strptime(cutoff + "-01", "%Y-%m-%d")
 
+    min_gpa = get_variable(request, 'min_gpa')
+    if (min_gpa is None) or (len(min_gpa) == 0):
+        min_gpa = 0.0
+    else:
+        min_gpa = float(min_gpa)
+
     formattype = get_variable(request, 'format')
 
     # save parameters
     write_last_parameter(request.user, 'al.school', school)
     write_last_parameter(request.user, 'al.cutoff', cutoff)
+    write_last_parameter(request.user, 'al.min_gpa', min_gpa)
 
     cursor = connection.cursor()
 
@@ -245,7 +257,7 @@ def output(request):
     # last year: calculate GPA
     last_header = []
     last_body = []
-    compute_gpa(outname, school, cutoff_date, last_header, last_body)
+    compute_gpa(outname, school, cutoff_date, min_gpa, last_header, last_body)
 
     # current year: query
     sql = query.format(curr_year_where, cutoff, MIN_AGE, MIN_CREDITS, "', '".join(PROGRAM_CODES),
@@ -260,22 +272,35 @@ def output(request):
     # current year: calculate GPA
     curr_header = []
     curr_body = []
-    compute_gpa(outname, school, cutoff_date, curr_header, curr_body)
+    compute_gpa(outname, school, cutoff_date, min_gpa, curr_header, curr_body)
 
     # students have to be good in both years
     final_header = last_header[:]
     final_body = []
     id_idx = last_header.index("ID")
+    gpa_idx = last_header.index("GPA")
+    points_idx = last_header.index("Points")
+    final_header.remove("GPA")
+    final_header.remove("Points")
     last_ids = [row[id_idx] for row in last_body]
     curr_ids = [row[id_idx] for row in curr_body]
     both = set(last_ids).intersection(set(curr_ids))
     for row in curr_body:
         if row[id_idx] in both:
-            final_body.append(row)
+            arow = []
+            for i, c in enumerate(row):
+                if (i == gpa_idx) or (i == points_idx):
+                    continue
+                arow.append(c)
+            final_body.append(arow)
 
     # generate output
     if formattype in ["csv", "xls"]:
-        book = excel.pe.Book({'Adult Learners': [final_header] + final_body})
+        data = OrderedDict()
+        data['AL - Suggestions - {0}'.format(school)] = [final_header] + final_body
+        data['AL - Current year - {0}'.format(school)] = [curr_header] + curr_body
+        data['AL - Last year - {0}'.format(school)] = [last_header] + last_body
+        book = excel.pe.Book(data)
         response = excel.make_response(book, formattype, file_name="al-{0}.{1}".format(cutoff, formattype))
         return response
     else:
@@ -283,6 +308,11 @@ def output(request):
         context = applist.template_context('al')
         context['header'] = final_header
         context['body'] = final_body
+        context['curr_header'] = curr_header
+        context['curr_body'] = curr_body
+        context['last_header'] = last_header
+        context['last_body'] = last_body
+        context['school'] = school
         form_utils.add_export_urls(request, context, "/al/output", ['csv', 'xls'])
         response = HttpResponse(template.render(context, request))
 

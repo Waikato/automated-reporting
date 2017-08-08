@@ -2,7 +2,7 @@
 
 {% block main %}
 
-<h3>{{ title }}<span style="float: right;">
+<h3>{{ title }} - Suggestions ({{ school }})<span style="float: right;">
     <a class="btn btn-default btn-export" href="{{ csv_url }}" role="button">csv</a>
     <a class="btn btn-default btn-export" href="{{ xls_url }}" role="button">xls</a></span></h3>
 
@@ -16,6 +16,56 @@
           {% endfor %}
         </tr>
         {% for row in body %}
+        <tr>
+          {% for col in row %}
+          <td>{{ col }}</td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+</div>
+
+<h3>{{ title }} - Current year ({{ school }})<span style="float: right;">
+    <a class="btn btn-default btn-export" href="{{ csv_url }}" role="button">csv</a>
+    <a class="btn btn-default btn-export" href="{{ xls_url }}" role="button">xls</a></span></h3>
+
+<div class="panel panel-default">
+  <div class="panel-body">
+    <div class="table-responsive">
+      <table class="table">
+        <tr>
+          {% for col in curr_header %}
+          <th>{{ col }}</th>
+          {% endfor %}
+        </tr>
+        {% for row in curr_body %}
+        <tr>
+          {% for col in row %}
+          <td>{{ col }}</td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+</div>
+
+<h3>{{ title }} - Last year ({{ school }})<span style="float: right;">
+    <a class="btn btn-default btn-export" href="{{ csv_url }}" role="button">csv</a>
+    <a class="btn btn-default btn-export" href="{{ xls_url }}" role="button">xls</a></span></h3>
+
+<div class="panel panel-default">
+  <div class="panel-body">
+    <div class="table-responsive">
+      <table class="table">
+        <tr>
+          {% for col in last_header %}
+          <th>{{ col }}</th>
+          {% endfor %}
+        </tr>
+        {% for row in last_body %}
         <tr>
           {% for col in row %}
           <td>{{ col }}</td>

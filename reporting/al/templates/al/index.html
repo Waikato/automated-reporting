@@ -37,6 +37,16 @@
             {% endif %}
           </td>
         </tr>
+        <tr>
+          <td>Minimum GPA</td>
+          <td>
+            {% if last_min_gpa %}
+            <input type="number" name="min_gpa" value="{{ last_min_gpa }}"/>
+            {% else %}
+            <input type="number" name="min_gpa"/>
+            {% endif %}
+          </td>
+        </tr>
         {% if query_date %}
         <tr>
           <td>Data as of</td>
