@@ -64,8 +64,8 @@ def index(request):
     context['last_school'] = read_last_parameter(request.user, 'al.school', "")
     context['last_cutoff'] = read_last_parameter(request.user, 'al.cutoff', "")
     context['last_min_age'] = read_last_parameter(request.user, 'al.min_age', MIN_AGE)
-    context['last_min_gpa'] = read_last_parameter(request.user, 'al.min_gpa', MIN_CREDITS)
-    context['last_min_points'] = read_last_parameter(request.user, 'al.min_points', "")
+    context['last_min_gpa'] = read_last_parameter(request.user, 'al.min_gpa', "")
+    context['last_min_points'] = read_last_parameter(request.user, 'al.min_points', MIN_CREDITS)
     return HttpResponse(template.render(context, request))
 
 
