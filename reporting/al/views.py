@@ -34,6 +34,14 @@ PROGRAM_CODES = ['BC', 'BD', 'BH', 'BHC', 'UC', 'UD']
 MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 """ the months for calculating the GPA. """
 
+HEADER_NAME = "Name"
+HEADER_ID = "ID"
+HEADER_DOB_MONTH = "DOB (Mon)"
+HEADER_DOB_YEAR = "DOB (Year)"
+HEADER_GPA = "GPA"
+HEADER_POINTS = "Points used in GPA calculation"
+HEADER_QUALIFICATION = "Qualification"
+
 
 @login_required
 @permission_required("al.can_access_al")
@@ -180,13 +188,13 @@ def compute_gpa(fname, school, cutoff_date, min_gpa, header, body):
     )
 
     # fill header/body
-    header.append("Name")
-    header.append("ID")
-    header.append("DOB (Mon)")
-    header.append("DOB (Year)")
-    header.append("GPA")
-    header.append("Points")
-    header.append("Qualification")
+    header.append(HEADER_NAME)
+    header.append(HEADER_ID)
+    header.append(HEADER_DOB_MONTH)
+    header.append(HEADER_DOB_YEAR)
+    header.append(HEADER_GPA)
+    header.append(HEADER_POINTS)
+    header.append(HEADER_QUALIFICATION)
     with open(sorted2name, 'r') as infile:
         reader = csv.reader(infile)
         for row in reader:
@@ -293,11 +301,11 @@ def output(request):
     # students have to be good in both years
     final_header = last_header[:]
     final_body = []
-    id_idx = last_header.index("ID")
-    gpa_idx = last_header.index("GPA")
-    points_idx = last_header.index("Points")
-    final_header.remove("GPA")
-    final_header.remove("Points")
+    id_idx = last_header.index(HEADER_ID)
+    gpa_idx = last_header.index(HEADER_GPA)
+    points_idx = last_header.index(HEADER_POINTS)
+    final_header.remove(HEADER_GPA)
+    final_header.remove(HEADER_POINTS)
     last_ids = [row[id_idx] for row in last_body]
     curr_ids = [row[id_idx] for row in curr_body]
     both = set(last_ids).intersection(set(curr_ids))
