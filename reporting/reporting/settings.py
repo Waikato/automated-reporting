@@ -92,7 +92,7 @@ APPS_LONG = {
 }
 
 APPS_PRODUCTION = {
-    'al': False,
+    'al': True,
     'leave': False,
     'hr_forms': False,
     'hyperlinkgrades': True,
