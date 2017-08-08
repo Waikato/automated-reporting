@@ -39,7 +39,7 @@ HEADER_ID = "ID"
 HEADER_DOB_MONTH = "DOB (Mon)"
 HEADER_DOB_YEAR = "DOB (Year)"
 HEADER_GPA = "GPA"
-HEADER_POINTS = "Points used in GPA calculation"
+HEADER_POINTS = "Points¹"
 HEADER_QUALIFICATION = "Qualification"
 
 
