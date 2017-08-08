@@ -255,7 +255,7 @@ def output(request):
           and (dateofbirth < date '{1}-01' - interval '{2} year')
           and (credits_per_student >= {3})
           and (programme_type_code in ('{4}'))
-          and (owning_school_clevel = '{5}')
+          and (school_of_study_clevel = '{5}')
           order by student_id
           """
 
