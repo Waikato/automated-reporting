@@ -8,6 +8,10 @@
 
 See also the `setup.py` file for complete list of required modules.
 
+## Dependencies
+
+* [LPP](https://github.com/sjoe20/LPP)
+* [GPA](https://github.com/sjoe20/GPA)
 
 ## PostgreSQL
 
@@ -210,6 +214,11 @@ at any given time):
 ## Permissions
 
 Below are the application-specific permissions:
+
+* Adult learners
+
+  * `al.can_access_al` - is allowed to use the application 
+  * `al.can_manage_al` - *reserved*
 
 * Leave
 
