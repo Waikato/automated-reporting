@@ -127,3 +127,16 @@ def bool_cell(row, names, defvalue=None):
                 else:
                     return bool(row[name])
     return result
+
+
+def escape_quotes(s):
+    """
+    Escapes single quotes in the string by doubling them up.
+
+    :param s: the string to process
+    :type s: str
+    :return: the processed string
+    :rtype: str
+    """
+
+    return s.replace("'", "''")
