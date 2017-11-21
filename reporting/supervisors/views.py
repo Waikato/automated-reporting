@@ -9,6 +9,7 @@ from supervisors.models import StudentDates, Supervisors, Scholarship, Associate
 from dbbackend.models import GradeResults
 from reporting.error import create_error_response
 from reporting.settings import REPORTING_OPTIONS
+from reporting.db import escape_quotes
 import reporting.applist as applist
 from reporting.form_utils import get_variable_with_error, get_variable
 import traceback
@@ -717,7 +718,7 @@ def search_by_supervisor(request):
         where lower(a.person) like '%%%s%%'
         and a.active = True
         order by a.person
-        """ % (StudentDates._meta.db_table, AssociatedRole._meta.db_table, name.lower())
+        """ % (StudentDates._meta.db_table, AssociatedRole._meta.db_table, escape_quotes(name.lower()))
     cursor = connection.cursor()
     cursor.execute(sql)
     results = list()
@@ -789,7 +790,7 @@ def list_by_supervisor(request):
         and sd.months >= %f
         group by sd.school, sd.department, a.person, a.student_id, sd.program
         order by sd.school, sd.department, a.person, a.student_id, sd.program
-        """ % (StudentDates._meta.db_table, AssociatedRole._meta.db_table, name, start_year, sql_active, min_months)
+        """ % (StudentDates._meta.db_table, AssociatedRole._meta.db_table, escape_quotes(name), start_year, sql_active, min_months)
     cursor = connection.cursor()
     cursor.execute(sql)
     result = dict()
@@ -895,7 +896,7 @@ def search_by_student(request):
             and a.program = sd.program
             group by a.student_id, sd.program, a.student
             order by a.student_id, sd.program, a.student
-            """ % (StudentDates._meta.db_table, AssociatedRole._meta.db_table, name.lower())
+            """ % (StudentDates._meta.db_table, AssociatedRole._meta.db_table, escape_quotes(name.lower()))
     cursor = connection.cursor()
     cursor.execute(sql)
     results = list()
