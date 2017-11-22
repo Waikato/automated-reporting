@@ -111,7 +111,7 @@ def database_studentdates(request):
 
 
 @login_required
-@permission_required("dbbackend.can_acess_table_status")
+@permission_required("dbbackend.can_access_table_status")
 def database_tablestatus(request):
     template = loader.get_template('dbbackend/table_status.html')
     tables = []
