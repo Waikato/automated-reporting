@@ -10,7 +10,7 @@ setup(
     url="https://github.com/Waikato/automated-reporting",
     packages=find_packages(),
     install_requires=[
-        "Django",
+        "Django >= 1.11, < 2.0",  # supported till 2020 https://www.djangoproject.com/download/
         "ldap3",
         "django-python3-ldap>=0.9.14",
         "psycopg2",
